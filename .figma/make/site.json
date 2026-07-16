@@ -1,0 +1,10 @@
+{
+  "description": "Showcase your professional journey with a sleek, responsive one-page portfolio designed for AI Product Engineers, emphasizing technical expertise and impactful projects.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

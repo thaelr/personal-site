@@ -22,6 +22,104 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+body {
+  background-color: #0c0c0b;
+  overflow-x: hidden;
+}
+
+.hero-cta {
+  position: relative;
+  display: inline-flex;
+  min-width: 12rem;
+  height: 3rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(237, 234, 227, 0.38);
+  background: transparent;
+  color: #edeae3;
+  opacity: 0.8;
+  transition:
+    opacity 200ms ease,
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+
+.hero-cta:focus-visible,
+.hero-cta:hover {
+  border-color: rgba(237, 234, 227, 0.62);
+  background-color: rgba(237, 234, 227, 0.03);
+  opacity: 1;
+  outline: none;
+}
+
+.hero-cta__label {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-cta__bracket {
+  position: absolute;
+  top: 50%;
+  transition: transform 200ms ease;
+}
+
+.hero-cta__bracket--left {
+  left: 1rem;
+  transform: translateY(-50%);
+}
+
+.hero-cta__bracket--right {
+  right: 1rem;
+  transform: translateY(-50%);
+}
+
+.hero-cta:focus-visible .hero-cta__bracket--left,
+.hero-cta:hover .hero-cta__bracket--left {
+  transform: translate(-0.38em, -50%);
+}
+
+.hero-cta:focus-visible .hero-cta__bracket--right,
+.hero-cta:hover .hero-cta__bracket--right {
+  transform: translate(0.38em, -50%);
+}
+
+.hero-portrait-shell {
+  background-color: #070606;
+}
+
+.hero-portrait-image {
+  transform: scale(1.18) translateY(2%);
+  transform-origin: center bottom;
+  -webkit-mask-image: radial-gradient(
+    82% 76% at 50% 34%,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 42%,
+    rgba(0, 0, 0, 0.96) 55%,
+    rgba(0, 0, 0, 0.78) 70%,
+    rgba(0, 0, 0, 0.42) 84%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    82% 76% at 50% 34%,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 42%,
+    rgba(0, 0, 0, 0.96) 55%,
+    rgba(0, 0, 0, 0.78) 70%,
+    rgba(0, 0, 0, 0.42) 84%,
+    transparent 100%
+  );
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+@media (min-width: 1024px) {
+  .hero-portrait-image {
+    transform: scale(1.3) translate(4%, 4%);
+  }
+}
+
 ::-webkit-scrollbar {
   width: 0;
   background: transparent;

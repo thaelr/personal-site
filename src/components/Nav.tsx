@@ -3,57 +3,47 @@ interface NavProps {
 }
 
 const NAV_ITEMS = [
-  { id: 'home', num: '01', label: 'HOME' },
-  { id: 'work', num: '02', label: 'WORK' },
-  { id: 'about', num: '03', label: 'ABOUT' },
-  { id: 'contact', num: '04', label: 'CONTACT' },
+  { id: "home", num: "01", label: "HOME" },
+  { id: "work", num: "02", label: "WORK" },
+  { id: "about", num: "03", label: "ABOUT" },
+  { id: "contact", num: "04", label: "CONTACT" },
 ]
 
 function scrollTo(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
 }
 
 export default function Nav({ activeSection }: NavProps) {
-  const activeIdx = NAV_ITEMS.findIndex(i => i.id === activeSection)
-  const currentItem = NAV_ITEMS[activeIdx]
+  const activeIdx = NAV_ITEMS.findIndex((i) => i.id === activeSection)
+  const desktopOffsets = [0, -8, -16, -24]
+  const mobileOffsets = [0, -3, -6, -9]
 
   return (
     <>
-      {/* Desktop: drum/chamber nav */}
-      <nav className="fixed right-0 top-0 h-full z-50 hidden lg:flex flex-col justify-center">
-        {/* Vertical track line */}
-        <div className="absolute right-[148px] top-[15%] bottom-[15%] w-px bg-rule opacity-60" />
-
-        <ul className="flex flex-col items-end pr-10 gap-0">
+      <nav className="pointer-events-none fixed bottom-[max(1.4rem,3svh)] right-[max(1rem,3vw)] z-50 hidden lg:block">
+        <ul className="flex flex-col items-end gap-2">
           {NAV_ITEMS.map((item, idx) => {
             const isActive = item.id === activeSection
             const dist = Math.abs(idx - activeIdx)
-            const opacity = isActive ? 1 : dist === 1 ? 0.28 : 0.14
+            const opacity = isActive ? 1 : dist === 1 ? 0.5 : 0.34
 
             return (
               <li key={item.id}>
                 <button
                   onClick={() => scrollTo(item.id)}
-                  style={{ opacity, transform: `translateX(${isActive ? 0 : dist * 10}px)` }}
-                  className="flex flex-col items-end text-right transition-all duration-350 cursor-pointer py-1 group"
+                  style={{
+                    opacity,
+                    transform: `translateX(${desktopOffsets[idx]}px)`,
+                  }}
+                  className="pointer-events-auto block text-right font-mono uppercase tracking-[0.18em] transition-all duration-200 ease-out cursor-pointer"
                 >
-                  {/* Number */}
-                  <div
-                    className={[
-                      'font-mono font-bold leading-none tracking-tight transition-all duration-350',
-                      isActive ? 'text-chalk' : 'text-chalk',
-                    ].join(' ')}
-                    style={{ fontSize: isActive ? '4.2rem' : '1.05rem' }}
+                  <span
+                    className={isActive ? "text-chalk" : "text-fog"}
+                    style={{ fontSize: isActive ? "0.96rem" : "0.82rem" }}
                   >
-                    {item.num}
-                  </div>
-                  {/* Label */}
-                  <div
-                    className="font-mono uppercase tracking-[0.22em] text-chalk transition-all duration-350 mt-px"
-                    style={{ fontSize: isActive ? '10px' : '7.5px', opacity: isActive ? 0.55 : 0.7 }}
-                  >
-                    {item.label}
-                  </div>
+                    {item.num} {item.label}
+                    {isActive ? " <" : ""}
+                  </span>
                 </button>
               </li>
             )
@@ -61,30 +51,28 @@ export default function Nav({ activeSection }: NavProps) {
         </ul>
       </nav>
 
-      {/* Mobile: vertical tab with current section number */}
-      <div className="lg:hidden fixed right-0 top-1/2 -translate-y-1/2 z-50">
-        <button
-          onClick={() => {
-            const next = NAV_ITEMS[(activeIdx + 1) % NAV_ITEMS.length]
-            scrollTo(next.id)
-          }}
-          className="bg-void border-l border-t border-b border-dim flex flex-col items-center justify-center px-[7px] py-5 gap-1"
-        >
-          <span
-            className="font-mono font-bold text-chalk leading-none [writing-mode:vertical-rl] rotate-180"
-            style={{ fontSize: '1.1rem' }}
-          >
-            {currentItem?.num}
-          </span>
-          <span className="block w-px h-2 bg-fog/30" />
-          <span
-            className="font-mono text-fog/50 uppercase tracking-[0.14em] [writing-mode:vertical-rl] rotate-180"
-            style={{ fontSize: '7px' }}
-          >
-            {currentItem?.label}
-          </span>
-        </button>
-      </div>
+      <nav className="pointer-events-none fixed bottom-4 right-3 z-50 lg:hidden">
+        <ul className="flex flex-col items-end gap-1 rounded-[4px] border border-dim/70 bg-void/75 px-3 py-3 backdrop-blur-[3px]">
+          {NAV_ITEMS.map((item, idx) => {
+            const isActive = item.id === activeSection
+
+            return (
+              <li key={item.id}>
+                <button
+                  onClick={() => scrollTo(item.id)}
+                  style={{ transform: `translateX(${mobileOffsets[idx]}px)` }}
+                  className="pointer-events-auto block text-right font-mono text-[0.68rem] uppercase tracking-[0.14em] transition-all duration-200 ease-out cursor-pointer"
+                >
+                  <span className={isActive ? "text-chalk" : "text-fog"}>
+                    {item.num} {item.label}
+                    {isActive ? " <" : ""}
+                  </span>
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      </nav>
     </>
   )
 }

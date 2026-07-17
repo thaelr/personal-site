@@ -35,44 +35,48 @@ function HeroButton({ label, targetId }: HeroButtonProps) {
 export default function HomeSection() {
   return (
     <section id="home" className="relative min-h-[100svh] overflow-hidden">
-      <div className="grid min-h-[100svh] grid-cols-1 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)]">
-        <div className="relative z-20 flex flex-col justify-center px-8 pb-14 pt-24 md:px-14 lg:pl-20 lg:pr-4 lg:pb-16 lg:pt-16">
-          <h1 className="mb-5 max-w-[7ch] text-[clamp(3.6rem,7.2vw,7rem)] font-light leading-[0.86] tracking-[-0.045em] text-chalk">
-            <span className="block">Nikolai</span>
-            <span className="block">Sekushenko</span>
-          </h1>
+      <div className="absolute left-0 top-0 hidden h-full w-1 bg-[#2d4428] lg:block" />
+      <div className="absolute inset-x-0 top-0 hidden h-[11rem] bg-[linear-gradient(180deg,rgba(19,19,17,0.88)_0%,rgba(19,19,17,0.34)_54%,rgba(19,19,17,0)_100%)] lg:block" />
 
-          <div className="mb-10 inline-flex w-fit rounded-[4px] bg-surface px-3 py-2 font-mono text-[clamp(0.7rem,0.9vw,0.9rem)] tracking-[0.28em] text-fog-light uppercase">
-            AI PRODUCT ENGINEER
+      <div className="relative mx-auto min-h-[100svh] max-w-[1440px] px-8 pb-14 pt-24 md:px-14 lg:px-0 lg:pb-0 lg:pt-0">
+        <div className="relative min-h-[100svh] lg:h-[1024px] lg:min-h-[100svh]">
+          <div className="relative z-20 flex flex-col justify-center lg:absolute lg:left-[112px] lg:top-[160px] lg:max-w-[850px]">
+            <h1 className="mb-6 text-[clamp(3.6rem,7.1vw,5.1rem)] font-light leading-[0.92] tracking-[-0.045em] text-chalk lg:mb-7 lg:whitespace-nowrap">
+              <span className="block lg:inline">Nikolai</span>
+              <span className="block lg:ml-[0.22em] lg:inline">Sekushenko</span>
+            </h1>
+
+            <div className="mb-16 inline-flex w-fit rounded-[4px] bg-[#2e2e2c] px-8 py-3 font-mono text-[clamp(0.72rem,1vw,0.98rem)] tracking-[0.16em] text-chalk uppercase lg:mb-[5.8rem]">
+              AI PRODUCT ENGINEER
+            </div>
+
+            <div className="max-w-[53rem]">
+              <p className="mb-7 max-w-[34rem] text-[clamp(1.3rem,2.1vw,1.62rem)] font-light leading-[1.28] text-chalk lg:mb-8">
+                From a Siberian semiconductor lab to a $1.5M e-commerce
+                business and conversational AI products.
+              </p>
+
+              <p className="max-w-[33rem] text-[clamp(1.02rem,1.36vw,1.18rem)] leading-[1.42] text-chalk-dim">
+                Give me a messy problem at the intersection of AI, product, and
+                business. I’ll figure out what actually matters, build the
+                system, and ship it.
+              </p>
+            </div>
+
+            <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:gap-7 lg:mt-[4.2rem] lg:gap-[4.8rem]">
+              <HeroButton label="VIEW WORK" targetId="work" />
+              <HeroButton label="ABOUT ME" targetId="about" />
+            </div>
           </div>
 
-          <div className="max-w-[34rem]">
-            <p className="mb-6 max-w-[31rem] text-[clamp(1rem,1.45vw,1.28rem)] font-light leading-[1.5] text-chalk">
-              From a Siberian semiconductor lab to a $1.5M e-commerce business
-              and conversational AI products.
-            </p>
-
-            <p className="max-w-[29rem] text-[clamp(0.92rem,1.08vw,1rem)] leading-[1.82] text-fog-light">
-              Give me a messy problem at the intersection of AI, product, and
-              business. I’ll figure out what actually matters, build the system,
-              and ship it.
-            </p>
-          </div>
-
-          <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:gap-7">
-            <HeroButton label="VIEW WORK" targetId="work" />
-            <HeroButton label="ABOUT ME" targetId="about" />
-          </div>
-        </div>
-
-        <div className="relative min-h-[22rem] overflow-hidden px-3 pb-3 pt-0 sm:px-5 sm:pb-5 lg:min-h-[100svh] lg:px-0 lg:pb-0">
-          <div className="hero-portrait-shell relative h-[min(92vw,42rem)] min-h-[22rem] w-full lg:h-full lg:min-h-[100svh]">
-            <div className="absolute inset-0 bg-[#070606]" />
-            <img
-              src={heroPortrait}
-              alt="Black-and-white portrait of Nikolai Sekushenko"
-              className="hero-portrait-image absolute inset-0 h-full w-full object-contain object-bottom"
-            />
+          <div className="relative mt-12 min-h-[24rem] overflow-hidden lg:absolute lg:right-[57px] lg:top-[59px] lg:mt-0 lg:h-[693px] lg:w-[693px]">
+            <div className="hero-portrait-shell relative h-[min(96vw,40rem)] min-h-[24rem] w-full lg:h-full">
+              <img
+                src={heroPortrait}
+                alt="Black-and-white portrait of Nikolai Sekushenko"
+                className="hero-portrait-image absolute inset-0 h-full w-full object-cover"
+              />
+            </div>
           </div>
         </div>
       </div>

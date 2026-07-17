@@ -85,51 +85,12 @@ body {
 
 .hero-portrait-shell {
   background-color: #070606;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.015);
 }
 
 .hero-portrait-image {
-  transform: scale(1.08) translateY(1%);
+  transform: scale(1.02);
   transform-origin: center center;
-  filter: saturate(0) contrast(1.04) brightness(0.9);
-  -webkit-mask-image:
-    linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 0.82) 0%,
-      rgba(0, 0, 0, 1) 14%,
-      rgba(0, 0, 0, 1) 74%,
-      rgba(0, 0, 0, 0.78) 89%,
-      rgba(0, 0, 0, 0.2) 100%
-    ),
-    radial-gradient(
-      88% 88% at 50% 44%,
-      rgba(0, 0, 0, 1) 0%,
-      rgba(0, 0, 0, 1) 68%,
-      rgba(0, 0, 0, 0.72) 88%,
-      rgba(0, 0, 0, 0.18) 100%
-    );
-  mask-image:
-    linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 0.82) 0%,
-      rgba(0, 0, 0, 1) 14%,
-      rgba(0, 0, 0, 1) 74%,
-      rgba(0, 0, 0, 0.78) 89%,
-      rgba(0, 0, 0, 0.2) 100%
-    ),
-    radial-gradient(
-      88% 88% at 50% 44%,
-      rgba(0, 0, 0, 1) 0%,
-      rgba(0, 0, 0, 1) 68%,
-      rgba(0, 0, 0, 0.72) 88%,
-      rgba(0, 0, 0, 0.18) 100%
-    );
-  -webkit-mask-composite: source-in;
-  mask-composite: intersect;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
+  filter: grayscale(1);
 }
 
 @media (max-width: 1023px) {
@@ -140,7 +101,7 @@ body {
 
 @media (min-width: 1024px) {
   .hero-portrait-image {
-    transform: scale(1.09) translate(0.8%, 1.2%);
+    transform: scale(1.02);
   }
 
   .hero-cta__bracket--left {
@@ -149,25 +110,6 @@ body {
 
   .hero-cta__bracket--right {
     right: 1.15rem;
-  }
-}
-
-@supports not ((mask-composite: intersect) or (-webkit-mask-composite: source-in)) {
-  .hero-portrait-image {
-    -webkit-mask-image: radial-gradient(
-      88% 88% at 50% 44%,
-      rgba(0, 0, 0, 1) 0%,
-      rgba(0, 0, 0, 1) 70%,
-      rgba(0, 0, 0, 0.7) 88%,
-      rgba(0, 0, 0, 0.16) 100%
-    );
-    mask-image: radial-gradient(
-      88% 88% at 50% 44%,
-      rgba(0, 0, 0, 1) 0%,
-      rgba(0, 0, 0, 1) 70%,
-      rgba(0, 0, 0, 0.7) 88%,
-      rgba(0, 0, 0, 0.16) 100%
-    );
   }
 }
 

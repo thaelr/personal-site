@@ -15,17 +15,17 @@ function scrollTo(id: string) {
 
 export default function Nav({ activeSection }: NavProps) {
   const activeIdx = NAV_ITEMS.findIndex((i) => i.id === activeSection)
-  const desktopOffsets = [0, -4, -2, 2]
+  const desktopOffsets = [0, 6, 8, 10]
   const mobileOffsets = [0, -3, -6, -9]
 
   return (
     <>
-      <nav className="pointer-events-none fixed bottom-[3.1rem] right-[2.9rem] z-50 hidden lg:block">
-        <ul className="flex flex-col items-end gap-[0.35rem]">
+      <nav className="pointer-events-none fixed bottom-[12.6rem] right-[2.2rem] z-50 hidden lg:block">
+        <ul className="flex flex-col items-end gap-[0.45rem]">
           {NAV_ITEMS.map((item, idx) => {
             const isActive = item.id === activeSection
             const dist = Math.abs(idx - activeIdx)
-            const opacity = isActive ? 1 : dist === 1 ? 0.66 : 0.48
+            const opacity = isActive ? 1 : dist === 1 ? 0.82 : 0.64
 
             return (
               <li key={item.id}>
@@ -35,11 +35,11 @@ export default function Nav({ activeSection }: NavProps) {
                     opacity,
                     transform: `translateX(${desktopOffsets[idx]}px)`,
                   }}
-                  className="pointer-events-auto block text-right font-mono uppercase tracking-[0.14em] transition-all duration-200 ease-out cursor-pointer"
+                  className="pointer-events-auto block text-right font-mono uppercase tracking-[0.12em] transition-all duration-200 ease-out cursor-pointer"
                 >
                   <span
                     className={isActive ? "text-chalk" : "text-fog"}
-                    style={{ fontSize: isActive ? "0.84rem" : "0.65rem" }}
+                    style={{ fontSize: isActive ? "1.08rem" : "0.9rem" }}
                   >
                     {item.num} {item.label}
                     {isActive ? " <" : ""}

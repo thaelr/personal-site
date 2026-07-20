@@ -1,19 +1,25 @@
+import { NAV_ITEMS } from "./Nav"
 import heroPortrait from "../hero-portrait.png"
+
+type HomeSectionProps = {
+  activeSection: string
+}
 
 type HeroButtonProps = {
   label: string
   targetId: string
+  sizeClassName: string
 }
 
-function HeroButton({ label, targetId }: HeroButtonProps) {
-  function scrollTo(id: string) {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
-  }
+function scrollTo(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
+}
 
+function HeroButton({ label, targetId, sizeClassName }: HeroButtonProps) {
   return (
     <button
       onClick={() => scrollTo(targetId)}
-      className="hero-cta font-mono text-[12px] tracking-[0.22em] uppercase"
+      className={`hero-cta ${sizeClassName} font-mono tracking-[0.22em] uppercase`}
     >
       <span
         aria-hidden="true"
@@ -32,58 +38,97 @@ function HeroButton({ label, targetId }: HeroButtonProps) {
   )
 }
 
-export default function HomeSection() {
+export default function HomeSection({ activeSection }: HomeSectionProps) {
+  const activeIdx = NAV_ITEMS.findIndex((i) => i.id === activeSection)
+
   return (
-    <section id="home" className="relative min-h-[100svh] overflow-hidden">
-      <div className="absolute left-0 top-0 hidden h-full w-1 bg-[#2d4428] lg:block" />
-      <div className="absolute inset-x-0 top-0 hidden h-[11rem] bg-[linear-gradient(180deg,rgba(19,19,17,0.88)_0%,rgba(19,19,17,0.34)_54%,rgba(19,19,17,0)_100%)] lg:block" />
+    <section id="home" className="hero-home">
+      <div className="hero-home__rule" />
 
-      <div className="relative mx-auto min-h-[100svh] max-w-[1440px] px-8 pb-14 pt-24 md:px-14 lg:px-0 lg:pb-0 lg:pt-0">
-        <div className="relative min-h-[100svh] lg:h-[1024px] lg:min-h-[100svh]">
-          <div className="relative z-20 flex flex-col justify-center lg:absolute lg:left-[112px] lg:top-[140px] lg:max-w-[850px]">
-            <h1 className="mb-6 text-[clamp(3.6rem,7.3vw,5.2rem)] font-light leading-[0.92] tracking-[-0.045em] text-chalk lg:mb-6 lg:whitespace-nowrap">
-              Nikolai Sekushenko
-            </h1>
+      <div className="hero-home__inner">
+        <div className="hero-home__grid">
+          <div className="hero-home__content">
+            <h1 className="hero-home__name">Nikolai Sekushenko</h1>
 
-            <div className="mb-16 inline-flex w-fit rounded-[4px] bg-[#2e2e2c] px-8 py-3 font-mono text-[clamp(0.72rem,1vw,0.98rem)] tracking-[0.16em] text-chalk uppercase lg:mb-[5.6rem]">
+            <div className="hero-home__badge font-mono uppercase">
               AI PRODUCT ENGINEER
             </div>
 
-            <div className="max-w-[55rem]">
-              <p className="mb-7 max-w-[34rem] text-[clamp(1.3rem,2.1vw,1.62rem)] font-light leading-[1.28] text-chalk lg:mb-8 lg:max-w-[53rem]">
-                <span className="lg:block">
+            <div className="hero-home__copy">
+              <p className="hero-home__career">
+                <span className="hero-home__line hero-home__line--desktop">
                   From a Siberian semiconductor lab to a $1.5M
                 </span>
-                <span className="lg:block">
+                <span className="hero-home__line hero-home__line--desktop">
                   e-commerce business and conversational AI products.
                 </span>
               </p>
 
-              <p className="max-w-[33rem] text-[clamp(1.02rem,1.36vw,1.18rem)] leading-[1.42] text-chalk-dim lg:max-w-[35rem]">
-                <span className="lg:block">
+              <p className="hero-home__offer">
+                <span className="hero-home__line hero-home__line--desktop">
                   Give me a messy problem at the intersection of AI,
                 </span>
-                <span className="lg:block">
+                <span className="hero-home__line hero-home__line--desktop hero-home__line--offer-wide">
                   product, and business. I’ll figure out what actually matters,
                 </span>
-                <span className="lg:block">build the system, and ship it.</span>
+                <span className="hero-home__line hero-home__line--desktop hero-home__line--offer-wide">
+                  build the system, and ship it.
+                </span>
+                <span className="hero-home__line hero-home__line--desktop hero-home__line--offer-compact">
+                  product, and business. I’ll figure out what actually matters,
+                  build the system, and ship it.
+                </span>
               </p>
             </div>
-
-            <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:gap-7 lg:mt-[4.2rem] lg:gap-[4.8rem]">
-              <HeroButton label="VIEW WORK" targetId="work" />
-              <HeroButton label="ABOUT ME" targetId="about" />
+            <div className="hero-home__actions">
+              <HeroButton
+                label="VIEW WORK"
+                targetId="work"
+                sizeClassName="hero-cta--work"
+              />
+              <HeroButton
+                label="ABOUT ME"
+                targetId="about"
+                sizeClassName="hero-cta--about"
+              />
             </div>
           </div>
 
-          <div className="relative mt-12 min-h-[24rem] overflow-hidden lg:absolute lg:right-[57px] lg:top-[59px] lg:mt-0 lg:h-[693px] lg:w-[693px]">
-            <div className="hero-portrait-shell relative h-[min(96vw,40rem)] min-h-[24rem] w-full bg-[#070606] lg:h-full">
+          <div className="hero-home__photo-wrap">
+            <div className="hero-portrait-shell hero-home__photo-shell">
               <img
                 src={heroPortrait}
                 alt="Black-and-white portrait of Nikolai Sekushenko"
-                className="hero-portrait-image absolute inset-0 h-full w-full object-cover"
+                className="hero-portrait-image hero-home__photo-image"
               />
             </div>
+
+            <nav className="hero-photo-nav pointer-events-none hidden lg:block">
+              <ul className="hero-nav__list">
+                {NAV_ITEMS.map((item, idx) => {
+                  const isActive = item.id === activeSection
+                  const dist = Math.abs(idx - activeIdx)
+                  const opacity = isActive ? 1 : dist === 1 ? 0.8 : 0.66
+
+                  return (
+                    <li key={item.id}>
+                      <button
+                        onClick={() => scrollTo(item.id)}
+                        style={{ opacity }}
+                        className={`hero-nav__button pointer-events-auto font-mono uppercase transition-opacity duration-200 ease-out cursor-pointer ${
+                          isActive
+                            ? "hero-nav__button--active"
+                            : "hero-nav__button--inactive"
+                        }`}
+                      >
+                        {item.num} {item.label}
+                        {isActive ? " <" : ""}
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
+            </nav>
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Courier Prime', ui-monospace, monospace;
+  --hero-nav-bottom: 8%;
 
   --color-void: #0c0c0b;
   --color-chalk: #edeae3;
@@ -27,16 +28,161 @@ body {
   overflow-x: hidden;
 }
 
+.hero-home {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  background: #080808;
+}
+
+.hero-home__rule {
+  position: absolute;
+  left: 4px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #2a2a2a;
+}
+
+.hero-home__inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1577px;
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: clamp(5.5rem, 8vw, 7.375rem) clamp(1.5rem, 4vw, 3rem) clamp(3.5rem, 6vw, 4.5rem);
+}
+
+.hero-home__grid {
+  display: grid;
+  min-height: calc(100svh - clamp(9rem, 14vw, 11.5rem));
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 2.75rem;
+}
+
+.hero-home__content {
+  position: relative;
+  z-index: 3;
+  max-width: 54.125rem;
+}
+
+.hero-home__name {
+  max-width: 50.1875rem;
+  color: #fafafa;
+  font-size: clamp(3.35rem, 8vw, 5rem);
+  font-weight: 300;
+  line-height: 0.93;
+  letter-spacing: -0.045em;
+}
+
+.hero-home__badge {
+  display: inline-flex;
+  width: max-content;
+  min-height: 2.875rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: #2a2a2a;
+  box-sizing: border-box;
+  padding-inline: 0.68em;
+  padding-block: 0;
+  color: #fafafa;
+  font-size: clamp(0.9rem, 1.7vw, 1.55rem);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.hero-home__copy {
+  max-width: 54rem;
+}
+
+.hero-home__career {
+  margin-top: clamp(3.5rem, 7vw, 5.5rem);
+  max-width: 54rem;
+  color: #fafafa;
+  font-size: clamp(1.75rem, 2.15vw, 2rem);
+  font-weight: 300;
+  line-height: 1.1;
+}
+
+.hero-home__offer {
+  margin-top: 1.8125rem;
+  max-width: 51.4375rem;
+  color: rgb(250 250 250 / 0.8);
+  font-size: clamp(1.15rem, 1.6vw, 1.5rem);
+  line-height: 1.17;
+}
+
+.hero-home__line {
+  display: block;
+}
+
+.hero-home__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: clamp(2.8rem, 7vw, 4.8125rem);
+}
+
+.hero-home__photo-wrap {
+  position: relative;
+  width: min(100%, 50.1875rem);
+  margin-left: auto;
+}
+
+.hero-photo-nav {
+  position: absolute;
+  right: 0;
+  bottom: var(--hero-nav-bottom);
+  z-index: 4;
+}
+
+.hero-home__photo-shell {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #070606;
+  z-index: 1;
+}
+
+.hero-home__photo-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    linear-gradient(135deg, #080808 0%, rgb(8 8 8 / 0.94) 24%, transparent 68%) top left / 24% 24% no-repeat,
+    linear-gradient(225deg, #080808 0%, rgb(8 8 8 / 0.94) 24%, transparent 68%) top right / 22% 22% no-repeat,
+    linear-gradient(45deg, #080808 0%, rgb(8 8 8 / 0.92) 24%, transparent 70%) bottom left / 22% 22% no-repeat,
+    linear-gradient(315deg, #080808 0%, rgb(8 8 8 / 0.92) 24%, transparent 70%) bottom right / 21% 21% no-repeat,
+    linear-gradient(to bottom, #080808 0%, rgb(8 8 8 / 0.82) 38%, transparent 100%) top / 100% 12% no-repeat,
+    linear-gradient(to right, #080808 0%, rgb(8 8 8 / 0.74) 40%, transparent 100%) left / 10% 100% no-repeat,
+    linear-gradient(to left, #080808 0%, rgb(8 8 8 / 0.68) 38%, transparent 100%) right / 8% 100% no-repeat,
+    linear-gradient(to top, #080808 0%, rgb(8 8 8 / 0.78) 38%, transparent 100%) bottom / 100% 10% no-repeat;
+}
+
+.hero-home__photo-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .hero-cta {
   position: relative;
   display: inline-flex;
-  min-width: 17.8125rem;
   height: 3.875rem;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(237, 234, 227, 0.38);
-  background: transparent;
-  color: #edeae3;
+  border: 1px solid rgb(250 250 250 / 0.8);
+  background: #080808;
+  color: #fafafa;
   opacity: 0.8;
   transition:
     opacity 200ms ease,
@@ -44,10 +190,18 @@ body {
     background-color 200ms ease;
 }
 
+.hero-cta--work {
+  width: 17.8125rem;
+}
+
+.hero-cta--about {
+  width: 15.9375rem;
+}
+
 .hero-cta:focus-visible,
 .hero-cta:hover {
-  border-color: rgba(237, 234, 227, 0.62);
-  background-color: rgba(237, 234, 227, 0.03);
+  border-color: rgb(250 250 250 / 1);
+  background-color: rgb(250 250 250 / 0.03);
   opacity: 1;
   outline: none;
 }
@@ -64,12 +218,12 @@ body {
 }
 
 .hero-cta__bracket--left {
-  left: 1rem;
+  left: 0.5rem;
   transform: translateY(-50%);
 }
 
 .hero-cta__bracket--right {
-  right: 1rem;
+  right: 0.5rem;
   transform: translateY(-50%);
 }
 
@@ -88,28 +242,231 @@ body {
 }
 
 .hero-portrait-image {
-  transform: scale(1.02);
-  transform-origin: center center;
   filter: grayscale(1);
 }
 
+.hero-nav__list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.hero-nav__button {
+  display: block;
+  color: #fafafa;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.hero-home__line--offer-compact {
+  display: none;
+}
+
+.hero-nav__button--active {
+  font-size: 1.375rem;
+  line-height: 1;
+}
+
+.hero-nav__button--inactive {
+  font-size: 1.375rem;
+  line-height: 1;
+}
+
 @media (max-width: 1023px) {
+  .hero-home__rule {
+    display: none;
+  }
+
+  .hero-home__badge {
+    margin-top: 1.5rem;
+  }
+
   .hero-cta {
-    min-width: min(100%, 17.8125rem);
+    width: min(100%, 17.8125rem);
+  }
+
+  .hero-home__actions {
+    flex-direction: column;
+  }
+
+  .hero-home__photo-wrap {
+    width: 100%;
+    max-width: 40rem;
+  }
+
+  .hero-home__photo-shell {
+    min-height: 24rem;
   }
 }
 
 @media (min-width: 1024px) {
-  .hero-portrait-image {
-    transform: scale(1.02);
+  :root {
+    --hero-scale: min(1, calc(100vw / 1920px), calc(100svh / 1080px));
+    --hero-photo-size: calc(50.1875rem * var(--hero-scale));
+    --hero-overlap: calc(-5.625rem * var(--hero-scale));
+    --hero-working-height: calc(100svh - var(--hero-padding-top) - var(--hero-padding-bottom));
+    --hero-row-size: calc(var(--hero-working-height) / 10);
+    --hero-name-size: calc(5rem * var(--hero-scale));
+    --hero-name-line: calc(4.625rem * var(--hero-scale));
+    --hero-name-width: calc(50.1875rem * var(--hero-scale));
+    --hero-badge-height: calc(2.875rem * var(--hero-scale));
+    --hero-badge-font: calc(2rem * var(--hero-scale));
+    --hero-badge-margin-top: calc(2.0625rem * var(--hero-scale));
+    --hero-copy-width: calc(54rem * var(--hero-scale));
+    --hero-career-size: calc(2rem * var(--hero-scale));
+    --hero-career-line: calc(2.1875rem * var(--hero-scale));
+    --hero-career-margin-top: calc(5.5rem * var(--hero-scale));
+    --hero-offer-width: calc(51.4375rem * var(--hero-scale));
+    --hero-offer-size: calc(1.5rem * var(--hero-scale));
+    --hero-offer-line: calc(1.75rem * var(--hero-scale));
+    --hero-offer-margin-top: calc(1.8125rem * var(--hero-scale));
+    --hero-actions-margin-top: calc(var(--hero-offer-margin-top) * 3);
+    --hero-action-gap: calc(6.4375rem * var(--hero-scale));
+    --hero-button-height: calc(3.875rem * var(--hero-scale));
+    --hero-button-work-width: calc(17.8125rem * var(--hero-scale));
+    --hero-button-about-width: calc(15.9375rem * var(--hero-scale));
+    --mono-ui-size: calc(1.375rem * var(--hero-scale));
+    --hero-button-font: var(--mono-ui-size);
+    --hero-button-bracket-offset: calc(0.575rem * var(--hero-scale));
+    --hero-nav-size: var(--mono-ui-size);
+    --hero-nav-gap: calc(1rem * var(--hero-scale));
+    --hero-padding-top: calc(7.375rem * var(--hero-scale));
+    --hero-padding-bottom: calc(4.5rem * var(--hero-scale));
+  }
+
+  .hero-home__inner {
+    max-width: none;
+    margin: 0;
+    padding-top: var(--hero-padding-top);
+    padding-right: 0;
+    padding-bottom: var(--hero-padding-bottom);
+    padding-left: 0;
+  }
+
+  .hero-home__grid {
+    width: 100%;
+    min-height: var(--hero-working-height);
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    grid-template-rows: repeat(10, minmax(0, 1fr));
+    gap: 0;
+    align-items: stretch;
+  }
+
+  .hero-home__content {
+    display: flex;
+    flex-direction: column;
+    grid-column: 2 / 6;
+    grid-row: 2 / 8;
+    align-self: start;
+    max-width: var(--hero-copy-width);
+    margin-right: var(--hero-overlap);
+  }
+
+  .hero-home__name {
+    max-width: var(--hero-name-width);
+    white-space: nowrap;
+    font-size: var(--hero-name-size);
+    line-height: var(--hero-name-line);
+  }
+
+  .hero-home__badge {
+    width: max-content;
+    min-height: var(--hero-badge-height);
+    margin-top: var(--hero-badge-margin-top);
+    font-size: var(--hero-badge-font);
+  }
+
+  .hero-home__career {
+    max-width: var(--hero-copy-width);
+    margin-top: var(--hero-career-margin-top);
+    font-size: var(--hero-career-size);
+    line-height: var(--hero-career-line);
+  }
+
+  .hero-home__offer {
+    max-width: var(--hero-offer-width);
+    margin-top: var(--hero-offer-margin-top);
+    font-size: var(--hero-offer-size);
+    line-height: var(--hero-offer-line);
+  }
+
+  .hero-home__actions {
+    flex-wrap: nowrap;
+    gap: var(--hero-action-gap);
+    margin-top: calc(var(--hero-offer-margin-top) * 3);
+  }
+
+  .hero-home__photo-wrap {
+    grid-column: 6 / 10;
+    grid-row: 1 / 9;
+    align-self: start;
+    width: min(100%, var(--hero-photo-size));
+    margin-top: 0;
+    justify-self: end;
+    z-index: 1;
+  }
+
+  .hero-nav__list {
+    gap: var(--hero-nav-gap);
+  }
+
+  .hero-nav__button {
+    font-size: var(--hero-nav-size);
+    line-height: 1;
+  }
+
+  .hero-nav__button--active {
+    font-size: var(--hero-nav-size);
+  }
+
+  .hero-nav__button--inactive {
+    font-size: var(--hero-nav-size);
   }
 
   .hero-cta__bracket--left {
-    left: 1.15rem;
+    left: var(--hero-button-bracket-offset);
   }
 
   .hero-cta__bracket--right {
-    right: 1.15rem;
+    right: var(--hero-button-bracket-offset);
+  }
+
+  .hero-cta--work {
+    width: var(--hero-button-work-width);
+  }
+
+  .hero-cta--about {
+    width: var(--hero-button-about-width);
+  }
+
+  .hero-cta {
+    height: var(--hero-button-height);
+    font-size: var(--hero-button-font);
+  }
+}
+
+@media (min-width: 1024px) and (max-height: 1080px) {
+  .hero-home__line--offer-wide {
+    display: none;
+  }
+
+  .hero-home__line--offer-compact {
+    display: block;
+  }
+}
+
+@media (max-width: 959px) {
+  .hero-home__grid {
+    min-height: auto;
+  }
+
+  .hero-nav__button--active {
+    font-size: 1rem;
+  }
+
+  .hero-nav__button--inactive {
+    font-size: 0.78rem;
   }
 }
 

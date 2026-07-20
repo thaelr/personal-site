@@ -2,7 +2,7 @@ interface NavProps {
   activeSection: string
 }
 
-const NAV_ITEMS = [
+export const NAV_ITEMS = [
   { id: "home", num: "01", label: "HOME" },
   { id: "work", num: "02", label: "WORK" },
   { id: "about", num: "03", label: "ABOUT" },
@@ -14,43 +14,10 @@ function scrollTo(id: string) {
 }
 
 export default function Nav({ activeSection }: NavProps) {
-  const activeIdx = NAV_ITEMS.findIndex((i) => i.id === activeSection)
-  const desktopOffsets = [0, 6, 8, 10]
   const mobileOffsets = [0, -3, -6, -9]
 
   return (
     <>
-      <nav className="pointer-events-none fixed bottom-[12.6rem] right-[2.2rem] z-50 hidden lg:block">
-        <ul className="flex flex-col items-end gap-[0.45rem]">
-          {NAV_ITEMS.map((item, idx) => {
-            const isActive = item.id === activeSection
-            const dist = Math.abs(idx - activeIdx)
-            const opacity = isActive ? 1 : dist === 1 ? 0.82 : 0.64
-
-            return (
-              <li key={item.id}>
-                <button
-                  onClick={() => scrollTo(item.id)}
-                  style={{
-                    opacity,
-                    transform: `translateX(${desktopOffsets[idx]}px)`,
-                  }}
-                  className="pointer-events-auto block text-right font-mono uppercase tracking-[0.12em] transition-all duration-200 ease-out cursor-pointer"
-                >
-                  <span
-                    className={isActive ? "text-chalk" : "text-fog"}
-                    style={{ fontSize: isActive ? "1.08rem" : "0.9rem" }}
-                  >
-                    {item.num} {item.label}
-                    {isActive ? " <" : ""}
-                  </span>
-                </button>
-              </li>
-            )
-          })}
-        </ul>
-      </nav>
-
       <nav className="pointer-events-none fixed bottom-4 right-3 z-50 lg:hidden">
         <ul className="flex flex-col items-end gap-1 rounded-[4px] border border-dim/70 bg-void/75 px-3 py-3 backdrop-blur-[3px]">
           {NAV_ITEMS.map((item, idx) => {

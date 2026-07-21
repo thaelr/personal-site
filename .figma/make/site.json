@@ -1,7 +1,15 @@
 {
+  "title": "Niko — AI Engineer",
   "description": "Showcase your professional journey with a sleek, responsive one-page portfolio designed for AI Product Engineers, emphasizing technical expertise and impactful projects.",
+  "language": "en",
+  "icons": {
+    "icon": "favicon.svg"
+  },
+  "openGraph": {
+    "image": "https://thaelr.github.io/personal-site/og-cover.jpg"
+  },
   "robots": {
-    "index": false
+    "index": true
   },
   "accessibility": {
     "addBypassLinks": false,

@@ -1,300 +1,698 @@
-import { useState } from 'react'
+import {
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react"
 
-interface Chapter {
-  id: string
-  num: string
+type HighlightPart = {
+  text: string
+  highlight?: boolean
+  breakAfter?: boolean
+}
+
+type ECommerceStep = {
   title: string
-  company: string
-  dates: string
-  takeaway: string
-  metric: string
-  annotation?: string
-  annotationRotate?: string
+  paragraphs: string[]
+  note?: string
+  compact?: boolean
+  drips?: boolean
+}
+
+type AiProduct = {
+  label: string
   paragraphs: string[]
 }
 
-const CHAPTERS: Chapter[] = [
+type CareerChapterData = {
+  id: "physics" | "procurement" | "ecommerce" | "ai"
+  eyebrow: string
+  title: string
+  progress: number
+  summary?: HighlightPart[]
+  tags?: string[]
+  intro?: string[]
+  callouts?: string[]
+  followup?: string[]
+  lifecycleLabel?: string
+  lifecycleItems?: string[]
+  asideNotes?: string[]
+  steps?: ECommerceStep[]
+  monoClosing?: string[]
+  closing?: string[]
+  products?: AiProduct[]
+  authorComment?: string[]
+}
+
+type ParagraphTone = "default" | "primary" | "mono"
+
+const CAREER_CHAPTERS: CareerChapterData[] = [
   {
-    id: 'chapter-1',
-    num: '01',
-    title: 'The Rzhanov Institute in Siberia',
-    company: 'Institute of Catalysis, SB RAS',
-    dates: '2018 – 2020',
-    takeaway: 'First encounter with research infrastructure and experimental data systems.',
-    metric: '14 months on-site',
-    annotation: '← cold, methodical, and worth it',
-    annotationRotate: '-2deg',
-    paragraphs: [
-      'Placeholder paragraph one. This is where full narrative text about the Rzhanov Institute period will appear when expanded. The work involved research processes, data handling, and an introduction to scientific infrastructure.',
-      'Placeholder paragraph two. Additional context about the formative period, key learnings, and how this experience shaped subsequent professional choices.',
-      'Placeholder paragraph three. A concluding observation on what this chapter meant in the overall arc of the career.',
+    id: "physics",
+    eyebrow: "2018-2020 / PHYSICS RESEARCH INSTITUTE",
+    title: "The Rzhanov Institute in Siberia",
+    progress: 0.25,
+    summary: [
+      { text: "Learned how to turn " },
+      { text: "systems that cannot be observed directly", highlight: true },
+      { text: " into ", breakAfter: true },
+      { text: "computable models", highlight: true },
+      { text: " and " },
+      { text: "measurable signals", highlight: true },
+    ],
+    intro: [
+      "I started my career during my third year at university, when I joined a theoretical physics laboratory. I had always been drawn to the fundamental side of science: abstractions and mathematical models.",
+      "My first project involved studying a non-trivial quantum system: an exciton confined within a two-dimensional ring geometry. The task came down to solving the Schrödinger equation by reformulating it as a matrix problem and calculating the system’s allowed energy states.",
+    ],
+    callouts: [
+      "In practice, the work consisted of turning an abstract quantum system into a computable model and extracting physically meaningful properties from it.",
+      "The challenge was to understand what was happening inside the process from indirect measurements and identify the conditions that consistently produced high-quality material.",
+    ],
+    followup: [
+      "In my second year at the institute, I moved to an experimental laboratory.",
+      "There, I studied the growth conditions of mercury cadmium telluride, a semiconductor material used in high-sensitivity infrared detectors. Using optical measurement techniques, particularly ellipsometry, I monitored material growing inside a vacuum chamber.",
+    ],
+    authorComment: [
+      "To be honest, I expected to become a theoretical physicist. But theoretical physics in Siberia turned out to be a fairly bleak place. My only colleague under fifty was a PhD student who said he punished himself by sleeping on the floor whenever his research went badly. =(",
+      "So I defended my bachelor’s thesis in experimental laboratory and went off to make money.",
     ],
   },
   {
-    id: 'chapter-2',
-    num: '02',
-    title: 'Supplying the State',
-    company: 'State procurement / government supply chain',
-    dates: '2019 – 2021',
-    takeaway: 'Learned how large organizations actually move, decide, and get stuck.',
-    metric: '₽ — procurement volume, TBD',
-    annotation: 'this is where logistics stopped being abstract',
-    annotationRotate: '1.5deg',
-    paragraphs: [
-      'Placeholder paragraph one. Full account of the state-supply period: procurement complexity, stakeholder navigation, and understanding institutional decision-making from the inside.',
-      'Placeholder paragraph two. Specific learnings about operational constraints, timeline pressures, and working within bureaucratic systems.',
-      'Placeholder paragraph three. How this translated into later product instincts — especially around feasibility and delivery risk.',
+    id: "procurement",
+    eyebrow: "2019-2021 / Public Procurement Entrepreneur",
+    title: "Supplying the State",
+    progress: 0.5,
+    summary: [
+      { text: "More than 100 completed contracts", highlight: true },
+      { text: " " },
+      { text: "Average contract value: $6,000", highlight: true },
+    ],
+    intro: [
+      "During an academic break, I took a temporary job at a small company that worked with public tenders. My responsibilities were initially simple: find relevant procurement procedures and prepare applications.",
+      "I learned the process quickly and realized that I could run the same business independently if I found the capital required to execute the contracts.",
+      "The company’s founders were preparing to sell the business. We had a good relationship, so they explained in considerable detail how I could build the operation myself. Soon afterwards, I found financial partners and began executing my first contracts while preparing to defend my bachelor’s thesis.",
+    ],
+    callouts: [
+      "On paper, this may sound fairly uneventful. In practice, it was an extremely concentrated business education: I learned quickly that decisions have a real price, and there was rarely time to get bored.",
+    ],
+    lifecycleLabel:
+      "The main business was supplying home appliances. I managed the entire contract lifecycle myself:",
+    lifecycleItems: [
+      "1. Obtained accreditation on government procurement platforms, prepared documentation, and handled supplier compliance requirements.",
+      "2. Identified tenders, estimated margins, selected suppliers, locked in pricing before bidding, and decided which opportunities were commercially worth pursuing.",
+      "3. Prepared bid packages, participated in electronic auctions, won contracts, and managed the signing process.",
+      "4. Purchased goods, organized logistics, resolved problems during delivery and acceptance, and maintained relationships with customers after completion.",
+      "5. Advised other companies on supplier registration, bank guarantees, contract security, procurement software, and how to escape whatever tender-related catastrophe they had managed to create.",
+    ],
+    authorComment: [
+      "By the end of 2021, the low barrier to entry had driven competition up, and maintaining margins meant taking on increasingly complex contracts. That kind of contract business was stressful and hard to scale, so I went to one of my financial partners, who ran a home-appliance e-commerce business, and proposed taking it over.",
     ],
   },
   {
-    id: 'chapter-3',
-    num: '03',
-    title: 'E-commerce in a Wartime Economy',
-    company: 'E-commerce operations',
-    dates: '2021 – 2025',
-    takeaway: 'Operated under genuine uncertainty. Kept things running. Learned when to cut.',
-    metric: '4 years · high volatility',
-    annotation: '← first time managing a real deadline',
-    annotationRotate: '-1.8deg',
-    paragraphs: [
-      'Placeholder paragraph one. This period covers operating an e-commerce business during a period of severe economic disruption. Supply chains, currency volatility, and demand unpredictability were constant factors.',
-      'Placeholder paragraph two. Product and operational decisions made under real pressure. What worked, what failed, and what stayed permanently in the decision-making toolkit.',
-      'Placeholder paragraph three. The transition from running operations to building AI products: how accumulated operational instincts informed a new direction.',
+    id: "ecommerce",
+    eyebrow: "2021-2025 / LLC SIBVEZ - Head of E-commerce",
+    title: "E-commerce in a Wartime Economy",
+    progress: 0.75,
+    summary: [
+      { text: "$1.5M in annual revenue", highlight: true },
+      { text: " " },
+      { text: "Thousands of SKUs", highlight: true },
+      { text: " " },
+      { text: "Four years of end-to-end responsibility" },
+    ],
+    intro: [
+      "I took over what had once been a nationwide home-appliance retail brand — eight years earlier, its billboards had appeared across roughly half of Russia’s regions. By 2022, what remained was a near-loss-making online store with an expensive but outdated website and database, fragmented operations, and no repeatable process for growing sales.",
+      "The store carried just 600–800 products from a single dropshipping supplier, while its technical and operational setup had barely evolved since the retail-chain years.",
+      "Eventually, I turned the store into a profitable business in five simple steps.",
+    ],
+    asideNotes: ["*Wow.*", ":0"],
+    steps: [
+      {
+        title: "1. Rebuilt the operational foundation",
+        paragraphs: [
+          "Started with an outdated, inflexible back office and migrated the business database to a modern platform covering inventory, pricing, API integrations, and bulk product-content operations.",
+        ],
+      },
+      {
+        title: "2. Connected the internal systems",
+        paragraphs: [
+          "Implemented a CRM for order and status management and used it as an additional integration layer with ready-made commercial modules.",
+          "Connected the company’s internal systems with major Russian marketplaces, external services, and later its own website.",
+        ],
+        note: "← Crisis-manager mode: on\nsince February 24.2022",
+      },
+      {
+        title: "3. Launched the website and product-content pipeline",
+        paragraphs: [
+          "Built and launched an OpenCart store with payments, product bundles, promotions, and other commercial features, then connected it to the internal back office.",
+          "Built a custom pipeline for collecting and processing product content, and supervised scraper development for protected sources — including, amusingly, official supplier portals.",
+        ],
+      },
+      {
+        title: "4. Expanded the assortment and supply model",
+        paragraphs: [
+          "Grew the catalogue to several thousand SKUs.",
+          "Negotiated agreements with new suppliers, secured payment deferrals aligned with marketplace payout cycles, expanded the dropshipping model, and selected priority brands for direct purchasing.",
+          "Some products were stored in our own warehouse, while others were placed in regional marketplace warehouses.",
+        ],
+      },
+      {
+        title: "5. Automated what started breaking under scale",
+        paragraphs: [
+          "Developed customer-support procedures, optimized logistics costs, tested new sales channels, and ran the business with a constant focus on reducing operational overhead through automation.",
+          "That started with Excel-based inventory controls and evolved into",
+          "- a custom n8n application for tracking returns and damaged goods, supporting their resale",
+          "- managing warehouse workflows",
+          "- feeding marketplace dashboards tied to my unit-economics model.",
+        ],
+        compact: true,
+        drips: true,
+      },
+    ],
+    authorComment: [
+      "I owned assortment, pricing, promotion, logistics, product content, supplier relationships, business processes, and team operations.",
+      "That also occasionally meant unloading truckloads of refrigerators when someone failed to show up for a shift or we needed to stay on schedule. *lol* =)",
+      "That level of hands-on involvement made the underlying problem obvious: the business required too much manual work and lacked stable processes with clear control points. Wherever an off-the-shelf tool was sufficient, I implemented it. Where it was not, I redesigned the process or built the missing technical layer.",
+      "Over four years, we took the company from a loss-making online store to a business generating approximately $1.5 million in annual revenue. By 2025, however, further investment in the project made very little commercial sense due to the deteriorating economic situation in the country. The brand owner and I decided to wind it down, and I moved into AI product development.",
+    ],
+  },
+  {
+    id: "ai",
+    eyebrow: "2025- / Independent AI Engineer",
+    title: "AI Product Engineer",
+    progress: 1,
+    tags: [
+      "2 products in production",
+      "Own startup ran a successful beta",
+    ],
+    intro: [
+      "I entered AI product development with a strong background in business automation, system integrations, and process design. What I did not yet have was a solid understanding of how modern AI systems actually worked.",
+      "So I started by studying the fundamentals of generative and language models, as well as the architectural principles behind AI system design. After completing several theoretical and practical courses, I began looking for projects where I could apply and develop these skills — and make money from them.",
+    ],
+    products: [
+      {
+        label: "Proprietary Conversational AI Product",
+        paragraphs: [
+          "My main project is a conversational AI product in which the dialogue system is directly connected to generative visual workflows.",
+          "At its core is a dialogue engine built around LLM APIs and orchestrated through n8n. A separate interpretation layer evaluates user behavior and dynamically assembles the instructions used for the next response. Parts of this logic draw on ideas from hidden-state transitions and signal theory.",
+          "Working with a marketer, I completed its first beta test. The purpose was not simply to see whether users would talk to the system, but to test whether it could maintain long sessions, adapt to user behavior, and remain coherent over time.\nDuring the first five days, 289 users created 359 sessions and generated 5,198 dialogue turns. A number of sessions went beyond 150 user messages, while the longest reached 317.\nSince the product depends on sustained attention and engagement, these long conversations were an important signal: users were not just trying the system, but staying inside the dialogue for extended periods.",
+          "In this project, I work as a full-stack engineer who understands who the product is for and how it is sold. Around the dialogue engine, I built the commercial layer for payments and other revenue events, as well as the media pipeline — from LoRA training to large-scale content generation. I also contribute to product and strategic decisions.",
+          "The dialogue technology is the core of the product and the part I can adapt for other businesses where conversation directly affects engagement or revenue.",
+        ],
+      },
+      {
+        label: "AI first-line support line for SMBs",
+        paragraphs: [
+          "Developed a conversational automation system designed for quick integration into small businesses without lengthy client-specific LLM tuning. A customer can describe a request in free form. The system interprets it, evaluates it through a scoring layer, and selects the next step with the least required user effort.",
+          "That may involve sending a predefined information block, collecting the details needed for a business process, transferring the conversation to a human operator, or triggering the application responsible for the next action.",
+          "In one production deployment, I integrated the system with WhatsApp Business API, Chatwoot, and a custom Node.js booking application that connected WhatsApp Flows, an external business system, and an n8n pipeline.",
+        ],
+      },
     ],
   },
 ]
 
-function AccordionChapter({ chapter }: { chapter: Chapter }) {
-  const [open, setOpen] = useState(false)
+const BEST_TAGS = [
+  {
+    text: "End-to-end product development",
+    statusIndicator: true,
+  },
+  {
+    text: "Adapting my technology to your business processes",
+    statusIndicator: true,
+  },
+]
+
+const BEST_PARAGRAPHS = [
+  "A product that’s still part idea, part business problem, part technical mess — that’s where I start.",
+  "I can join the team, take it from idea to launch, and stay involved as it starts meeting real users. Or we can adapt my conversational systems to your product and business processes.",
+  "Anyway, tell me what the product needs to achieve. We’ll work backwards from there.",
+]
+
+function InlineHighlight({ text }: { text: string }) {
+  return <span className="about-inline-highlight">{text}</span>
+}
+
+function renderInlineParts(parts: HighlightPart[]) {
+  return parts.map((part, idx) =>
+    <span key={`${part.text}-${idx}`}>
+      {part.highlight ? <InlineHighlight text={part.text} /> : part.text}
+      {part.breakAfter ? <br /> : null}
+    </span>,
+  )
+}
+
+function WhiteCallout({ text }: { text: string }) {
+  return <div className="about-white-callout">{text}</div>
+}
+
+function ProductLabel({ text }: { text: string }) {
+  return <div className="about-product-label">{text}</div>
+}
+
+function AboutTag({
+  text,
+  statusIndicator = false,
+}: {
+  text: string
+  statusIndicator?: boolean
+}) {
+  return (
+    <span className={`about-tag ${statusIndicator ? "about-tag--status" : ""}`}>
+      {statusIndicator ? <span className="work-tag__lamp" aria-hidden="true" /> : null}
+      <span className="work-tag__text">{text}</span>
+    </span>
+  )
+}
+
+function ProseBlock({
+  paragraphs,
+  tone = "default",
+  className = "",
+}: {
+  paragraphs: string[]
+  tone?: ParagraphTone
+  className?: string
+}) {
+  const toneClassName =
+    tone === "primary"
+      ? "about-prose--primary"
+      : tone === "mono"
+        ? "about-prose--mono"
+        : ""
 
   return (
-    <div className="border-t border-rule">
-      <button
-        className="w-full text-left py-7 lg:py-8 group cursor-pointer"
-        onClick={() => setOpen(v => !v)}
-      >
-        <div className="grid grid-cols-[auto_1fr_auto] gap-x-6 items-start">
-          {/* Chapter number */}
-          <span className="font-mono text-[11px] text-fog/50 tracking-[0.18em] pt-[3px]">
-            {chapter.num}
-          </span>
-
-          {/* Main content */}
-          <div>
-            <div className="flex flex-col md:flex-row md:items-baseline md:gap-6 mb-2">
-              <h3 className="text-[1.2rem] font-normal leading-snug text-chalk group-hover:text-chalk transition-colors">
-                {chapter.title}
-              </h3>
-              <span className="font-mono text-[10px] tracking-[0.16em] text-fog/60 uppercase mt-1 md:mt-0">
-                {chapter.dates}
-              </span>
-            </div>
-            <div className="font-mono text-[10px] tracking-[0.14em] text-fog/50 mb-3">
-              {chapter.company}
-            </div>
-            <div className="text-[0.82rem] text-fog-light leading-relaxed max-w-[520px]">
-              {chapter.takeaway}
-            </div>
-            {/* Metric */}
-            <div className="font-mono text-[10px] tracking-[0.16em] text-fog/45 mt-3 italic">
-              {chapter.metric}
-            </div>
-          </div>
-
-          {/* Expand indicator */}
-          <div className="font-mono text-[11px] text-fog/50 group-hover:text-fog-light transition-colors pt-[3px] select-none">
-            {open ? '−' : '+'}
-          </div>
-        </div>
-      </button>
-
-      {/* Expanded content */}
-      {open && (
-        <div className="pl-[calc(1.5ch+24px)] pb-10 relative">
-          {chapter.paragraphs.map((p, i) => (
-            <p
-              key={i}
-              className="text-[0.86rem] leading-[1.85] text-fog-light max-w-[560px] mb-5 last:mb-0"
-            >
-              {p}
-            </p>
-          ))}
-
-          {/* Annotation */}
-          {chapter.annotation && (
-            <div
-              className="absolute right-8 bottom-8 font-mono text-[10px] italic text-fog/35 hidden lg:block"
-              style={{ transform: `rotate(${chapter.annotationRotate})` }}
-            >
-              {chapter.annotation}
-            </div>
-          )}
-        </div>
-      )}
+    <div className={`about-prose ${toneClassName} ${className}`.trim()}>
+      {paragraphs.map((paragraph) => (
+        <p key={paragraph}>{paragraph}</p>
+      ))}
     </div>
   )
 }
 
-function Annotation({
-  text,
-  rotate,
-  className = '',
+function ECommerceLeadLine() {
+  return (
+    <p className="about-ecommerce-leadline">
+      <span>Eventually, I turned the store into a profitable business in five simple steps.</span>
+      <span className="about-inline-spacer about-inline-spacer--five" aria-hidden="true" />
+      <span className="about-ecommerce-leadline__aside about-ecommerce-leadline__aside--italic">
+        Wow.
+      </span>
+      <span className="about-inline-spacer about-inline-spacer--six" aria-hidden="true" />
+      <span className="about-ecommerce-leadline__aside">:0</span>
+    </p>
+  )
+}
+
+function ECommerceStepCard({ step }: { step: ECommerceStep }) {
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [dripProgress, setDripProgress] = useState(0)
+  const [leftDripHeight, setLeftDripHeight] = useState(0)
+
+  useLayoutEffect(() => {
+    if (!step.drips) return
+
+    let frameId = 0
+
+    const measure = () => {
+      frameId = 0
+
+      if (!cardRef.current || window.innerWidth < 1024) {
+        setDripProgress(0)
+        setLeftDripHeight(0)
+        return
+      }
+
+      const rect = cardRef.current.getBoundingClientRect()
+      const cardStyles = window.getComputedStyle(cardRef.current)
+      const aboutScale = Number.parseFloat(cardStyles.getPropertyValue("--about-scale")) || 1
+      const authorCommentText = cardRef.current
+        .closest(".about-chapter__content")
+        ?.querySelector<HTMLElement>(".about-author-comment__text")
+      const viewportHeight = window.innerHeight
+      const startLine = viewportHeight * 0.85
+      const endLine = viewportHeight * 0.25
+      const nextProgress = Math.min(
+        Math.max((startLine - rect.bottom) / (startLine - endLine), 0),
+        1,
+      )
+      const nextLeftHeight = authorCommentText
+        ? Math.max(authorCommentText.getBoundingClientRect().bottom - rect.bottom + 50 * aboutScale, 0)
+        : 0
+
+      setDripProgress((current) =>
+        Math.abs(current - nextProgress) < 0.001 ? current : nextProgress,
+      )
+      setLeftDripHeight((current) =>
+        Math.abs(current - nextLeftHeight) < 0.5 ? current : nextLeftHeight,
+      )
+    }
+
+    const requestMeasure = () => {
+      if (frameId) return
+      frameId = window.requestAnimationFrame(measure)
+    }
+
+    requestMeasure()
+    window.addEventListener("scroll", requestMeasure, { passive: true })
+    window.addEventListener("resize", requestMeasure)
+
+    return () => {
+      if (frameId) {
+        window.cancelAnimationFrame(frameId)
+      }
+      window.removeEventListener("scroll", requestMeasure)
+      window.removeEventListener("resize", requestMeasure)
+    }
+  }, [step.drips])
+
+  const cardStyle = step.drips
+    ? ({
+        "--about-drip-progress": dripProgress.toString(),
+        "--about-drip-left-height": `${leftDripHeight}px`,
+      } as CSSProperties)
+    : undefined
+
+  return (
+    <div
+      ref={cardRef}
+      className={`about-step-card ${step.note ? "about-step-card--with-note" : ""} ${
+        step.drips ? "about-step-card--with-drips" : ""
+      }`}
+      style={cardStyle}
+    >
+      <div className="about-step-card__title">{step.title}</div>
+      <div
+        className={`about-step-card__body ${
+          step.compact ? "about-step-card__body--compact" : ""
+        }`}
+      >
+        {step.paragraphs.map((paragraph) => (
+          <p key={paragraph}>{paragraph}</p>
+        ))}
+      </div>
+      {step.note ? <div className="about-step-card__note">{step.note}</div> : null}
+      {step.drips ? (
+        <div className="about-step-card__drips" aria-hidden="true">
+          <span className="about-step-card__drip about-step-card__drip--left" />
+          <span className="about-step-card__drip about-step-card__drip--right" />
+          <span className="about-step-card__drip about-step-card__drip--mid-long" />
+          <span className="about-step-card__drip about-step-card__drip--mid-short" />
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function AboutHeader() {
+  return (
+    <>
+      <div className="about-section__eyebrow about-mono">
+        ABOUT / SCIENCE, BUSINESS, AND SYSTEMS
+      </div>
+      <h2 className="about-section__title">A Career Built Around Systems</h2>
+      <p className="about-section__intro">
+        <span className="about-section__intro-line">
+          Physics taught me how to model what I could not observe. Public procurement taught me that decisions have a price.
+        </span>
+        <span className="about-section__intro-line">
+          E-commerce taught me what starts breaking at scale. AI gave me a place to use all three.
+        </span>
+      </p>
+    </>
+  )
+}
+
+function AuthorComment({
+  paragraphs,
+  collapseFirstGap = false,
+  withGuideLine = false,
 }: {
-  text: string
-  rotate: string
-  className?: string
+  paragraphs: string[]
+  collapseFirstGap?: boolean
+  withGuideLine?: boolean
 }) {
   return (
     <div
-      className={`font-mono text-[10px] italic text-fog/30 hidden lg:block absolute ${className}`}
-      style={{ transform: `rotate(${rotate})` }}
+      className={`about-author-comment ${
+        collapseFirstGap ? "about-author-comment--collapse-first" : ""
+      } ${withGuideLine ? "about-author-comment--with-line" : ""}`}
     >
-      {text}
+      {withGuideLine ? <div className="about-author-comment__line" aria-hidden="true" /> : null}
+      <div className="about-author-comment__text">
+        {paragraphs.map((paragraph) => (
+          <p key={paragraph}>{paragraph}</p>
+        ))}
+      </div>
     </div>
+  )
+}
+
+function CareerChapter({
+  chapter,
+  open,
+  onToggle,
+}: {
+  chapter: CareerChapterData
+  open: boolean
+  onToggle: () => void
+}) {
+  const articleRef = useRef<HTMLElement>(null)
+  const titleRef = useRef<HTMLHeadingElement>(null)
+  const lineRef = useRef<HTMLDivElement>(null)
+  const arrowButtonRef = useRef<HTMLButtonElement>(null)
+  const [geometry, setGeometry] = useState({
+    arrowBaseTop: 0,
+    arrowShift: 0,
+    lineOpenWidth: 0,
+  })
+
+  useLayoutEffect(() => {
+    const measure = () => {
+      if (
+        !articleRef.current ||
+        !titleRef.current ||
+        !lineRef.current ||
+        !arrowButtonRef.current
+      ) {
+        return
+      }
+
+      const articleRect = articleRef.current.getBoundingClientRect()
+      const titleRect = titleRef.current.getBoundingClientRect()
+      const lineRect = lineRef.current.getBoundingClientRect()
+      const arrowRect = arrowButtonRef.current.getBoundingClientRect()
+
+      const titleCenter = titleRect.top - articleRect.top + titleRect.height / 2
+      const lineCenter = lineRect.top - articleRect.top + lineRect.height / 2
+      const arrowBaseTop = titleCenter - arrowRect.height / 2
+      const lineToArrowCenter =
+        arrowRect.left + arrowRect.width / 2 - lineRect.left
+
+      setGeometry({
+        arrowBaseTop,
+        arrowShift: lineCenter - titleCenter,
+        lineOpenWidth: Math.max(lineToArrowCenter * chapter.progress, 0),
+      })
+    }
+
+    measure()
+
+    const resizeObserver = new ResizeObserver(() => measure())
+    if (articleRef.current) resizeObserver.observe(articleRef.current)
+    if (titleRef.current) resizeObserver.observe(titleRef.current)
+    if (lineRef.current) resizeObserver.observe(lineRef.current)
+    if (arrowButtonRef.current) resizeObserver.observe(arrowButtonRef.current)
+
+    window.addEventListener("resize", measure)
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener("resize", measure)
+    }
+  }, [chapter.progress, open])
+
+  const chapterStyle = {
+    "--chapter-progress": chapter.progress,
+    "--chapter-arrow-base-top": `${geometry.arrowBaseTop}px`,
+    "--chapter-arrow-shift": `${geometry.arrowShift}px`,
+    "--chapter-line-open-width": `${geometry.lineOpenWidth}px`,
+  } as CSSProperties
+
+  const panelId = `about-panel-${chapter.id}`
+
+  return (
+    <article
+      ref={articleRef}
+      className={`about-chapter ${open ? "is-open" : ""}`}
+      data-chapter-id={chapter.id}
+      style={chapterStyle}
+    >
+      <div className="about-chapter__header">
+        <div className="about-chapter__eyebrow">{chapter.eyebrow}</div>
+        <h3 ref={titleRef} className="about-chapter__title">
+          {chapter.title}
+        </h3>
+        {chapter.summary ? (
+          <p className="about-chapter__summary">{renderInlineParts(chapter.summary)}</p>
+        ) : null}
+        {chapter.tags ? (
+          <div className="about-chapter__tags">
+            {chapter.tags.map((tag) => (
+              <span key={tag} className="about-tag">
+                {tag}
+              </span>
+            ))}
+          </div>
+        ) : null}
+        <div ref={lineRef} className="about-chapter__progress-line" aria-hidden="true" />
+      </div>
+
+      <button
+        ref={arrowButtonRef}
+        type="button"
+        className="about-chapter__arrow-button"
+        aria-expanded={open}
+        aria-controls={panelId}
+        aria-label={`${open ? "Collapse" : "Expand"} ${chapter.title}`}
+        onClick={onToggle}
+      >
+        <span className="about-chapter__arrow">&gt;</span>
+      </button>
+
+      <div id={panelId} className="about-chapter__panel">
+        <div className="about-chapter__panel-inner">
+          <div className="about-chapter__content">
+            {chapter.id === "physics" ? (
+              <>
+                <ProseBlock paragraphs={chapter.intro ?? []} />
+                {chapter.callouts?.[0] ? <WhiteCallout text={chapter.callouts[0]} /> : null}
+                <ProseBlock
+                  paragraphs={chapter.followup ?? []}
+                  className="about-prose--after-callout"
+                />
+                {chapter.callouts?.[1] ? <WhiteCallout text={chapter.callouts[1]} /> : null}
+                {chapter.authorComment ? (
+                  <AuthorComment paragraphs={chapter.authorComment} withGuideLine />
+                ) : null}
+              </>
+            ) : null}
+
+            {chapter.id === "procurement" ? (
+              <>
+                <ProseBlock
+                  tone="primary"
+                  className="about-prose--procurement-intro"
+                  paragraphs={[
+                    `${chapter.intro?.[0] ?? ""} ${chapter.intro?.[1] ?? ""}`.trim(),
+                    chapter.intro?.[2] ?? "",
+                    chapter.lifecycleLabel ?? "",
+                  ].filter(Boolean)}
+                />
+                {chapter.lifecycleLabel ? (
+                  <div className="about-prose about-prose--mono about-prose--dense about-prose--procurement-list">
+                    {chapter.lifecycleItems?.map((item) => (
+                      <p key={item}>{item}</p>
+                    ))}
+                  </div>
+                ) : null}
+                {chapter.callouts?.[0] ? <WhiteCallout text={chapter.callouts[0]} /> : null}
+                {chapter.authorComment ? (
+                  <AuthorComment paragraphs={chapter.authorComment} withGuideLine />
+                ) : null}
+              </>
+            ) : null}
+
+            {chapter.id === "ecommerce" ? (
+              <>
+                <div className="about-prose about-prose--primary about-prose--ecommerce-intro">
+                  <p>{`${chapter.intro?.[0] ?? ""} ${chapter.intro?.[1] ?? ""}`.trim()}</p>
+                  <ECommerceLeadLine />
+                </div>
+                <div className="about-step-card-list">
+                  {chapter.steps?.map((step) => (
+                    <ECommerceStepCard key={step.title} step={step} />
+                  ))}
+                </div>
+                {chapter.authorComment ? (
+                  <AuthorComment
+                    paragraphs={chapter.authorComment}
+                    collapseFirstGap
+                  />
+                ) : null}
+              </>
+            ) : null}
+
+            {chapter.id === "ai" ? (
+              <>
+                <ProseBlock paragraphs={chapter.intro ?? []} tone="primary" />
+                {chapter.products?.map((product) => (
+                  <div key={product.label} className="about-product-block">
+                    <ProductLabel text={product.label} />
+                    <div className="about-prose about-prose--primary about-product-block__prose">
+                      {product.paragraphs.map((paragraph) => (
+                        <p key={paragraph}>{paragraph}</p>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </article>
   )
 }
 
 export default function AboutSection() {
+  const defaultOpenIds = useMemo(() => new Set<string>(), [])
+  const [openIds, setOpenIds] = useState<Set<string>>(defaultOpenIds)
+
+  const toggleChapter = (id: string) => {
+    setOpenIds((current) => {
+      const next = new Set(current)
+
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+
+      return next
+    })
+  }
+
   return (
-    <section id="about" className="py-24 lg:py-32 border-t border-rule">
-      <div className="px-8 md:px-14 lg:pl-20 lg:pr-44">
-        {/* Section header */}
-        <div className="mb-16 lg:mb-20">
-          <div className="font-mono text-[clamp(2.8rem,4.5vw,4rem)] font-bold text-chalk/10 leading-none tracking-tight mb-2">
-            03
-          </div>
-          <div className="font-mono text-[11px] tracking-[0.28em] text-fog uppercase">
-            ABOUT
-          </div>
-        </div>
+    <section id="about" className="about-section">
+      <div className="about-section__inner">
+        <div className="about-section__grid">
+          <AboutHeader />
 
-        {/* Career chapters accordion */}
-        <div className="relative max-w-[780px] mb-20 lg:mb-28">
-          <div className="font-mono text-[10px] tracking-[0.2em] text-fog/40 uppercase mb-10">
-            Earlier chapters
-          </div>
-
-          {/* Annotation: scattered note near accordion */}
-          <div className="relative">
-            <Annotation
-              text="← things I actually learned"
-              rotate="-1.5deg"
-              className="right-[-60px] top-[30px]"
-            />
-            {CHAPTERS.map(ch => (
-              <AccordionChapter key={ch.id} chapter={ch} />
+          <div className="about-section__chapters">
+            {CAREER_CHAPTERS.map((chapter) => (
+              <CareerChapter
+                key={chapter.id}
+                chapter={chapter}
+                open={openIds.has(chapter.id)}
+                onToggle={() => toggleChapter(chapter.id)}
+              />
             ))}
-            <div className="border-t border-rule" />
-          </div>
-        </div>
 
-        {/* ── CURRENT CAREER BLOCK ── */}
-        <div className="relative max-w-[780px] mb-20 lg:mb-28">
-          {/* Annotation */}
-          <Annotation
-            text="still building"
-            rotate="2deg"
-            className="right-[-40px] top-[60px]"
-          />
-
-          <div className="mb-8">
-            <div className="font-mono text-[10px] tracking-[0.2em] text-fog/60 uppercase mb-3">
-              Current
-            </div>
-            <div className="flex flex-col md:flex-row md:items-baseline md:gap-8 mb-6">
-              <h3 className="text-[clamp(1.6rem,3vw,2.6rem)] font-light leading-snug text-chalk tracking-[-0.015em]">
-                AI Product Engineer
-              </h3>
-              <span className="font-mono text-[11px] tracking-[0.16em] text-fog/60">
-                2025 – Present
-              </span>
-            </div>
-          </div>
-
-          <div className="grid lg:grid-cols-[3fr_2fr] gap-x-16 gap-y-8 mb-12">
-            <div>
-              <p className="text-[0.875rem] leading-[1.85] text-fog-light mb-5">
-                Placeholder text for the current career block. Full narrative will describe
-                the scope of current work: what kinds of AI products, what role in
-                the process, what distinguishes this phase from earlier periods.
-              </p>
-              <p className="text-[0.875rem] leading-[1.85] text-fog-light mb-5">
-                Second paragraph placeholder. More detail on current responsibilities,
-                the types of problems being solved, and the environment in which
-                the work takes place. End-to-end ownership, product thinking, technical depth.
-              </p>
-              <p className="text-[0.875rem] leading-[1.85] text-fog-light">
-                Third paragraph placeholder. A reflection on where things are heading —
-                the ambition, the current focus, and what success looks like in
-                this role.
-              </p>
-            </div>
-
-            {/* Current metrics */}
-            <div className="space-y-6">
-              <div className="font-mono text-[9px] tracking-[0.22em] text-fog/40 uppercase mb-4">
-                Current metrics
+            <section className="about-best">
+              <h2 className="about-best__title">What I Do Best</h2>
+              <div className="about-best__tags">
+                {BEST_TAGS.map((tag) => (
+                  <AboutTag key={tag.text} {...tag} />
+                ))}
               </div>
-              {[
-                { v: '—', l: 'Metric placeholder', n: 'TBD' },
-                { v: '—', l: 'Metric placeholder', n: 'TBD' },
-                { v: '—', l: 'Metric placeholder', n: 'TBD' },
-              ].map((m, i) => (
-                <div key={i} className="border-l border-rule pl-5">
-                  <div className="text-[1.6rem] font-light text-chalk leading-none tracking-tight mb-1">
-                    {m.v}
-                  </div>
-                  <div className="font-mono text-[9px] tracking-[0.16em] text-fog uppercase">
-                    {m.l}
-                  </div>
-                  <div className="font-mono text-[8px] text-fog/40 mt-1 italic">{m.n}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Annotation near current block */}
-          <Annotation
-            text="every metric above will be real"
-            rotate="-1deg"
-            className="right-0 bottom-[-30px]"
-          />
-        </div>
-
-        {/* ── WHAT I DO BEST ── */}
-        <div className="max-w-[780px]">
-          <div className="border-t border-rule pt-12 mb-12">
-            <h3 className="text-[clamp(1.1rem,2vw,1.5rem)] font-light text-chalk tracking-[-0.01em]">
-              What I Do Best
-            </h3>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-x-16">
-            {[
-              {
-                title: 'Product from zero',
-                desc: 'Translating ambiguous problems into defined product scopes. Discovery, architecture decisions, and shipping — without needing a separate PM layer.',
-              },
-              {
-                title: 'Conversational systems',
-                desc: 'Designing conversation architectures that hold up under real user behavior. Not demos — products that handle edge cases.',
-              },
-              {
-                title: 'Technical depth',
-                desc: 'Enough engineering depth to make informed decisions about model integration, latency tradeoffs, and system design without outsourcing judgment.',
-              },
-              {
-                title: 'Operating under pressure',
-                desc: 'Comfortable making decisions with incomplete information. History of delivering in volatile, under-resourced environments.',
-              },
-            ].map((item, i) => (
-              <div key={i} className="border-t border-rule py-8">
-                <div className="text-[0.9rem] font-medium text-chalk mb-3 tracking-tight">
-                  {item.title}
-                </div>
-                <p className="text-[0.82rem] leading-[1.8] text-fog-light">{item.desc}</p>
+              <div className="about-prose">
+                {BEST_PARAGRAPHS.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
               </div>
-            ))}
+            </section>
           </div>
         </div>
       </div>

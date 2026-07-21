@@ -1,64 +1,83 @@
-const LINKS = [
-  { label: 'Email', href: 'mailto:placeholder@example.com' },
-  { label: 'Telegram', href: '#' },
-  { label: 'GitHub', href: '#' },
-  { label: 'Wellfound', href: '#' },
+import { useState } from "react"
+
+type ContactLink = {
+  label: string
+  value: string
+  href?: string
+}
+
+const CONTACT_LINKS: ContactLink[] = [
+  {
+    label: "E-mail",
+    value: "shenko.nik@gmail.com",
+    href: "mailto:shenko.nik@gmail.com",
+  },
+  {
+    label: "Whatsapp",
+    value: "+84375216093",
+    href: "https://wa.me/84375216093",
+  },
+  {
+    label: "Telegram",
+    value: "@Taabler",
+    href: "https://t.me/Taabler",
+  },
+  {
+    label: "LinkedIn",
+    value: "linkedin.com/in/nikolai-sekushenko",
+    href: "https://www.linkedin.com/in/nikolai-sekushenko/",
+  },
+  {
+    label: "Github",
+    value: "github.com/thaelr",
+    href: "https://github.com/thaelr",
+  },
 ]
 
 export default function ContactSection() {
+  const [active, setActive] = useState(false)
+
   return (
-    <section
-      id="contact"
-      className="min-h-screen flex flex-col justify-between border-t border-rule py-24 lg:py-32"
-    >
-      <div className="px-8 md:px-14 lg:pl-20 lg:pr-44">
-        {/* Section header */}
-        <div className="mb-16 lg:mb-20">
-          <div className="font-mono text-[clamp(2.8rem,4.5vw,4rem)] font-bold text-chalk/10 leading-none tracking-tight mb-2">
-            04
+    <section id="contact" className="contact-section">
+      <div className="contact-section__inner">
+        <div className="contact-section__grid">
+          <div className="contact-section__eyebrow">
+            GET IN TOUCH / PRODUCTS, SYSTEMS, AND INTEGRATION
           </div>
-          <div className="font-mono text-[11px] tracking-[0.28em] text-fog uppercase">
-            CONTACT
-          </div>
-        </div>
 
-        {/* Main statement */}
-        <div className="max-w-[760px] mb-20 lg:mb-28">
-          <h2 className="text-[clamp(2.6rem,5.5vw,5.2rem)] font-light leading-[1.0] tracking-[-0.03em] text-chalk">
-            Let's build
-            <br />
-            something difficult.
-          </h2>
-        </div>
-
-        {/* Links */}
-        <div className="pt-2">
-          <div className="font-mono text-[10px] tracking-[0.28em] text-fog/40 uppercase mb-8">
-            Reach out
+          <div className="contact-section__cta-wrap">
+            <button
+              type="button"
+              className="contact-cta"
+              aria-pressed={active}
+              onClick={() => setActive((current) => !current)}
+            >
+              <span className="contact-cta__lamp" aria-hidden="true" />
+              <span className="contact-cta__text">LET&apos;S BUILD SOMETHING DIFFICULT</span>
+            </button>
           </div>
-          <div className="flex flex-wrap gap-x-10 gap-y-5">
-            {LINKS.map(link => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="font-mono text-[13px] tracking-[0.2em] text-fog hover:text-chalk uppercase transition-colors duration-200"
-              >
-                {link.label}
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
 
-      {/* Footer strip */}
-      <div className="px-8 md:px-14 lg:pl-20 lg:pr-44 mt-auto pt-16">
-        <div className="border-t border-rule pt-6 flex flex-col md:flex-row justify-between items-start gap-4">
-          <span className="font-mono text-[9px] tracking-[0.2em] text-fog/30 uppercase">
-            Nikolai Sekushenko — AI Product Engineer
-          </span>
-          <span className="font-mono text-[9px] tracking-[0.2em] text-fog/20 uppercase">
-            Portfolio · {new Date().getFullYear()}
-          </span>
+          <div className="contact-section__links-wrap">
+            <ul className="contact-section__links-list">
+              {CONTACT_LINKS.map((link) => (
+                <li key={link.label} className="contact-section__links-item">
+                  <span className="contact-section__links-label">{link.label}:</span>
+                  {link.href ? (
+                    <a
+                      href={link.href}
+                      className="contact-section__link"
+                      target={link.href.startsWith("mailto:") ? undefined : "_blank"}
+                      rel={link.href.startsWith("mailto:") ? undefined : "noreferrer"}
+                    >
+                      {link.value}
+                    </a>
+                  ) : (
+                    <span className="contact-section__link-text">{link.value}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </section>

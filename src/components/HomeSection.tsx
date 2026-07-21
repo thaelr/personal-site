@@ -1,9 +1,4 @@
-import { NAV_ITEMS } from "./Nav"
 import heroPortrait from "../hero-portrait.png"
-
-type HomeSectionProps = {
-  activeSection: string
-}
 
 type HeroButtonProps = {
   label: string
@@ -38,13 +33,9 @@ function HeroButton({ label, targetId, sizeClassName }: HeroButtonProps) {
   )
 }
 
-export default function HomeSection({ activeSection }: HomeSectionProps) {
-  const activeIdx = NAV_ITEMS.findIndex((i) => i.id === activeSection)
-
+export default function HomeSection() {
   return (
     <section id="home" className="hero-home">
-      <div className="hero-home__rule" />
-
       <div className="hero-home__inner">
         <div className="hero-home__grid">
           <div className="hero-home__content">
@@ -102,33 +93,6 @@ export default function HomeSection({ activeSection }: HomeSectionProps) {
                 className="hero-portrait-image hero-home__photo-image"
               />
             </div>
-
-            <nav className="hero-photo-nav pointer-events-none hidden lg:block">
-              <ul className="hero-nav__list">
-                {NAV_ITEMS.map((item, idx) => {
-                  const isActive = item.id === activeSection
-                  const dist = Math.abs(idx - activeIdx)
-                  const opacity = isActive ? 1 : dist === 1 ? 0.8 : 0.66
-
-                  return (
-                    <li key={item.id}>
-                      <button
-                        onClick={() => scrollTo(item.id)}
-                        style={{ opacity }}
-                        className={`hero-nav__button pointer-events-auto font-mono uppercase transition-opacity duration-200 ease-out cursor-pointer ${
-                          isActive
-                            ? "hero-nav__button--active"
-                            : "hero-nav__button--inactive"
-                        }`}
-                      >
-                        {item.num} {item.label}
-                        {isActive ? " <" : ""}
-                      </button>
-                    </li>
-                  )
-                })}
-              </ul>
-            </nav>
           </div>
         </div>
       </div>

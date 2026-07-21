@@ -1,3 +1,4 @@
+import { useState } from "react"
 import heroPortrait from "../hero-portrait.png"
 
 type HeroButtonProps = {
@@ -34,6 +35,8 @@ function HeroButton({ label, targetId, sizeClassName }: HeroButtonProps) {
 }
 
 export default function HomeSection() {
+  const [badgeActive, setBadgeActive] = useState(false)
+
   return (
     <section id="home" className="hero-home">
       <div className="hero-home__inner">
@@ -41,9 +44,15 @@ export default function HomeSection() {
           <div className="hero-home__content">
             <h1 className="hero-home__name">Nikolai Sekushenko</h1>
 
-            <div className="hero-home__badge font-mono uppercase">
-              AI PRODUCT ENGINEER
-            </div>
+            <button
+              type="button"
+              className="hero-home__badge font-mono uppercase"
+              aria-pressed={badgeActive}
+              onClick={() => setBadgeActive((current) => !current)}
+            >
+              <span className="hero-home__badge-lamp" aria-hidden="true" />
+              <span className="hero-home__badge-text">AI PRODUCT ENGINEER</span>
+            </button>
 
             <div className="hero-home__copy">
               <p className="hero-home__career">

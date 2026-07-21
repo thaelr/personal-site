@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -291,16 +292,120 @@ function ProseBlock({
   )
 }
 
+function TypeRevealInline({
+  buttonText,
+  revealedText,
+  italic = false,
+}: {
+  buttonText: string
+  revealedText: string
+  italic?: boolean
+}) {
+  const [active, setActive] = useState(false)
+  const [visibleChars, setVisibleChars] = useState(0)
+  const [showCursor, setShowCursor] = useState(false)
+  const [cursorVisible, setCursorVisible] = useState(false)
+
+  useEffect(() => {
+    if (!active || typeof window === "undefined") return
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setVisibleChars(revealedText.length)
+      setShowCursor(false)
+      setCursorVisible(false)
+      return
+    }
+
+    const timeouts: number[] = []
+    const typingInterval = 300
+
+    setShowCursor(true)
+    setCursorVisible(true)
+
+    revealedText.split("").forEach((_, index) => {
+      timeouts.push(
+        window.setTimeout(() => {
+          setVisibleChars(index + 1)
+        }, 200 + index * typingInterval),
+      )
+    })
+
+    const lastCharTime = 200 + Math.max(revealedText.length - 1, 0) * typingInterval
+
+    timeouts.push(
+      window.setTimeout(() => {
+        setCursorVisible(false)
+      }, lastCharTime + 120),
+    )
+    timeouts.push(
+      window.setTimeout(() => {
+        setCursorVisible(true)
+      }, lastCharTime + 240),
+    )
+    timeouts.push(
+      window.setTimeout(() => {
+        setCursorVisible(false)
+      }, lastCharTime + 360),
+    )
+    timeouts.push(
+      window.setTimeout(() => {
+        setCursorVisible(true)
+      }, lastCharTime + 480),
+    )
+    timeouts.push(
+      window.setTimeout(() => {
+        setShowCursor(false)
+        setCursorVisible(false)
+      }, lastCharTime + 880),
+    )
+
+    return () => {
+      timeouts.forEach((timeoutId) => {
+        window.clearTimeout(timeoutId)
+      })
+    }
+  }, [active, revealedText])
+
+  const revealedValue = revealedText.slice(0, visibleChars)
+
+  return (
+    <span className="about-type-reveal">
+      <button
+        type="button"
+        className={`about-type-reveal__button ${italic ? "about-type-reveal__button--italic" : ""}`}
+        aria-pressed={active}
+        data-plain={active}
+        onClick={() => {
+          if (active) return
+          setActive(true)
+        }}
+      >
+        {buttonText}
+      </button>
+      <span className="about-type-reveal__output" aria-live="polite">
+        <span className="about-type-reveal__output-text">{revealedValue}</span>
+        {showCursor ?
+          <span
+            className="about-type-reveal__cursor"
+            aria-hidden="true"
+            data-visible={cursorVisible}
+          >
+            |
+          </span>
+        : null}
+      </span>
+    </span>
+  )
+}
+
 function ECommerceLeadLine() {
   return (
     <p className="about-ecommerce-leadline">
       <span>Eventually, I turned the store into a profitable business in five simple steps.</span>
       <span className="about-inline-spacer about-inline-spacer--five" aria-hidden="true" />
       <span className="about-ecommerce-leadline__aside about-ecommerce-leadline__aside--italic">
-        Wow.
+        <TypeRevealInline buttonText="*Wow.*" revealedText=":0" italic />
       </span>
-      <span className="about-inline-spacer about-inline-spacer--six" aria-hidden="true" />
-      <span className="about-ecommerce-leadline__aside">:0</span>
     </p>
   )
 }
@@ -428,10 +533,12 @@ function AuthorComment({
   paragraphs,
   collapseFirstGap = false,
   withGuideLine = false,
+  ecommerceInteractive = false,
 }: {
   paragraphs: string[]
   collapseFirstGap?: boolean
   withGuideLine?: boolean
+  ecommerceInteractive?: boolean
 }) {
   return (
     <div
@@ -441,9 +548,25 @@ function AuthorComment({
     >
       {withGuideLine ? <div className="about-author-comment__line" aria-hidden="true" /> : null}
       <div className="about-author-comment__text">
-        {paragraphs.map((paragraph) => (
-          <p key={paragraph}>{paragraph}</p>
-        ))}
+        {paragraphs.map((paragraph, index) => {
+          if (
+            ecommerceInteractive &&
+            index === 1 &&
+            paragraph.includes("*lol* =)")
+          ) {
+            const [beforeTrigger, afterTrigger = ""] = paragraph.split("*lol* =)")
+
+            return (
+              <p key={paragraph}>
+                {beforeTrigger}
+                <TypeRevealInline buttonText="*lol*" revealedText="=)" />
+                {afterTrigger}
+              </p>
+            )
+          }
+
+          return <p key={paragraph}>{paragraph}</p>
+        })}
       </div>
     </div>
   )
@@ -461,7 +584,7 @@ function CareerChapter({
   const articleRef = useRef<HTMLElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
   const lineRef = useRef<HTMLDivElement>(null)
-  const arrowButtonRef = useRef<HTMLButtonElement>(null)
+  const arrowButtonRef = useRef<HTMLSpanElement>(null)
   const [geometry, setGeometry] = useState({
     arrowBaseTop: 0,
     arrowShift: 0,
@@ -529,36 +652,36 @@ function CareerChapter({
       data-chapter-id={chapter.id}
       style={chapterStyle}
     >
-      <div className="about-chapter__header">
-        <div className="about-chapter__eyebrow">{chapter.eyebrow}</div>
-        <h3 ref={titleRef} className="about-chapter__title">
-          {chapter.title}
-        </h3>
-        {chapter.summary ? (
-          <p className="about-chapter__summary">{renderInlineParts(chapter.summary)}</p>
-        ) : null}
-        {chapter.tags ? (
-          <div className="about-chapter__tags">
-            {chapter.tags.map((tag) => (
-              <span key={tag} className="about-tag">
-                {tag}
-              </span>
-            ))}
-          </div>
-        ) : null}
-        <div ref={lineRef} className="about-chapter__progress-line" aria-hidden="true" />
-      </div>
-
       <button
-        ref={arrowButtonRef}
         type="button"
-        className="about-chapter__arrow-button"
+        className="about-chapter__trigger"
         aria-expanded={open}
         aria-controls={panelId}
         aria-label={`${open ? "Collapse" : "Expand"} ${chapter.title}`}
         onClick={onToggle}
       >
-        <span className="about-chapter__arrow">&gt;</span>
+        <div className="about-chapter__header">
+          <div className="about-chapter__eyebrow">{chapter.eyebrow}</div>
+          <h3 ref={titleRef} className="about-chapter__title">
+            {chapter.title}
+          </h3>
+          {chapter.summary ? (
+            <p className="about-chapter__summary">{renderInlineParts(chapter.summary)}</p>
+          ) : null}
+          {chapter.tags ? (
+            <div className="about-chapter__tags">
+              {chapter.tags.map((tag) => (
+                <span key={tag} className="about-tag">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          ) : null}
+          <div ref={lineRef} className="about-chapter__progress-line" aria-hidden="true" />
+        </div>
+        <span ref={arrowButtonRef} className="about-chapter__arrow-button" aria-hidden="true">
+          <span className="about-chapter__arrow">&gt;</span>
+        </span>
       </button>
 
       <div id={panelId} className="about-chapter__panel">
@@ -619,6 +742,7 @@ function CareerChapter({
                   <AuthorComment
                     paragraphs={chapter.authorComment}
                     collapseFirstGap
+                    ecommerceInteractive
                   />
                 ) : null}
               </>

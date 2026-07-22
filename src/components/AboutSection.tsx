@@ -546,7 +546,7 @@ function AuthorComment({
         collapseFirstGap ? "about-author-comment--collapse-first" : ""
       } ${withGuideLine ? "about-author-comment--with-line" : ""}`}
     >
-      {withGuideLine ? <div className="about-author-comment__line" aria-hidden="true" /> : null}
+      {withGuideLine ? <span className="about-author-comment__line" aria-hidden="true" /> : null}
       <div className="about-author-comment__text">
         {paragraphs.map((paragraph, index) => {
           if (

@@ -54,6 +54,16 @@ export default function HomeSection() {
               <span className="hero-home__badge-text">AI PRODUCT ENGINEER</span>
             </button>
 
+            <div className="hero-home__photo-wrap">
+              <div className="hero-portrait-shell hero-home__photo-shell">
+                <img
+                  src={heroPortrait}
+                  alt="Black-and-white portrait of Nikolai Sekushenko"
+                  className="hero-portrait-image hero-home__photo-image"
+                />
+              </div>
+            </div>
+
             <div className="hero-home__copy">
               <p className="hero-home__career">
                 <span className="hero-home__line hero-home__line--desktop">
@@ -80,6 +90,7 @@ export default function HomeSection() {
                 </span>
               </p>
             </div>
+
             <div className="hero-home__actions">
               <HeroButton
                 label="VIEW WORK"
@@ -90,16 +101,6 @@ export default function HomeSection() {
                 label="ABOUT ME"
                 targetId="about"
                 sizeClassName="hero-cta--about"
-              />
-            </div>
-          </div>
-
-          <div className="hero-home__photo-wrap">
-            <div className="hero-portrait-shell hero-home__photo-shell">
-              <img
-                src={heroPortrait}
-                alt="Black-and-white portrait of Nikolai Sekushenko"
-                className="hero-portrait-image hero-home__photo-image"
               />
             </div>
           </div>

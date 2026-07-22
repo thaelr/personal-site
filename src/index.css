@@ -462,21 +462,31 @@ body {
 }
 
 @media (max-width: 1023px) {
+  .hero-home__content {
+    display: flex;
+    flex-direction: column;
+  }
+
   .hero-home__badge {
     margin-top: 1.5rem;
   }
 
   .hero-cta {
-    width: min(100%, 17.8125rem);
+    min-width: 0;
+    flex: 1 1 0;
+    width: auto;
   }
 
   .hero-home__actions {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: nowrap;
   }
 
   .hero-home__photo-wrap {
     width: 100%;
     max-width: 40rem;
+    margin-top: 1.5rem;
+    margin-left: 0;
   }
 
   .hero-home__photo-shell {
@@ -551,17 +561,21 @@ body {
   }
 
   .hero-home__content {
-    display: flex;
-    flex-direction: column;
+    display: contents;
+  }
+
+  .hero-home__copy {
     grid-column: 2 / 6;
-    grid-row: 2 / 8;
+    grid-row: 5 / 8;
     align-self: start;
     max-width: var(--hero-copy-width);
-    margin-right: var(--hero-overlap);
     transform: translateY(calc(40px * var(--hero-scale)));
   }
 
   .hero-home__name {
+    grid-column: 2 / 6;
+    grid-row: 2;
+    align-self: start;
     max-width: var(--hero-name-width);
     white-space: nowrap;
     overflow-wrap: normal;
@@ -570,6 +584,9 @@ body {
   }
 
   .hero-home__badge {
+    grid-column: 2 / 6;
+    grid-row: 3;
+    align-self: start;
     width: max-content;
     min-height: var(--hero-badge-height);
     margin-top: var(--hero-badge-margin-top);
@@ -591,9 +608,13 @@ body {
   }
 
   .hero-home__actions {
+    grid-column: 2 / 6;
+    grid-row: 9;
+    align-self: start;
     flex-wrap: nowrap;
     gap: var(--hero-action-gap);
     margin-top: calc(var(--hero-offer-margin-top) * 3);
+    transform: translateY(calc(40px * var(--hero-scale)));
   }
 
   .hero-home__photo-wrap {
@@ -604,6 +625,19 @@ body {
     margin-top: 0;
     justify-self: end;
     z-index: 1;
+  }
+
+  .hero-home__name,
+  .hero-home__badge,
+  .hero-home__copy {
+    transform: translateY(calc(40px * var(--hero-scale)));
+  }
+
+  .hero-home__career,
+  .hero-home__offer {
+    grid-column: auto;
+    grid-row: auto;
+    transform: none;
   }
 
   .hero-cta--work {
@@ -928,9 +962,9 @@ body {
   }
 
   .work-case__lead {
-    margin-top: calc(46px * var(--work-scale));
+    margin-top: calc(20px * var(--work-scale));
     max-width: 100%;
-    color: var(--site-text-primary);
+    color: var(--site-text-secondary);
     font-size: var(--work-lead-size);
     line-height: var(--work-lead-line);
   }
@@ -1461,7 +1495,7 @@ body {
     display: block;
     position: absolute;
     top: 0;
-    bottom: calc(-30px * var(--about-scale));
+    bottom: calc(-20px * var(--about-scale));
     left: 0;
     width: calc(5px * var(--about-scale));
     border-radius: 999px;
@@ -1905,6 +1939,7 @@ body {
     height: 4px;
     background: var(--site-text-primary);
     border-radius: 999px;
+    transform-origin: left center;
     opacity: 0;
     transition:
       width 280ms ease,
@@ -1912,7 +1947,7 @@ body {
   }
 
   .about-chapter.is-open .about-chapter__progress-line {
-    width: min(100%, 12rem);
+    width: var(--chapter-line-open-width);
     opacity: 1;
   }
 
@@ -1939,7 +1974,7 @@ body {
 
   .about-chapter__arrow-button {
     position: absolute;
-    top: 2rem;
+    top: calc(2rem + 4px);
     right: 0;
     display: inline-flex;
     align-items: center;
@@ -1952,7 +1987,13 @@ body {
   }
 
   .about-chapter.is-open .about-chapter__arrow-button {
-    transform: translateY(2rem);
+    top: auto;
+    bottom: calc(-1.25em - 1px);
+    transform: none;
+  }
+
+  .about-chapter[data-chapter-id="ai"] .about-chapter__progress-line {
+    margin-left: 0.2rem;
   }
 
   .about-chapter__arrow {
@@ -2004,6 +2045,17 @@ body {
     position: relative;
     margin-top: 2rem;
     padding-left: 2.5rem;
+  }
+
+  .about-author-comment--with-line .about-author-comment__line {
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: -20px;
+    left: 0;
+    width: 5px;
+    border-radius: 999px;
+    background: var(--site-text-primary);
   }
 
   .about-author-comment__text {
@@ -2223,8 +2275,14 @@ body {
   }
 
   .work-case {
-    display: block;
+    display: flex;
+    flex-direction: column;
     margin-top: 2rem;
+  }
+
+  .work-case__main,
+  .work-case__side {
+    display: contents;
   }
 
   .work-case__index {
@@ -2325,13 +2383,15 @@ body {
   }
 
   .work-case__links {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 0.9rem;
     margin-top: 1.5rem;
   }
 
   .work-link {
-    min-width: min(100%, 15.25rem);
+    min-width: 0;
+    flex: 1 1 0;
+    width: auto;
     height: 3.25rem;
     padding-inline: 1rem;
     gap: 0.45rem;
@@ -2339,6 +2399,71 @@ body {
     line-height: 1.35;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .work-case--case-01 .work-case__index {
+    order: 1;
+  }
+
+  .work-case--case-01 .work-case__title {
+    order: 2;
+  }
+
+  .work-case--case-01 .work-case__tags {
+    order: 3;
+  }
+
+  .work-case--case-01 .work-case__lead {
+    order: 4;
+  }
+
+  .work-case--case-01 .work-case__statement {
+    order: 5;
+  }
+
+  .work-case--case-01 .work-case__visual {
+    order: 6;
+  }
+
+  .work-case--case-01 .work-case__body {
+    order: 7;
+  }
+
+  .work-case--case-01 .work-case__links {
+    order: 8;
+  }
+
+  .work-case--case-02 .work-case__index {
+    order: 1;
+  }
+
+  .work-case--case-02 .work-case__title {
+    order: 2;
+  }
+
+  .work-case--case-02 .work-case__tags {
+    order: 3;
+  }
+
+  .work-case--case-02 .work-case__lead {
+    order: 4;
+  }
+
+  .work-case--case-02 .work-case__statement {
+    order: 5;
+  }
+
+  .work-case--case-02 .work-case__capabilities {
+    order: 6;
+  }
+
+  .work-case--case-02 .work-case__body {
+    order: 7;
+  }
+
+  .work-case--case-02 .work-case__links {
+    order: 8;
   }
 
 }
@@ -2495,6 +2620,20 @@ body {
 
 .about-author-comment__line {
   display: none;
+}
+
+.about-author-comment--with-line {
+  position: relative;
+}
+
+.about-author-comment--with-line .about-author-comment__line {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  border-radius: 999px;
+  background: var(--site-text-primary);
 }
 
 @media (min-width: 1024px) {

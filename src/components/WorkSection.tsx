@@ -23,6 +23,7 @@ type WorkTagData = {
 
 type CaseLink = {
   label: string
+  href: string
   wide?: boolean
 }
 
@@ -82,8 +83,15 @@ const WORK_CASES: WorkCaseData[] = [
       },
     ],
     links: [
-      { label: "PDF PRESENTATION", wide: true },
-      { label: "GITHUB" },
+      {
+        label: "PDF PRESENTATION",
+        href: "https://github.com/thaelr/stateful-conversation-engine/releases/download/v1/Dialogue-Engine-Architecture.pdf",
+        wide: true,
+      },
+      {
+        label: "GITHUB",
+        href: "https://github.com/thaelr/stateful-conversation-engine",
+      },
     ],
   },
   {
@@ -125,8 +133,15 @@ const WORK_CASES: WorkCaseData[] = [
       },
     ],
     links: [
-      { label: "PDF PRESENTATION", wide: true },
-      { label: "GITHUB" },
+      {
+        label: "PDF PRESENTATION",
+        href: "https://github.com/thaelr/LeadFlowAI/releases/download/v1/LeadFlow-AI-Product-Overview.pdf",
+        wide: true,
+      },
+      {
+        label: "GITHUB",
+        href: "https://github.com/thaelr/LeadFlowAI",
+      },
     ],
   },
 ]
@@ -150,9 +165,10 @@ function CaseLinks({ links }: { links: CaseLink[] }) {
       {links.map((link) => (
         <a
           key={link.label}
-          href="#"
-          onClick={(event) => event.preventDefault()}
+          href={link.href}
           className={`work-link ${link.wide ? "work-link--wide" : "work-link--narrow"}`}
+          target="_blank"
+          rel="noreferrer"
         >
           <span aria-hidden="true">[</span>
           <span>{link.label}</span>
@@ -249,17 +265,19 @@ function WorkCase({ caseData }: { caseData: WorkCaseData }) {
 
       <div className="work-case__side">
         {caseData.metrics ? (
-          <div className="work-case__visual">
-            <div className="work-case__chart">
-              <img
-                src={workChart}
-                alt="Distribution of dialogue engine beta-test conversation lengths"
-                className="work-case__chart-image"
-              />
+          <>
+            <div className="work-case__visual">
+              <div className="work-case__chart">
+                <img
+                  src={workChart}
+                  alt="Distribution of dialogue engine beta-test conversation lengths"
+                  className="work-case__chart-image"
+                />
+              </div>
+              <MetricGrid metrics={caseData.metrics} />
             </div>
-            <MetricGrid metrics={caseData.metrics} />
             <CaseLinks links={caseData.links} />
-          </div>
+          </>
         ) : null}
 
         {caseData.capabilities ? (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useLayoutEffect, useRef } from "react"
 import Nav from "./components/Nav"
 import HomeSection from "./components/HomeSection"
 import WorkSection from "./components/WorkSection"
@@ -7,6 +7,13 @@ import ContactSection from "./components/ContactSection"
 import { ContentProvider } from "./content"
 import { SECTIONS } from "./content/structure"
 import type { Locale, SectionId } from "./content/types"
+import {
+  getWorkChapters,
+  isWorkReadingView,
+  type WorkView,
+} from "./work"
+
+const useBrowserLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect
 
 function isSectionId(value: string): value is SectionId {
   return (SECTIONS as readonly string[]).includes(value)
@@ -16,8 +23,29 @@ function Site() {
   // Server rendering has no URL hash, so the first client render must match
   // this value; the mount effect below applies the hash immediately after.
   const [activeSection, setActiveSection] = useState<SectionId>("home")
+  const [workView, setWorkView] = useState<WorkView>({ kind: "overview" })
+  const [activeChapterId, setActiveChapterId] = useState<string | null>(null)
+  const overviewReturnRef = useRef({ scrollY: 0, focusId: "" })
+  const clientReturnRef = useRef({ scrollY: 0, focusId: "" })
+  const pendingRestoreRef = useRef<{ scrollY: number; focusId?: string } | null>(null)
+  const workReadingMode = isWorkReadingView(workView)
+  const workChapters = getWorkChapters(workView)
+
+  useBrowserLayoutEffect(() => {
+    const pending = pendingRestoreRef.current
+    if (!pending) return
+
+    pendingRestoreRef.current = null
+    window.scrollTo({ top: pending.scrollY, left: 0, behavior: "auto" })
+
+    if (pending.focusId) {
+      document.getElementById(pending.focusId)?.focus({ preventScroll: true })
+    }
+  }, [workView])
 
   useEffect(() => {
+    if (workReadingMode) return
+
     const sections = SECTIONS
       .map((id) => {
         const element = document.getElementById(id)
@@ -77,15 +105,67 @@ function Site() {
       window.removeEventListener("resize", scheduleUpdate)
       window.removeEventListener("hashchange", syncHashSection)
     }
-  }, [])
+  }, [workReadingMode])
+
+  const openWorkView = (nextView: WorkView, originId: string) => {
+    if (workView.kind === "overview") {
+      overviewReturnRef.current = { scrollY: window.scrollY, focusId: originId }
+    } else if (workView.kind === "client-index") {
+      clientReturnRef.current = { scrollY: window.scrollY, focusId: originId }
+    }
+
+    pendingRestoreRef.current = { scrollY: 0, focusId: "work-document-title" }
+    setActiveSection("work")
+    setActiveChapterId(getWorkChapters(nextView)[0]?.id ?? null)
+    setWorkView(nextView)
+  }
+
+  const returnFromWorkView = () => {
+    if (workView.kind === "client-case") {
+      pendingRestoreRef.current = clientReturnRef.current
+      setActiveChapterId(null)
+      setWorkView({ kind: "client-index" })
+      return
+    }
+
+    pendingRestoreRef.current = overviewReturnRef.current
+    setActiveChapterId(null)
+    setWorkView({ kind: "overview" })
+  }
+
+  const selectChapter = (chapterId: string) => {
+    setActiveChapterId(chapterId)
+    document.getElementById(chapterId)?.scrollIntoView({ block: "start", behavior: "auto" })
+  }
 
   return (
     <div className="page-shell bg-void text-chalk font-sans min-h-screen overflow-x-hidden">
-      <Nav activeSection={activeSection} />
-      <HomeSection />
-      <WorkSection />
-      <AboutSection />
-      <ContactSection />
+      <Nav
+        activeSection={workReadingMode ? "work" : activeSection}
+        workView={workView}
+        chapters={workChapters}
+        activeChapterId={activeChapterId}
+        onWorkBack={returnFromWorkView}
+        onChapterSelect={selectChapter}
+      />
+      {workReadingMode ? (
+        <WorkSection
+          view={workView}
+          onOpenView={openWorkView}
+          onActiveChapterChange={setActiveChapterId}
+        />
+      ) : (
+        <>
+          <HomeSection />
+          <WorkSection
+            view={workView}
+            onOpenView={openWorkView}
+            onActiveChapterChange={setActiveChapterId}
+          />
+          <AboutSection />
+          <ContactSection />
+        </>
+      )}
     </div>
   )
 }

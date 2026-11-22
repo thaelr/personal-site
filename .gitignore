@@ -3,3 +3,4 @@ dist
 dist-ssr
 .pnpm-store
 .DS_Store
+graphify-out/

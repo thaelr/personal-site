@@ -4,20 +4,18 @@ import HomeSection from "./components/HomeSection"
 import WorkSection from "./components/WorkSection"
 import AboutSection from "./components/AboutSection"
 import ContactSection from "./components/ContactSection"
-
-const SECTIONS = ["home", "work", "about", "contact"] as const
-
-type SectionId = (typeof SECTIONS)[number]
+import { ContentProvider } from "./content"
+import { SECTIONS } from "./content/structure"
+import type { Locale, SectionId } from "./content/types"
 
 function isSectionId(value: string): value is SectionId {
   return (SECTIONS as readonly string[]).includes(value)
 }
 
-export default function App() {
-  const [activeSection, setActiveSection] = useState<SectionId>(() => {
-    const hash = window.location.hash.replace("#", "")
-    return isSectionId(hash) ? hash : "home"
-  })
+function Site() {
+  // Server rendering has no URL hash, so the first client render must match
+  // this value; the mount effect below applies the hash immediately after.
+  const [activeSection, setActiveSection] = useState<SectionId>("home")
 
   useEffect(() => {
     const sections = SECTIONS
@@ -65,7 +63,7 @@ export default function App() {
       scheduleUpdate()
     }
 
-    scheduleUpdate()
+    syncHashSection()
     window.addEventListener("scroll", scheduleUpdate, { passive: true })
     window.addEventListener("resize", scheduleUpdate)
     window.addEventListener("hashchange", syncHashSection)
@@ -89,5 +87,13 @@ export default function App() {
       <AboutSection />
       <ContactSection />
     </div>
+  )
+}
+
+export default function App({ locale = "en" }: { locale?: Locale }) {
+  return (
+    <ContentProvider locale={locale}>
+      <Site />
+    </ContentProvider>
   )
 }

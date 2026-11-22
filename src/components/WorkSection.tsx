@@ -1,25 +1,12 @@
+import { useSiteContent } from "../content"
+import { WORK_CASE_LINKS } from "../content/structure"
+import type {
+  CapabilityContent,
+  MetricContent,
+  WorkCaseContent,
+  WorkTagContent,
+} from "../content/types"
 import workChart from "../work-chart.png"
-
-type HighlightPart = {
-  text: string
-  highlight?: boolean
-  breakBefore?: boolean
-}
-
-type MetricItem = {
-  title: string
-  description: string
-}
-
-type CapabilityItem = {
-  title: string
-  description: string
-}
-
-type WorkTagData = {
-  text: string
-  statusIndicator?: boolean
-}
 
 type CaseLink = {
   label: string
@@ -27,130 +14,11 @@ type CaseLink = {
   wide?: boolean
 }
 
-type WorkCaseData = {
-  slug: "case-01" | "case-02"
-  index: string
-  title: string
-  tags: WorkTagData[]
-  lead: string
-  statement: HighlightPart[]
-  body: string[]
-  links: CaseLink[]
-  metrics?: MetricItem[]
-  capabilities?: CapabilityItem[]
-}
-
-const WORK_CASES: WorkCaseData[] = [
-  {
-    slug: "case-01",
-    index: "01 / CONVERSATIONAL AI PRODUCT",
-    title: "Conversational AI Engine",
-    tags: [
-      { text: "Used in own product", statusIndicator: true },
-      { text: "B2B integration-ready", statusIndicator: true },
-    ],
-    lead:
-      "Adaptive conversational AI engine built for high-engagement customer interactions.",
-    statement: [
-      { text: "For products where conversation is part of monetization: " },
-      { text: "soft-skills training", highlight: true },
-      { text: ", " },
-      { text: "avatar products", highlight: true },
-      { text: ", " },
-      { text: "game studios", highlight: true },
-      { text: ", " },
-      { text: "and ", breakBefore: true },
-      { text: "streamer chat automation", highlight: true },
-    ],
-    body: [
-      "Built a highly customizable dialogue system for long, human-like conversations.",
-      "The core of the product is an adaptive dialogue engine orchestrated through n8n and LLM APIs. It interprets user behavior, assembles the right instruction flow for each turn, and connects conversation state to media generation and delivery.",
-      "The technology is the core of a proprietary product that successfully completed its first beta test.",
-    ],
-    metrics: [
-      {
-        title: "HANDLES 100+\nMESSAGES",
-        description: "Keeps long\nconversations natural\nand engaging.",
-      },
-      {
-        title: "ADAPTS TO CONTEXT &\nINTERACTION GOAL",
-        description: "87.7% of replies used dynamic steering and goal control.",
-      },
-      {
-        title: "STAYS COHERENT\nOVER TIME",
-        description:
-          "Memory and repetition\ncontrol keep long\nconversations consistent.",
-      },
-    ],
-    links: [
-      {
-        label: "PDF PRESENTATION",
-        href: "https://github.com/thaelr/stateful-conversation-engine/releases/download/v1/Dialogue-Engine-Architecture.pdf",
-        wide: true,
-      },
-      {
-        label: "GITHUB",
-        href: "https://github.com/thaelr/stateful-conversation-engine",
-      },
-    ],
-  },
-  {
-    slug: "case-02",
-    index: "02 / B2B CONVERSATIONAL AUTOMATION",
-    title: "Conversational Automation for SMBs",
-    tags: [{ text: "B2B integration-ready", statusIndicator: true }],
-    lead:
-      "Conversational automation for handling first-line customer communication without rigid scripts or heavy per-client LLM tuning.",
-    statement: [
-      { text: "For businesses that need " },
-      { text: "something smarter", highlight: true },
-      { text: " than an " },
-      { text: "online form", highlight: true },
-      { text: " and teams overloaded " },
-      { text: "with repetitive", highlight: true },
-      { text: " " },
-      { text: "customer questions", highlight: true },
-    ],
-    body: [
-      "Built a B2B conversational system that understands customer requests in free form and handles most first-line support tasks. It answers common customer questions, collects the information needed for the next step, hands exceptional cases over to a human operator, or triggers the relevant application.",
-      "One production deployment combined the WhatsApp Business API, Chatwoot, n8n, Google Calendar, a custom CRM layer, and a custom Node.js application orchestrating WhatsApp Flows with external business systems.",
-    ],
-    capabilities: [
-      {
-        title: "FREE-FORM CUSTOMER INPUT",
-        description:
-          "Understands customer requests in natural language and supports multiple languages when needed.",
-      },
-      {
-        title: "REDUCES FIRST-LINE LOAD",
-        description:
-          "Handles routine customer questions, collects the required information, takes payments, or sends forms when needed.",
-      },
-      {
-        title: "BUSINESS INTEGRATIONS",
-        description:
-          "Connects with the tools the business already uses: payment services, CRM systems, calendars, and messaging platforms.",
-      },
-    ],
-    links: [
-      {
-        label: "PDF PRESENTATION",
-        href: "https://github.com/thaelr/LeadFlowAI/releases/download/v1/LeadFlow-AI-Product-Overview.pdf",
-        wide: true,
-      },
-      {
-        label: "GITHUB",
-        href: "https://github.com/thaelr/LeadFlowAI",
-      },
-    ],
-  },
-]
-
 function InlineHighlight({ text }: { text: string }) {
   return <span className="work-inline-highlight">{text}</span>
 }
 
-function WorkTag({ text, statusIndicator = false }: WorkTagData) {
+function WorkTag({ text, statusIndicator = false }: WorkTagContent) {
   return (
     <span className={`work-tag ${statusIndicator ? "work-tag--status" : ""}`}>
       {statusIndicator ? <span className="work-tag__lamp" aria-hidden="true" /> : null}
@@ -179,7 +47,7 @@ function CaseLinks({ links }: { links: CaseLink[] }) {
   )
 }
 
-function MetricGrid({ metrics }: { metrics: MetricItem[] }) {
+function MetricGrid({ metrics }: { metrics: MetricContent[] }) {
   return (
     <div className="work-case__metrics">
       {metrics.map((metric) => (
@@ -204,7 +72,7 @@ function MetricGrid({ metrics }: { metrics: MetricItem[] }) {
   )
 }
 
-function CapabilityList({ items }: { items: CapabilityItem[] }) {
+function CapabilityList({ items }: { items: CapabilityContent[] }) {
   return (
     <div className="work-case__capabilities">
       {items.map((item) => (
@@ -217,22 +85,20 @@ function CapabilityList({ items }: { items: CapabilityItem[] }) {
   )
 }
 
-function WorkHeader() {
-  return (
-    <>
-      <div className="work-section__eyebrow work-mono">
-        SELECTED WORK / TWO SYSTEMS BUILT END TO END
-      </div>
-      <h2 className="work-section__title">Selected Work</h2>
-      <p className="work-section__intro">
-        Two products built to turn natural conversation into reliable product
-        behavior and business operations.
-      </p>
-    </>
-  )
-}
+function WorkCase({ caseData }: { caseData: WorkCaseContent }) {
+  const { work } = useSiteContent()
+  const caseLinks: CaseLink[] = [
+    {
+      label: work.linkLabels.presentation,
+      href: WORK_CASE_LINKS[caseData.slug].presentation,
+      wide: true,
+    },
+    {
+      label: work.linkLabels.github,
+      href: WORK_CASE_LINKS[caseData.slug].github,
+    },
+  ]
 
-function WorkCase({ caseData }: { caseData: WorkCaseData }) {
   return (
     <article className={`work-case work-case--${caseData.slug}`}>
       <div className="work-case__main">
@@ -270,20 +136,20 @@ function WorkCase({ caseData }: { caseData: WorkCaseData }) {
               <div className="work-case__chart">
                 <img
                   src={workChart}
-                  alt="Distribution of dialogue engine beta-test conversation lengths"
+                  alt={work.chartAlt}
                   className="work-case__chart-image"
                 />
               </div>
               <MetricGrid metrics={caseData.metrics} />
             </div>
-            <CaseLinks links={caseData.links} />
+            <CaseLinks links={caseLinks} />
           </>
         ) : null}
 
         {caseData.capabilities ? (
           <>
             <CapabilityList items={caseData.capabilities} />
-            <CaseLinks links={caseData.links} />
+            <CaseLinks links={caseLinks} />
           </>
         ) : null}
       </div>
@@ -292,12 +158,16 @@ function WorkCase({ caseData }: { caseData: WorkCaseData }) {
 }
 
 export default function WorkSection() {
+  const { work } = useSiteContent()
+
   return (
     <section id="work" className="work-section">
       <div className="work-section__inner">
         <div className="work-section__grid">
-          <WorkHeader />
-          {WORK_CASES.map((caseData) => (
+          <div className="work-section__eyebrow work-mono">{work.eyebrow}</div>
+          <h2 className="work-section__title">{work.title}</h2>
+          <p className="work-section__intro">{work.intro}</p>
+          {work.cases.map((caseData) => (
             <WorkCase key={caseData.slug} caseData={caseData} />
           ))}
         </div>

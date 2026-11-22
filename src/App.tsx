@@ -7,16 +7,25 @@ import ContactSection from "./components/ContactSection"
 
 const SECTIONS = ["home", "work", "about", "contact"] as const
 
+type SectionId = (typeof SECTIONS)[number]
+
+function isSectionId(value: string): value is SectionId {
+  return (SECTIONS as readonly string[]).includes(value)
+}
+
 export default function App() {
-  const [activeSection, setActiveSection] = useState(() => {
+  const [activeSection, setActiveSection] = useState<SectionId>(() => {
     const hash = window.location.hash.replace("#", "")
-    return SECTIONS.includes(hash) ? hash : "home"
+    return isSectionId(hash) ? hash : "home"
   })
 
   useEffect(() => {
     const sections = SECTIONS
-      .map((id) => document.getElementById(id))
-      .filter((section): section is HTMLElement => section !== null)
+      .map((id) => {
+        const element = document.getElementById(id)
+        return element ? { id, element } : null
+      })
+      .filter((section): section is { id: SectionId; element: HTMLElement } => section !== null)
 
     if (!sections.length) return
 
@@ -26,10 +35,10 @@ export default function App() {
       const controlLine = window.innerHeight * 0.25
       const nextActive =
         sections.find((section) => {
-          const rect = section.getBoundingClientRect()
+          const rect = section.element.getBoundingClientRect()
           return rect.top <= controlLine && rect.bottom >= controlLine
         })?.id ??
-        (controlLine < sections[0].getBoundingClientRect().top
+        (controlLine < sections[0].element.getBoundingClientRect().top
           ? sections[0].id
           : sections.at(-1)?.id ?? "home")
 
@@ -49,7 +58,7 @@ export default function App() {
 
     const syncHashSection = () => {
       const hash = window.location.hash.replace("#", "")
-      if (SECTIONS.includes(hash as (typeof SECTIONS)[number])) {
+      if (isSectionId(hash)) {
         setActiveSection(hash)
       }
 

@@ -1,17 +1,26 @@
-import { useEffect } from "react"
-import { useSiteContent } from "../content"
+import { useEffect, type MouseEvent, type ReactNode } from "react"
+import { useLocale, useSiteContent } from "../content"
 import type {
   AboutChapterContent,
   InlinePart,
-  WorkCaseContent,
   WorkTagContent,
 } from "../content/types"
+import {
+  MIDNIGHT_CONTENT,
+  type MidnightBlock,
+  type MidnightChapter,
+} from "../content/midnight"
 import { getWorkChapters, type WorkView } from "../work"
 import workChart from "../work-chart.png"
 
 type WorkSectionProps = {
   view: WorkView
-  onOpenView: (view: WorkView, originId: string) => void
+  getViewHref: (view: WorkView) => string
+  onOpenView: (
+    event: MouseEvent<HTMLAnchorElement>,
+    view: WorkView,
+    originId: string,
+  ) => void
   onActiveChapterChange: (chapterId: string | null) => void
 }
 
@@ -23,7 +32,8 @@ type WorkPreviewProps = {
   tags?: WorkTagContent[]
   evidence?: string[]
   media?: { src: string; alt: string }
-  onOpen: () => void
+  href: string
+  onOpen: (event: MouseEvent<HTMLAnchorElement>) => void
 }
 
 function WorkTag({ text, statusIndicator = false }: WorkTagContent) {
@@ -53,6 +63,50 @@ function InlineStatement({ parts }: { parts: InlinePart[] }) {
   )
 }
 
+function renderInlineMarkdown(text: string): ReactNode[] {
+  return text
+    .split(/(\*\*[^*]+\*\*|\[[^\]]+\]\(https?:\/\/[^)]+\))/g)
+    .filter(Boolean)
+    .map((part, index) => {
+      const bold = part.match(/^\*\*(.+)\*\*$/)
+      if (bold) return <strong key={`${part}-${index}`}>{bold[1]}</strong>
+
+      const link = part.match(/^\[([^\]]+)\]\((https?:\/\/[^)]+)\)$/)
+      if (link) {
+        return (
+          <a key={`${part}-${index}`} href={link[2]} target="_blank" rel="noreferrer">
+            {link[1]}
+          </a>
+        )
+      }
+
+      return part
+    })
+}
+
+function MidnightBlocks({ blocks }: { blocks: MidnightBlock[] }) {
+  return blocks.map((block, index) => {
+    const key = `${block.kind}-${index}`
+
+    if (block.kind === "media-reference") return null
+    if (block.kind === "subheading") {
+      return <h3 key={key} className="work-document__subheading">{block.text}</h3>
+    }
+    if (block.kind === "emphasis") {
+      return <p key={key} className="work-document__emphasis"><strong>{block.text}</strong></p>
+    }
+    if (block.kind === "link") {
+      return (
+        <p key={key} className="work-document__source">
+          <a href={block.href} target="_blank" rel="noreferrer">{block.text}</a>
+        </p>
+      )
+    }
+
+    return <p key={key}>{renderInlineMarkdown(block.text)}</p>
+  })
+}
+
 function WorkPreview({
   id,
   index,
@@ -61,21 +115,22 @@ function WorkPreview({
   tags,
   evidence,
   media,
+  href,
   onOpen,
 }: WorkPreviewProps) {
   return (
     <article className="work-preview">
       <div className="work-preview__main">
         <div className="work-preview__index work-mono">{index}</div>
-        <button
+        <a
           id={id}
-          type="button"
+          href={href}
           className="work-preview__open"
           onClick={onOpen}
         >
           <span className="work-preview__title">{title}</span>
           {description ? <span className="work-preview__description">{description}</span> : null}
-        </button>
+        </a>
         {tags?.length ? (
           <div className="work-preview__tags">
             {tags.map((tag) => (
@@ -104,13 +159,17 @@ function WorkPreview({
 }
 
 function WorkOverview({
+  getViewHref,
   onOpenView,
-}: Pick<WorkSectionProps, "onOpenView">) {
+}: Pick<WorkSectionProps, "getViewHref" | "onOpenView">) {
   const { work, about } = useSiteContent()
   const midnight = work.cases[0]
   const leadflow = work.cases[1]
   const ecommerce = about.chapters.find((chapter) => chapter.id === "ecommerce")
   const ecommerceDescription = ecommerce?.intro?.[0] ?? ecommerce?.summary?.map((part) => part.text).join("")
+  const midnightView: WorkView = { kind: "case", id: "midnight-persona" }
+  const ecommerceView: WorkView = { kind: "case", id: "ecommerce" }
+  const clientView: WorkView = { kind: "client-index" }
 
   return (
     <div className="work-section__grid">
@@ -126,11 +185,9 @@ function WorkOverview({
           description={midnight.lead}
           tags={midnight.tags}
           media={{ src: workChart, alt: work.chartAlt }}
-          onOpen={() =>
-            onOpenView(
-              { kind: "case", id: "midnight-persona" },
-              "work-preview-midnight-persona",
-            )
+          href={getViewHref(midnightView)}
+          onOpen={(event) =>
+            onOpenView(event, midnightView, "work-preview-midnight-persona")
           }
         />
         <WorkPreview
@@ -139,9 +196,8 @@ function WorkOverview({
           title="E-commerce in a Wartime Economy"
           description={ecommerceDescription}
           evidence={ecommerce?.tags}
-          onOpen={() =>
-            onOpenView({ kind: "case", id: "ecommerce" }, "work-preview-ecommerce")
-          }
+          href={getViewHref(ecommerceView)}
+          onOpen={(event) => onOpenView(event, ecommerceView, "work-preview-ecommerce")}
         />
         <WorkPreview
           id="work-preview-client-work"
@@ -149,9 +205,8 @@ function WorkOverview({
           title="Client Work"
           description={leadflow.lead}
           evidence={leadflow.capabilities?.map((item) => item.title)}
-          onOpen={() =>
-            onOpenView({ kind: "client-index" }, "work-preview-client-work")
-          }
+          href={getViewHref(clientView)}
+          onOpen={(event) => onOpenView(event, clientView, "work-preview-client-work")}
         />
       </div>
     </div>
@@ -159,10 +214,12 @@ function WorkOverview({
 }
 
 function ClientIndex({
+  getViewHref,
   onOpenView,
-}: Pick<WorkSectionProps, "onOpenView">) {
+}: Pick<WorkSectionProps, "getViewHref" | "onOpenView">) {
   const { work } = useSiteContent()
   const leadflow = work.cases[1]
+  const leadflowView: WorkView = { kind: "client-case", id: "leadflowai" }
 
   return (
     <div className="work-shell work-client-index">
@@ -180,35 +237,30 @@ function ClientIndex({
           description={leadflow.lead}
           tags={leadflow.tags}
           evidence={leadflow.capabilities?.map((item) => item.title)}
-          onOpen={() =>
-            onOpenView({ kind: "client-case", id: "leadflowai" }, "work-preview-leadflowai")
-          }
+          href={getViewHref(leadflowView)}
+          onOpen={(event) => onOpenView(event, leadflowView, "work-preview-leadflowai")}
         />
       </div>
     </div>
   )
 }
 
-function MidnightBody({ caseData }: { caseData: WorkCaseContent }) {
-  const chapterCopy: Record<string, string[]> = {
-    product: caseData.body.slice(0, 1),
-    dialogue: caseData.body.slice(1, 2),
-    engineering: caseData.body.slice(2, 3),
-    "generative-media": [],
-    "art-direction": [],
-  }
+function MidnightBody({ chapters }: { chapters: MidnightChapter[] }) {
+  const product = chapters[0]
 
   return (
     <div className="work-document__chapters">
-      {getWorkChapters({ kind: "case", id: "midnight-persona" }).map((chapter) => (
+      {product ? (
+        <section className="work-document__chapter work-document__chapter--product-copy">
+          <MidnightBlocks blocks={product.blocks.slice(1)} />
+        </section>
+      ) : null}
+      {chapters.slice(1).map((chapter) => (
         <section id={chapter.id} key={chapter.id} className="work-document__chapter">
           <div className="work-document__chapter-label work-mono">{chapter.label}</div>
-          <h2 className="work-document__chapter-title">
-            {chapter.label.replace(/^\d+\s*\/\s*/, "")}
-          </h2>
-          {chapterCopy[chapter.id]?.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
+          <h2 className="work-document__chapter-title">{chapter.title}</h2>
+          <p className="work-document__chapter-subtitle">{chapter.subtitle}</p>
+          <MidnightBlocks blocks={chapter.blocks} />
         </section>
       ))}
     </div>
@@ -234,26 +286,38 @@ function EcommerceBody({ chapter }: { chapter?: AboutChapterContent }) {
 }
 
 function CaseDocument({ view }: { view: Exclude<WorkView, { kind: "overview" } | { kind: "client-index" }> }) {
+  const locale = useLocale()
   const { work, about } = useSiteContent()
   const midnight = work.cases[0]
   const leadflow = work.cases[1]
+  const midnightContent = MIDNIGHT_CONTENT[locale]
+  const productChapter = midnightContent[0]
   const ecommerce = about.chapters.find((chapter) => chapter.id === "ecommerce")
   const isMidnight = view.kind === "case" && view.id === "midnight-persona"
   const isEcommerce = view.kind === "case" && view.id === "ecommerce"
   const caseData = view.kind === "client-case" ? leadflow : midnight
   const title = isMidnight
-    ? "Midnight Persona"
+    ? productChapter?.title ?? "Midnight Persona"
     : isEcommerce
       ? "E-commerce in a Wartime Economy"
       : "LeadFlowAI"
-  const eyebrow = isMidnight ? "01 / PRODUCT" : isEcommerce ? "02 / CASE" : leadflow.index
-  const subtitle = isEcommerce
-    ? ecommerce?.intro?.[0] ?? ""
-    : caseData.lead
+  const eyebrow = isMidnight
+    ? productChapter?.label ?? "01 / PRODUCT"
+    : isEcommerce
+      ? "02 / CASE"
+      : leadflow.index
+  const subtitle = isMidnight
+    ? productChapter?.subtitle ?? ""
+    : isEcommerce
+      ? ecommerce?.intro?.[0] ?? ""
+      : caseData.lead
 
   return (
     <article className="work-shell work-document">
-      <header className="work-shell__header work-document__header">
+      <header
+        id={isMidnight ? "product" : undefined}
+        className="work-shell__header work-document__header"
+      >
         <div className="work-shell__eyebrow work-mono">{eyebrow}</div>
         <h1 id="work-document-title" className="work-shell__title" tabIndex={-1}>
           {title}
@@ -263,8 +327,11 @@ function CaseDocument({ view }: { view: Exclude<WorkView, { kind: "overview" } |
 
       {isMidnight ? (
         <div className="work-document__first-screen">
-          <img src={workChart} alt={work.chartAlt} className="work-document__media" />
-          <InlineStatement parts={midnight.statement} />
+          {productChapter?.blocks[0]?.kind === "paragraph" ? (
+            <p className="work-document__statement work-mono">
+              {renderInlineMarkdown(productChapter.blocks[0].text)}
+            </p>
+          ) : null}
         </div>
       ) : isEcommerce ? (
         ecommerce?.summary?.length ? <InlineStatement parts={ecommerce.summary} /> : null
@@ -275,7 +342,7 @@ function CaseDocument({ view }: { view: Exclude<WorkView, { kind: "overview" } |
       )}
 
       {isMidnight ? (
-        <MidnightBody caseData={midnight} />
+        <MidnightBody chapters={midnightContent} />
       ) : isEcommerce ? (
         <EcommerceBody chapter={ecommerce} />
       ) : (
@@ -295,6 +362,7 @@ function CaseDocument({ view }: { view: Exclude<WorkView, { kind: "overview" } |
 
 export default function WorkSection({
   view,
+  getViewHref,
   onOpenView,
   onActiveChapterChange,
 }: WorkSectionProps) {
@@ -354,9 +422,9 @@ export default function WorkSection({
     >
       <div className="work-section__inner">
         {view.kind === "overview" ? (
-          <WorkOverview onOpenView={onOpenView} />
+          <WorkOverview getViewHref={getViewHref} onOpenView={onOpenView} />
         ) : view.kind === "client-index" ? (
-          <ClientIndex onOpenView={onOpenView} />
+          <ClientIndex getViewHref={getViewHref} onOpenView={onOpenView} />
         ) : (
           <CaseDocument view={view} />
         )}

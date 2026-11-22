@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, type MouseEvent } from "react"
 import { useSiteContent } from "../content"
 import { SECTIONS, SECTION_NUMBERS } from "../content/structure"
-import type { SectionId } from "../content/types"
+import type { Locale, SectionId } from "../content/types"
 import type { WorkChapter, WorkView } from "../work"
 
 interface NavProps {
@@ -9,15 +9,20 @@ interface NavProps {
   workView: WorkView
   chapters: WorkChapter[]
   activeChapterId: string | null
-  onWorkBack: () => void
+  locale: Locale
+  languageHrefs: Record<Locale, string>
+  workBackHref: string
+  onWorkBack: (event: MouseEvent<HTMLAnchorElement>) => void
   onChapterSelect: (chapterId: string) => void
+  onSectionSelect: (sectionId: SectionId) => void
 }
 
-function scrollToSection(id: SectionId) {
+function scrollToSection(id: SectionId, onSectionSelect: (sectionId: SectionId) => void) {
   const section = document.getElementById(id)
   if (!section) return
 
-  window.history.replaceState(null, "", `#${id}`)
+  window.history.replaceState(window.history.state, "", `#${id}`)
+  onSectionSelect(id)
   section.scrollIntoView({ behavior: "smooth", block: "start" })
 }
 
@@ -25,13 +30,69 @@ function getBackLabel(view: WorkView): string {
   return view.kind === "client-case" ? "← CLIENT WORK" : "← WORK"
 }
 
+function LanguageSwitch({
+  locale,
+  hrefs,
+  className,
+}: {
+  locale: Locale
+  hrefs: Record<Locale, string>
+  className: string
+}) {
+  const languageLink = (targetLocale: Locale, label: string) => {
+    const isActive = locale === targetLocale
+    const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+      if (isActive) {
+        event.preventDefault()
+        return
+      }
+
+      if (
+        event.button === 0 &&
+        !event.metaKey &&
+        !event.ctrlKey &&
+        !event.shiftKey &&
+        !event.altKey
+      ) {
+        event.preventDefault()
+        const destination = new URL(hrefs[targetLocale], window.location.href)
+        if (window.location.hash) destination.hash = window.location.hash
+        window.location.assign(`${destination.pathname}${destination.search}${destination.hash}`)
+      }
+    }
+
+    return (
+      <a
+        href={hrefs[targetLocale]}
+        className={`language-switch__link ${isActive ? "language-switch__link--active" : "language-switch__link--inactive"}`}
+        aria-current={isActive ? "page" : undefined}
+        onClick={handleClick}
+      >
+        {label}
+      </a>
+    )
+  }
+
+  return (
+    <div className={`language-switch ${className}`} aria-label="Language">
+      {languageLink("ru", "RU")}
+      <span aria-hidden="true">/</span>
+      {languageLink("en", "EN")}
+    </div>
+  )
+}
+
 export default function Nav({
   activeSection,
   workView,
   chapters,
   activeChapterId,
+  locale,
+  languageHrefs,
+  workBackHref,
   onWorkBack,
   onChapterSelect,
+  onSectionSelect,
 }: NavProps) {
   const { nav } = useSiteContent()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -63,13 +124,18 @@ export default function Nav({
   return (
     <>
       <nav className={desktopNavClassName} aria-label={nav.ariaLabel}>
+        <LanguageSwitch
+          locale={locale}
+          hrefs={languageHrefs}
+          className="language-switch--desktop"
+        />
         <ul className="site-nav__list">
           {workReadingMode ? (
             <>
               <li>
-                <button type="button" onClick={onWorkBack} className="site-nav__button site-nav__button--active">
+                <a href={workBackHref} onClick={onWorkBack} className="site-nav__button site-nav__button--active">
                   {getBackLabel(workView)}
-                </button>
+                </a>
               </li>
               {chapters.map((chapter) => (
                 <li key={chapter.id}>
@@ -92,7 +158,7 @@ export default function Nav({
                 <li key={id}>
                   <button
                     type="button"
-                    onClick={() => scrollToSection(id)}
+                    onClick={() => scrollToSection(id, onSectionSelect)}
                     className={`site-nav__button ${isActive ? "site-nav__button--active" : "site-nav__button--inactive"}`}
                   >
                     {SECTION_NUMBERS[id]} {nav.items[id]}
@@ -105,13 +171,19 @@ export default function Nav({
         </ul>
       </nav>
 
+      <LanguageSwitch
+        locale={locale}
+        hrefs={languageHrefs}
+        className="language-switch--mobile"
+      />
+
       {workReadingMode || workOverviewMobile ? (
         <nav className="work-mobile-nav lg:hidden" aria-label={nav.ariaLabel}>
           <div className="work-mobile-nav__bar">
             {workReadingMode ? (
-              <button type="button" className="work-mobile-nav__back" onClick={onWorkBack}>
+              <a href={workBackHref} className="work-mobile-nav__back" onClick={onWorkBack}>
                 {getBackLabel(workView)}
-              </button>
+              </a>
             ) : (
               <span className="work-mobile-nav__label">02 / {nav.items.work}</span>
             )}
@@ -161,7 +233,7 @@ export default function Nav({
                         className="work-mobile-nav__item"
                         onClick={() => {
                           setMobileOpen(false)
-                          scrollToSection(id)
+                          scrollToSection(id, onSectionSelect)
                         }}
                         aria-current={id === activeSection ? "location" : undefined}
                       >
@@ -182,7 +254,7 @@ export default function Nav({
                 <li key={id}>
                   <button
                     type="button"
-                    onClick={() => scrollToSection(id)}
+                    onClick={() => scrollToSection(id, onSectionSelect)}
                     style={{ transform: `translateX(${mobileOffsets[idx]}px)` }}
                     className="site-nav-mobile__button pointer-events-auto block text-right font-mono text-[0.68rem] uppercase tracking-[0.14em] transition-all duration-200 ease-out cursor-pointer"
                   >

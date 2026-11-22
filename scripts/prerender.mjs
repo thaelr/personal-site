@@ -1,17 +1,18 @@
-// Static prerendering for the two locale documents.
-// Runs after `vite build` (client) and `vite build --config vite.ssr.config.ts`.
+// Static prerendering for both locale overviews and every WORK route.
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const root = process.cwd()
 const distDir = path.join(root, 'dist')
-
 const template = await readFile(path.join(distDir, 'index.html'), 'utf8')
 const siteConfig = JSON.parse(await readFile(path.join(root, '.figma/make/site.json'), 'utf8'))
-const { render, CONTENT } = await import(
+const { render, getRouteMeta, WORK_ROUTE_VIEWS, getWorkPath } = await import(
   pathToFileURL(path.join(root, 'dist-ssr/entry-server.js')).href
 )
+const publicBase = process.env.FIGMA_PUBLIC_URL ? `${process.env.FIGMA_PUBLIC_URL}/` : '/'
+const views = [{ kind: 'overview' }, ...WORK_ROUTE_VIEWS]
+const locales = ['en', 'ru']
 
 function ensureTrailingSlash(value) {
   return value.endsWith('/') ? value : `${value}/`
@@ -20,29 +21,19 @@ function ensureTrailingSlash(value) {
 /** Public base used in canonical/hreflang URLs; never invents a new domain. */
 function resolveSiteUrl() {
   if (process.env.SITE_URL) return ensureTrailingSlash(process.env.SITE_URL)
-
   if (process.env.GITHUB_ACTIONS === 'true' && process.env.GITHUB_REPOSITORY) {
     const [owner, repository] = process.env.GITHUB_REPOSITORY.split('/')
     return `https://${owner}.github.io/${repository}/`
   }
-
   const socialImage = siteConfig.openGraph?.image
   if (socialImage) return ensureTrailingSlash(socialImage.replace(/[^/]+$/, ''))
-
   return 'http://localhost:8443/'
 }
 
 const siteUrl = resolveSiteUrl()
-const localeUrls = {
-  en: siteUrl,
-  ru: `${siteUrl}ru/`,
-}
 
 function escapeHtml(value) {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
 function escapeAttribute(value) {
@@ -50,26 +41,27 @@ function escapeAttribute(value) {
 }
 
 function replaceOnce(html, pattern, replacement, label) {
-  const regex = pattern instanceof RegExp ? pattern : new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-  if (!regex.test(html)) {
-    throw new Error(`prerender: template slot not found: ${label}`)
-  }
-  // Function replacement keeps `$` sequences in the copy literal.
+  const regex = pattern instanceof RegExp
+    ? pattern
+    : new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+  if (!regex.test(html)) throw new Error(`prerender: template slot not found: ${label}`)
   return html.replace(regex, () => replacement)
 }
 
-function buildDocument(locale) {
-  const meta = CONTENT[locale].meta
-  const canonical = localeUrls[locale]
+function canonicalUrl(locale, view) {
+  const relativePath = getWorkPath(view, locale, '/').replace(/^\//, '')
+  return new URL(relativePath, siteUrl).href
+}
+
+function buildDocument(locale, view) {
+  const meta = getRouteMeta(locale, view)
+  const canonical = canonicalUrl(locale, view)
+  const enUrl = canonicalUrl('en', view)
+  const ruUrl = canonicalUrl('ru', view)
 
   let html = template
   html = replaceOnce(html, /<html lang="[^"]*">/, `<html lang="${locale}">`, 'html lang')
-  html = replaceOnce(
-    html,
-    /<title>[\s\S]*?<\/title>/,
-    `<title>${escapeHtml(meta.title)}</title>`,
-    'title',
-  )
+  html = replaceOnce(html, /<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(meta.title)}</title>`, 'title')
   html = replaceOnce(
     html,
     /<meta name="description" content="[^"]*">/,
@@ -91,15 +83,15 @@ function buildDocument(locale) {
   html = replaceOnce(
     html,
     '<div id="root"></div>',
-    `<div id="root">${render(locale)}</div>`,
+    `<div id="root">${render(locale, view, publicBase)}</div>`,
     'root',
   )
 
   const headTags = [
     `<link rel="canonical" href="${canonical}">`,
-    `<link rel="alternate" hreflang="en" href="${localeUrls.en}">`,
-    `<link rel="alternate" hreflang="ru" href="${localeUrls.ru}">`,
-    `<link rel="alternate" hreflang="x-default" href="${localeUrls.en}">`,
+    `<link rel="alternate" hreflang="en" href="${enUrl}">`,
+    `<link rel="alternate" hreflang="ru" href="${ruUrl}">`,
+    `<link rel="alternate" hreflang="x-default" href="${enUrl}">`,
     `<meta property="og:url" content="${canonical}">`,
     `<meta property="og:locale" content="${locale === 'ru' ? 'ru_RU' : 'en_US'}">`,
   ].join('\n    ')
@@ -107,8 +99,19 @@ function buildDocument(locale) {
   return html.replace('</head>', `    ${headTags}\n  </head>`)
 }
 
-await mkdir(path.join(distDir, 'ru'), { recursive: true })
-await writeFile(path.join(distDir, 'index.html'), buildDocument('en'))
-await writeFile(path.join(distDir, 'ru', 'index.html'), buildDocument('ru'))
+function outputPath(locale, view) {
+  const routePath = getWorkPath(view, locale, '/').replace(/^\//, '').replace(/\/$/, '')
+  return path.join(distDir, routePath, 'index.html')
+}
 
-console.log(`prerender: wrote ${localeUrls.en} and ${localeUrls.ru}`)
+const written = []
+for (const locale of locales) {
+  for (const view of views) {
+    const filePath = outputPath(locale, view)
+    await mkdir(path.dirname(filePath), { recursive: true })
+    await writeFile(filePath, buildDocument(locale, view))
+    written.push(filePath)
+  }
+}
+
+console.log(`prerender: wrote ${written.length} locale/WORK documents`)

@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,300..400&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap');
-@import 'tailwindcss';
+@import 'tailwindcss' source(none);
+@source './';
+@source '../index.html';
 
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
@@ -1256,10 +1258,6 @@ body {
 
   .about-chapter + .about-chapter {
     margin-top: calc(var(--about-block-gap) * 3);
-  }
-
-  .about-chapter:not(.is-open) + .about-chapter {
-    margin-top: var(--about-block-gap);
   }
 
   .about-chapter + .about-best {

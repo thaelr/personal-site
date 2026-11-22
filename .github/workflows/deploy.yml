@@ -47,6 +47,7 @@ jobs:
       - name: Build
         env:
           GITHUB_ACTIONS: 'true'
+          SITE_URL: https://thaelr.com/
         run: pnpm build
 
       - name: Configure GitHub Pages

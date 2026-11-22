@@ -41,10 +41,11 @@ Repository: <https://github.com/thaelr/personal-site>. The remote repository doe
 
 ## Graphify workflow
 
-- A local knowledge graph lives in `graphify-out/` and is generated, not source-controlled.
-- When `graphify-out/graph.json` exists, use `graphify query`, `graphify path`, or `graphify explain` first for questions about architecture, dependencies, and cross-file relationships. Confirm implementation-critical facts in the current source before editing.
+- Graphify is optional. Use it only when a task genuinely requires broad cross-file or architectural research and the graph will materially reduce the work.
+- Do not build, update, or query a graph by default for a scoped implementation task. Read the directly relevant source instead.
+- If Graphify would require substantial semantic extraction or agent work, stop first and ask the user to approve a concrete research question.
+- A local graph, when deliberately created, lives in `graphify-out/` and is generated, not source-controlled. Confirm implementation-critical facts in the current source before editing.
 - The graph is a navigation aid, not product specification. The concrete task, this file, and current source take precedence.
-- Use `graphify --update` after substantive code or documentation changes when an updated graph will help the current or next task. Do not rebuild it for every small edit.
 - Do not use Graphify as a pretext for a full audit when the user requested a scoped change.
 - Never commit generated `graphify-out/` artifacts unless the user explicitly asks for them to be shared.
 

@@ -19,6 +19,15 @@ function isSectionId(value: string): value is SectionId {
   return (SECTIONS as readonly string[]).includes(value)
 }
 
+function restoreWindowScroll(scrollY: number) {
+  const root = document.documentElement
+  const previousScrollBehavior = root.style.scrollBehavior
+
+  root.style.scrollBehavior = "auto"
+  window.scrollTo(0, scrollY)
+  root.style.scrollBehavior = previousScrollBehavior
+}
+
 function Site() {
   // Server rendering has no URL hash, so the first client render must match
   // this value; the mount effect below applies the hash immediately after.
@@ -36,7 +45,7 @@ function Site() {
     if (!pending) return
 
     pendingRestoreRef.current = null
-    window.scrollTo({ top: pending.scrollY, left: 0, behavior: "auto" })
+    restoreWindowScroll(pending.scrollY)
 
     if (pending.focusId) {
       document.getElementById(pending.focusId)?.focus({ preventScroll: true })

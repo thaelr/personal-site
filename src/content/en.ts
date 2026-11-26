@@ -55,6 +55,10 @@ export const en: SiteContent = {
         id: "ecommerce",
         index: "02 / OPERATIONS",
         title: "E-commerce Operations & Growth",
+        caseIntro: [
+          "In late 2021, I took over what had once been a nationwide home-appliance retail brand — eight years earlier, its billboards had appeared across roughly half of Russia’s regions. What remained was a near-loss-making online store with an expensive but outdated website and database, fragmented operations, and no repeatable process for growing sales. The store carried just 600–800 products from a single dropshipping supplier, while its technical and operational setup had barely evolved since the retail-chain years.",
+          "A few months later, Russia launched its full-scale invasion of Ukraine.",
+        ],
         description: "4 Years of End-to-End Responsibility",
         metrics: [
           { value: "$1.5M", label: "Annual Revenue" },
@@ -76,6 +80,15 @@ export const en: SiteContent = {
     linkLabels: {
       presentation: "PDF PRESENTATION",
       github: "GITHUB",
+    },
+    notice: {
+      title: "MIDNIGHT PERSONA / NOTICE 001",
+      paragraphs: [
+        "You may reasonably assume that what you're about to see is an elaborate joke.",
+        "Unfortunately, it isn't.",
+      ],
+      okay: "OKAY",
+      close: "Close notice",
     },
     cases: [
       {

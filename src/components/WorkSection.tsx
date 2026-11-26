@@ -1,7 +1,12 @@
-import { useEffect, type MouseEvent, type ReactNode } from "react"
+import { Fragment, useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react"
 import { useLocale, useSiteContent } from "../content"
+import { EcommerceNarrative } from "./AboutSection"
+import sibvezLogo from "../sibvez.svg"
+import redCore from "../favicon-red-core.svg"
+import midnightMoon from "../moon.svg"
+import midnightWordmark from "../midnight-persona.svg"
+import midnightArchitecture from "../midnight-persona-system-architecture-polished.svg"
 import type {
-  AboutChapterContent,
   InlinePart,
   WorkTagContent,
 } from "../content/types"
@@ -101,24 +106,183 @@ function getArtDirectionAccentClass(
   return undefined
 }
 
+function MidnightNoticeTrigger({ text }: { text: string }) {
+  const { work } = useSiteContent()
+  const notice = work.notice
+  const [isOpen, setIsOpen] = useState(false)
+  const [isClosing, setIsClosing] = useState(false)
+  const hoverTimerRef = useRef<number | null>(null)
+  const closeTimerRef = useRef<number | null>(null)
+  const pointerInsideRef = useRef(false)
+  const suppressHoverRef = useRef(false)
+
+  const sentenceEnd = text.indexOf(". ")
+  const firstLine = sentenceEnd >= 0 ? text.slice(0, sentenceEnd + 1) : text
+  const secondLine = sentenceEnd >= 0 ? text.slice(sentenceEnd + 2) : ""
+
+  const clearHoverTimer = () => {
+    if (hoverTimerRef.current === null) return
+    window.clearTimeout(hoverTimerRef.current)
+    hoverTimerRef.current = null
+  }
+
+  const clearCloseTimer = () => {
+    if (closeTimerRef.current === null) return
+    window.clearTimeout(closeTimerRef.current)
+    closeTimerRef.current = null
+  }
+
+  const openNotice = () => {
+    clearHoverTimer()
+    clearCloseTimer()
+    setIsClosing(false)
+    setIsOpen(true)
+    suppressHoverRef.current = false
+  }
+
+  const closeNotice = () => {
+    if (!isOpen || isClosing) return
+    clearHoverTimer()
+    suppressHoverRef.current = pointerInsideRef.current
+    setIsClosing(true)
+    closeTimerRef.current = window.setTimeout(() => {
+      closeTimerRef.current = null
+      setIsOpen(false)
+      setIsClosing(false)
+    }, 150)
+  }
+
+  useEffect(() => {
+    if (!isOpen) return
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeNotice()
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  })
+
+  useEffect(() => {
+    return () => {
+      clearHoverTimer()
+      clearCloseTimer()
+    }
+  }, [])
+
+  const handleMouseEnter = () => {
+    pointerInsideRef.current = true
+    if (isOpen || suppressHoverRef.current) return
+    clearHoverTimer()
+    hoverTimerRef.current = window.setTimeout(() => {
+      hoverTimerRef.current = null
+      setIsOpen(true)
+    }, 400)
+  }
+
+  const handleMouseLeave = () => {
+    pointerInsideRef.current = false
+    suppressHoverRef.current = false
+    clearHoverTimer()
+  }
+
+  return (
+    <Fragment>
+      <p>
+        <button
+          type="button"
+          className="work-midnight-notice-trigger"
+          aria-haspopup="dialog"
+          aria-expanded={isOpen}
+          onClick={openNotice}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          {renderInlineMarkdown(firstLine)}
+          {secondLine ? (
+            <>
+              <br />
+              {renderInlineMarkdown(secondLine)}
+            </>
+          ) : null}
+          <sup className="work-midnight-notice-trigger__star" aria-hidden="true">
+            *
+          </sup>
+        </button>
+      </p>
+      {isOpen ? (
+        <aside
+          className="midnight-notice"
+          data-closing={isClosing ? "true" : "false"}
+          role="dialog"
+          aria-labelledby="midnight-notice-title"
+        >
+          <div className="midnight-notice__header">
+            <div id="midnight-notice-title" className="midnight-notice__title">
+              {notice.title}
+            </div>
+            <button
+              type="button"
+              className="midnight-notice__close"
+              onClick={closeNotice}
+              aria-label={notice.close}
+            >
+              ×
+            </button>
+          </div>
+          <div className="midnight-notice__body">
+            {notice.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+          <div className="midnight-notice__footer">
+            <button type="button" className="hero-cta midnight-notice__okay" onClick={closeNotice}>
+              <span className="hero-cta__bracket hero-cta__bracket--left" aria-hidden="true">
+                [
+              </span>
+              <span className="hero-cta__label">{notice.okay}</span>
+              <span className="hero-cta__bracket hero-cta__bracket--right" aria-hidden="true">
+                ]
+              </span>
+            </button>
+          </div>
+        </aside>
+      ) : null}
+    </Fragment>
+  )
+}
+
 function MidnightBlocks({
   chapterId,
   blocks,
+  startIndex = 0,
+  endIndex = blocks.length,
 }: {
   chapterId: MidnightChapter["id"]
   blocks: MidnightBlock[]
+  startIndex?: number
+  endIndex?: number
 }) {
-  return blocks.map((block, index) => {
+  return blocks.slice(startIndex, endIndex).map((block, offset) => {
+    const index = startIndex + offset
     const key = `${block.kind}-${index}`
     const accentClass = getArtDirectionAccentClass(chapterId, blocks, index)
+    const fullContrast = accentClass || (index === 0 && chapterId === "dialogue")
+    const paragraphClass = [
+      accentClass,
+      fullContrast && "work-midnight-prose--full-contrast",
+    ].filter(Boolean).join(" ")
 
-    if (block.kind === "media-reference") return null
+    if (block.kind === "media-reference") {
+      return chapterId === "engineering" && block.asset === "midnight-persona-system-architecture-polished.svg"
+        ? <img key={key} className="work-midnight-architecture" src={midnightArchitecture}
+            alt="Midnight Persona — System Architecture" loading="lazy" />
+        : null
+    }
     if (block.kind === "subheading") {
       return <h3 key={key} className="work-document__subheading">{block.text}</h3>
     }
     if (block.kind === "emphasis") {
       return (
-        <p key={key} className={`work-document__emphasis ${accentClass ?? ""}`.trim()}>
+        <p key={key} className={`work-document__emphasis ${paragraphClass}`.trim()}>
           <strong>{block.text}</strong>
         </p>
       )
@@ -131,7 +295,15 @@ function MidnightBlocks({
       )
     }
 
-    return <p key={key} className={accentClass}>{renderInlineMarkdown(block.text)}</p>
+    if (chapterId === "product" && index === 0) {
+      return <MidnightNoticeTrigger key={key} text={block.text} />
+    }
+
+    return (
+      <p key={key} className={paragraphClass || undefined}>
+        {renderInlineMarkdown(block.text)}
+      </p>
+    )
   })
 }
 
@@ -201,6 +373,7 @@ function WorkOverview({
           return (
             <a key={id} id={id} className="work-index-row" href={getViewHref(view)}
               onClick={(event) => onOpenView(event, view, id)}>
+              <span className="work-index-row__arrow" aria-hidden="true">↗</span>
               <div className="work-index-row__main">
                 <div className="work-index-row__index">{project.index}</div>
                 <h3 className="work-index-row__title">{project.title}</h3>
@@ -267,42 +440,75 @@ function ClientIndex({
   )
 }
 
-function MidnightBody({ chapters }: { chapters: MidnightChapter[] }) {
-  const product = chapters[0]
+const MIDNIGHT_PREVIEW_LENGTH: Record<MidnightChapter["id"], number> = {
+  product: 3,
+  dialogue: 3,
+  engineering: 3,
+  "generative-media": 2,
+  "art-direction": 3,
+}
+
+function MidnightDisclosure({ chapter }: { chapter: MidnightChapter }) {
+  const [open, setOpen] = useState(false)
+  const section = useRef<HTMLElement>(null)
+  const panel = useRef<HTMLDivElement>(null)
+  const { about } = useSiteContent()
+  const isProduct = chapter.id === "product"
+  const previewLength = MIDNIGHT_PREVIEW_LENGTH[chapter.id]
+  const panelId = `midnight-panel-${chapter.id}`
+
+  const toggle = () => {
+    if (open && panel.current && panel.current.getBoundingClientRect().top < 0) {
+      section.current?.scrollIntoView({ block: "start", behavior: "instant" })
+    }
+    setOpen(!open)
+  }
 
   return (
-    <div className="work-document__chapters">
-      {product ? (
-        <section className="work-document__chapter work-document__chapter--product-copy">
-          <MidnightBlocks chapterId={product.id} blocks={product.blocks} />
-        </section>
-      ) : null}
-      {chapters.slice(1).map((chapter) => (
-        <section id={chapter.id} key={chapter.id} className="work-document__chapter">
-          <div className="work-document__chapter-label work-mono">{chapter.label}</div>
+    <section
+      ref={section}
+      data-open={open}
+      id={isProduct ? undefined : chapter.id}
+      className={`work-document__chapter work-midnight-disclosure${isProduct ? " work-document__chapter--product-copy" : ""}`}
+    >
+      <div className="work-document__chapter-label work-mono">
+        {isProduct ? "01 / PRODUCT OVERVIEW" : chapter.label}
+      </div>
+      {!isProduct && (
+        <>
           <h2 className="work-document__chapter-title">{chapter.title}</h2>
-          <p className="work-document__chapter-subtitle">{chapter.subtitle}</p>
-          <MidnightBlocks chapterId={chapter.id} blocks={chapter.blocks} />
-        </section>
-      ))}
-    </div>
+          {chapter.subtitle && <p className="work-document__chapter-subtitle">{chapter.subtitle}</p>}
+        </>
+      )}
+      <MidnightBlocks chapterId={chapter.id} blocks={chapter.blocks} endIndex={previewLength} />
+      {chapter.id === "generative-media" && (
+        <div className="work-midnight-disclosure__teaser" aria-hidden={open}>
+          <div><span>cool story</span></div>
+        </div>
+      )}
+      <div ref={panel} id={panelId} className="work-midnight-disclosure__panel"
+        data-open={open} inert={!open}>
+        <div className="work-midnight-disclosure__copy">
+          <MidnightBlocks chapterId={chapter.id} blocks={chapter.blocks}
+            startIndex={previewLength} />
+        </div>
+      </div>
+      <button type="button" className="work-midnight-disclosure__toggle"
+        aria-expanded={open} aria-controls={panelId}
+        aria-label={`${open ? about.chapterToggle.collapse : about.chapterToggle.expand} ${chapter.label}`}
+        onClick={toggle}>
+        <svg className="work-midnight-disclosure__arrow" viewBox="-36 -36 72 72" aria-hidden="true">
+          <path d="M -9 -14.4 L 9 0 L -9 14.4" vectorEffect="non-scaling-stroke" />
+        </svg>
+      </button>
+    </section>
   )
 }
 
-function EcommerceBody({ chapter }: { chapter?: AboutChapterContent }) {
-  if (!chapter) return null
-
+function MidnightBody({ chapters }: { chapters: MidnightChapter[] }) {
   return (
-    <div className="work-document__body">
-      {chapter.intro?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-      {chapter.callouts?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-      {chapter.steps?.map((step) => (
-        <section key={step.title} className="work-document__content-section">
-          <h2>{step.title}</h2>
-          {step.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-        </section>
-      ))}
-      {chapter.followup?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+    <div className="work-document__chapters">
+      {chapters.map((chapter) => <MidnightDisclosure key={chapter.id} chapter={chapter} />)}
     </div>
   )
 }
@@ -315,50 +521,107 @@ function CaseDocument({ view }: { view: Exclude<WorkView, { kind: "overview" } |
   const midnightContent = MIDNIGHT_CONTENT[locale]
   const productChapter = midnightContent[0]
   const ecommerce = about.chapters.find((chapter) => chapter.id === "ecommerce")
+  const ecommerceProject = work.index.find((project) => project.id === "ecommerce")
+  const midnightProject = work.index.find((project) => project.id === "midnight-persona")
   const isMidnight = view.kind === "case" && view.id === "midnight-persona"
   const isEcommerce = view.kind === "case" && view.id === "ecommerce"
   const caseData = view.kind === "client-case" ? leadflow : midnight
   const title = isMidnight
     ? productChapter?.title ?? "Midnight Persona"
     : isEcommerce
-      ? "E-commerce in a Wartime Economy"
+      ? ecommerceProject!.title
       : "LeadFlowAI"
   const eyebrow = isMidnight
-    ? productChapter?.label ?? "01 / PRODUCT"
+    ? "2025–2026 / PRODUCT, ENGINEERING, ART DIRECTION"
     : isEcommerce
-      ? "02 / CASE"
+      ? "2021–2025 / HEAD OF E-COMMERCE"
       : leadflow.index
   const subtitle = isMidnight
-    ? productChapter?.subtitle ?? ""
+    ? ""
     : isEcommerce
-      ? ecommerce?.intro?.[0] ?? ""
+      ? ""
       : caseData.lead
 
   return (
-    <article className="work-shell work-document">
+    <article className={`work-shell work-document${isEcommerce ? " work-document--ecommerce" : ""}${isMidnight ? " work-document--midnight" : ""}`}>
       <header
         id={isMidnight ? "product" : undefined}
         className="work-shell__header work-document__header"
       >
         <div className="work-shell__eyebrow work-mono">{eyebrow}</div>
         <h1 id="work-document-title" className="work-shell__title" tabIndex={-1}>
-          {title}
+          {isMidnight ? (
+            <span className="work-midnight-logo">
+              <img src={midnightMoon} alt="" />
+              <img src={midnightWordmark} alt={title} />
+            </span>
+          ) : title}
         </h1>
         {subtitle ? <p className="work-document__subtitle">{subtitle}</p> : null}
+        {isEcommerce && (
+          <div className="work-ecommerce-brand">
+            <img src={sibvezLogo} alt="" width={48} height={48} />
+            <span>СИБВЕЗ</span>
+          </div>
+        )}
       </header>
 
-      {isMidnight ? null : isEcommerce ? (
-        ecommerce?.summary?.length ? <InlineStatement parts={ecommerce.summary} /> : null
-      ) : (
+      {!isMidnight && !isEcommerce && (
         <div className="work-document__first-screen">
           <InlineStatement parts={leadflow.statement} />
         </div>
       )}
 
       {isMidnight ? (
-        <MidnightBody chapters={midnightContent} />
+        <>
+          <div className="work-midnight-results">
+            <dl className="work-ecommerce-metrics">
+              {midnightProject && [
+                ...midnightProject.metrics.slice(0, 1),
+                { value: "20K+", label: locale === "ru" ? "Сообщения пользователей" : "User messages" },
+                ...midnightProject.metrics.slice(1),
+              ].map(({ label, value }) => (
+                <div key={label}>
+                  <dt>{label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
+            {midnightProject?.status && (
+              <div className="work-midnight-status">
+                <span>
+                  <span className="work-tag__lamp" aria-hidden="true" />
+                  {midnightProject.status.value}
+                </span>
+                <span>{midnightProject.status.label}</span>
+              </div>
+            )}
+          </div>
+          <MidnightBody chapters={midnightContent} />
+        </>
       ) : isEcommerce ? (
-        <EcommerceBody chapter={ecommerce} />
+        ecommerce && (
+          <div className="work-ecommerce-narrative">
+            <div className="work-midnight-results work-ecommerce-results">
+              <dl className="work-ecommerce-metrics">
+                {ecommerceProject?.metrics.map(({ label, value }) => (
+                  <div key={label}>
+                    <dt>{label}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+              </dl>
+              <div className="work-midnight-status">
+                <span>
+                  <img className="work-ecommerce-status-icon" src={redCore} alt="" />
+                  {locale === "ru" ? "ЗАКРЫТ" : "DISCONTINUED"}
+                </span>
+                <span>{locale === "ru" ? "ТЕКУЩИЙ ЭТАП" : "CURRENT PHASE"}</span>
+              </div>
+            </div>
+            <EcommerceNarrative chapter={ecommerce} intro={ecommerceProject?.caseIntro} />
+          </div>
+        )
       ) : (
         <div className="work-document__body">
           {leadflow.body.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}

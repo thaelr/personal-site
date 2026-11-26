@@ -4,10 +4,12 @@ import HomeSection from "./components/HomeSection"
 import WorkSection from "./components/WorkSection"
 import AboutSection from "./components/AboutSection"
 import ContactSection from "./components/ContactSection"
-import { ContentProvider } from "./content"
+import { ContentProvider, detectLocale } from "./content"
+import { applyDocumentMeta } from "./content/meta"
 import { SECTIONS } from "./content/structure"
 import type { Locale, SectionId } from "./content/types"
 import {
+  WORK_ROUTE_VIEWS,
   getParentWorkView,
   getWorkChapters,
   getWorkOriginId,
@@ -52,6 +54,20 @@ function mergeWorkHistoryState(workState: WorkHistoryState): Record<string, unkn
   return { ...getHistoryState(), [WORK_HISTORY_KEY]: workState }
 }
 
+/** Rewrite a stored parent path into the active locale without changing its view. */
+function normalizeParentPath(
+  parentPath: string | undefined,
+  locale: Locale,
+  base: string,
+): string | undefined {
+  if (!parentPath) return parentPath
+  const parentLocale = detectLocale(parentPath, base)
+  if (parentLocale === locale) return parentPath
+  const views: WorkView[] = [{ kind: "overview" }, ...WORK_ROUTE_VIEWS]
+  const match = views.find((view) => getWorkPath(view, parentLocale, base) === parentPath)
+  return match ? getWorkPath(match, locale, base) : parentPath
+}
+
 function restoreWindowScroll(scrollY: number) {
   const root = document.documentElement
   const previousScrollBehavior = root.style.scrollBehavior
@@ -64,10 +80,12 @@ function Site({
   locale,
   base,
   initialWorkView,
+  onLocaleChange,
 }: {
   locale: Locale
   base: string
   initialWorkView: WorkView
+  onLocaleChange: (locale: Locale) => void
 }) {
   const [activeSection, setActiveSection] = useState<SectionId>("home")
   const [workView, setWorkView] = useState<WorkView>(initialWorkView)
@@ -77,6 +95,7 @@ function Site({
   const pendingRestoreRef = useRef<PendingRestore | null>(null)
   const initialChapterHashHandledRef = useRef(false)
   const workViewRef = useRef(workView)
+  const localeRef = useRef(locale)
   const workReadingMode = isWorkReadingView(workView)
   const workChapters = getWorkChapters(workView)
   const parentView = getParentWorkView(workView)
@@ -85,6 +104,7 @@ function Site({
     : getWorkPath(workView, locale, base)
 
   workViewRef.current = workView
+  localeRef.current = locale
 
   useBrowserLayoutEffect(() => {
     const pending = pendingRestoreRef.current
@@ -122,6 +142,10 @@ function Site({
   }, [workChapters])
 
   useEffect(() => {
+    applyDocumentMeta(locale, workView, base)
+  }, [base, locale, workView])
+
+  useEffect(() => {
     const previousRestoration = window.history.scrollRestoration
     window.history.scrollRestoration = "manual"
     const currentState = getWorkHistoryState(window.history.state)
@@ -156,12 +180,42 @@ function Site({
     }
 
     const handlePopState = (event: PopStateEvent) => {
-      const nextView = getWorkViewFromPathname(window.location.pathname, locale, base)
+      const sessionLocale = localeRef.current
+      const urlLocale = detectLocale(window.location.pathname, base)
+
+      if (urlLocale !== sessionLocale) {
+        const urlView =
+          getWorkViewFromPathname(window.location.pathname, urlLocale, base) ?? { kind: "overview" }
+        const savedState = getWorkHistoryState(event.state)
+        window.history.replaceState(
+          savedState
+            ? mergeWorkHistoryState({
+                ...savedState,
+                parentPath: normalizeParentPath(savedState.parentPath, sessionLocale, base),
+              })
+            : event.state,
+          "",
+          `${getWorkPath(urlView, sessionLocale, base)}${window.location.hash}`,
+        )
+      }
+
+      const nextView = getWorkViewFromPathname(window.location.pathname, sessionLocale, base)
       if (!nextView) return
-      const saved = getWorkHistoryState(event.state)
+
+      const saved = getWorkHistoryState(window.history.state)
       pendingRestoreRef.current = { scrollY: saved?.scrollY ?? 0, focusId: saved?.focusId }
-      setActiveSection("work")
-      setActiveChapterId(getWorkChapters(nextView)[0]?.id ?? null)
+
+      const hash = window.location.hash.replace("#", "")
+      const chapters = getWorkChapters(nextView)
+      const chapterId =
+        chapters.find((chapter) => chapter.id === hash)?.id ?? chapters[0]?.id ?? null
+
+      if (isSectionId(hash)) {
+        setActiveSection(hash)
+      } else {
+        setActiveSection(nextView.kind === "overview" ? "home" : "work")
+      }
+      setActiveChapterId(chapterId)
       setWorkView(nextView)
     }
 
@@ -173,7 +227,9 @@ function Site({
       window.removeEventListener("scroll", saveScrollPosition)
       window.removeEventListener("popstate", handlePopState)
     }
-  }, [base, initialWorkView, locale])
+    // Initial history is captured once; later locale/view changes keep the same entries.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [base])
 
   useEffect(() => {
     if (workReadingMode) return
@@ -283,6 +339,33 @@ function Site({
     navigateToView(parentView, { targetId })
   }
 
+  const switchLocale = (event: MouseEvent<HTMLAnchorElement>, nextLocale: Locale) => {
+    if (!isPlainLeftClick(event)) return
+    event.preventDefault()
+    if (nextLocale === locale) return
+
+    const hash =
+      workView.kind === "overview"
+        ? `#${activeSection}`
+        : activeChapterId
+          ? `#${activeChapterId}`
+          : ""
+    const existing = getWorkHistoryState(window.history.state)
+    const nextParentPath = normalizeParentPath(existing?.parentPath, nextLocale, base)
+
+    window.history.replaceState(
+      mergeWorkHistoryState({
+        view: workView,
+        scrollY: window.scrollY,
+        focusId: existing?.focusId,
+        parentPath: nextParentPath,
+      }),
+      "",
+      `${getWorkPath(workView, nextLocale, base)}${hash}`,
+    )
+    onLocaleChange(nextLocale)
+  }
+
   const selectChapter = (chapterId: string) => {
     window.history.replaceState(window.history.state, "", `#${chapterId}`)
     setActiveChapterId(chapterId)
@@ -313,6 +396,7 @@ function Site({
         onWorkBack={returnFromWorkView}
         onChapterSelect={selectChapter}
         onSectionSelect={setActiveSection}
+        onLocaleSwitch={switchLocale}
       />
       {workReadingMode ? (
         <WorkSection
@@ -339,7 +423,7 @@ function Site({
 }
 
 export default function App({
-  locale = "en",
+  locale: initialLocale = "en",
   base = "/",
   initialWorkView = { kind: "overview" },
 }: {
@@ -347,9 +431,16 @@ export default function App({
   base?: string
   initialWorkView?: WorkView
 }) {
+  const [locale, setLocale] = useState<Locale>(initialLocale)
+
   return (
     <ContentProvider locale={locale}>
-      <Site locale={locale} base={base} initialWorkView={initialWorkView} />
+      <Site
+        locale={locale}
+        base={base}
+        initialWorkView={initialWorkView}
+        onLocaleChange={setLocale}
+      />
     </ContentProvider>
   )
 }

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180" role="img" aria-label="СИБВЕЗ">
+  <rect x="3" y="3" width="174" height="174" rx="17" fill="#fff" stroke="#231f20" stroke-width="6"/>
+  <g fill="#231f20">
+    <path d="M14 25.5V21Q14 13.5 21.5 13.5H158.5Q166 13.5 166 21V159.5Q166 167.5 155.5 167.5C163.5 88 94 19 14 25.5Z"/>
+    <path d="M14 33C89 26.5 155.5 91 148 167.5H138.5C145.5 96 85 36 14 42Z"/>
+    <path d="M106.5 72.5 92.5 86.5" fill="none" stroke="#231f20" stroke-width="13" stroke-linecap="round"/>
+  </g>
+  <circle cx="137.7" cy="41.4" r="15" fill="#e71200"/>
+</svg>

@@ -10,8 +10,6 @@ export default function ContactSection() {
     <section id="contact" className="contact-section">
       <div className="contact-section__inner">
         <div className="contact-section__grid">
-          <div className="contact-section__eyebrow">{contact.eyebrow}</div>
-
           <div className="contact-section__cta-wrap">
             <button
               type="button"

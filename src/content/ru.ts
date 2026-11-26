@@ -81,6 +81,15 @@ export const ru: SiteContent = {
       presentation: "PDF-ПРЕЗЕНТАЦИЯ",
       github: "GITHUB",
     },
+    notice: {
+      title: "MIDNIGHT PERSONA / NOTICE 001",
+      paragraphs: [
+        "Вы вполне можете предположить, что всё, что вы сейчас увидите, — тщательно продуманная шутка.",
+        "К сожалению, нет.",
+      ],
+      okay: "ОКЕЙ",
+      close: "Закрыть уведомление",
+    },
     cases: [
       {
         slug: "case-01",

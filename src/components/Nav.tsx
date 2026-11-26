@@ -15,6 +15,7 @@ interface NavProps {
   onWorkBack: (event: MouseEvent<HTMLAnchorElement>) => void
   onChapterSelect: (chapterId: string) => void
   onSectionSelect: (sectionId: SectionId) => void
+  onLocaleSwitch: (event: MouseEvent<HTMLAnchorElement>, locale: Locale) => void
 }
 
 function scrollToSection(id: SectionId, onSectionSelect: (sectionId: SectionId) => void) {
@@ -34,10 +35,12 @@ function LanguageSwitch({
   locale,
   hrefs,
   className,
+  onSwitch,
 }: {
   locale: Locale
   hrefs: Record<Locale, string>
   className: string
+  onSwitch: (event: MouseEvent<HTMLAnchorElement>, locale: Locale) => void
 }) {
   const languageLink = (targetLocale: Locale, label: string) => {
     const isActive = locale === targetLocale
@@ -47,18 +50,7 @@ function LanguageSwitch({
         return
       }
 
-      if (
-        event.button === 0 &&
-        !event.metaKey &&
-        !event.ctrlKey &&
-        !event.shiftKey &&
-        !event.altKey
-      ) {
-        event.preventDefault()
-        const destination = new URL(hrefs[targetLocale], window.location.href)
-        if (window.location.hash) destination.hash = window.location.hash
-        window.location.assign(`${destination.pathname}${destination.search}${destination.hash}`)
-      }
+      onSwitch(event, targetLocale)
     }
 
     return (
@@ -82,6 +74,14 @@ function LanguageSwitch({
   )
 }
 
+function ActiveNavArrow() {
+  return (
+    <svg className="site-nav__active-arrow" viewBox="-16 -19 32 38" aria-hidden="true">
+      <path d="M 9 -14.4 L -9 0 L 9 14.4" />
+    </svg>
+  )
+}
+
 export default function Nav({
   activeSection,
   workView,
@@ -93,6 +93,7 @@ export default function Nav({
   onWorkBack,
   onChapterSelect,
   onSectionSelect,
+  onLocaleSwitch,
 }: NavProps) {
   const { nav } = useSiteContent()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -128,6 +129,7 @@ export default function Nav({
           locale={locale}
           hrefs={languageHrefs}
           className="language-switch--desktop"
+          onSwitch={onLocaleSwitch}
         />
         <ul className="site-nav__list">
           {workReadingMode ? (
@@ -161,8 +163,10 @@ export default function Nav({
                     onClick={() => scrollToSection(id, onSectionSelect)}
                     className={`site-nav__button ${isActive ? "site-nav__button--active" : "site-nav__button--inactive"}`}
                   >
-                    {SECTION_NUMBERS[id]} {nav.items[id]}
-                    {isActive ? " <" : ""}
+                    <span className="site-nav__item-label">
+                      {SECTION_NUMBERS[id]} {nav.items[id]}
+                      {isActive && <ActiveNavArrow />}
+                    </span>
                   </button>
                 </li>
               )
@@ -175,6 +179,7 @@ export default function Nav({
         locale={locale}
         hrefs={languageHrefs}
         className="language-switch--mobile"
+        onSwitch={onLocaleSwitch}
       />
 
       {workReadingMode || workOverviewMobile ? (
@@ -258,9 +263,9 @@ export default function Nav({
                     style={{ transform: `translateX(${mobileOffsets[idx]}px)` }}
                     className="site-nav-mobile__button pointer-events-auto block text-right font-mono text-[0.68rem] uppercase tracking-[0.14em] transition-all duration-200 ease-out cursor-pointer"
                   >
-                    <span className={isActive ? "text-chalk" : "text-fog"}>
+                    <span className={`site-nav__item-label ${isActive ? "text-chalk" : "text-fog"}`}>
                       {SECTION_NUMBERS[id]} {nav.items[id]}
-                      {isActive ? " <" : ""}
+                      {isActive && <ActiveNavArrow />}
                     </span>
                   </button>
                 </li>

@@ -4,7 +4,7 @@
 
 **Interactive Adult Entertainment / Product Design & Strategy**
 
-Porn is usually something you watch. In Midnight Persona, you're part of it.
+Porn is usually something you watch. In Midnight Persona, you're part of it
 
 It's an interactive erotic world where you can flirt, play out stories, and have virtual sex. Users influence what happens, but they don't control everything. The characters have their own personalities, desires, and ideas about how relationships should develop.
 
@@ -33,9 +33,9 @@ I wasn't trying to convince people that AI intimacy is normal. I wanted to creat
 
 # 02 / DIALOGUE ENGINE
 
-## EngageFlowAI
+## LLM Behavior Engine
 
-**Stateful Conversation Engine / LLM Orchestration**
+**AI Systems Engineering / LLM Orchestration**
 
 The model writes. The engine controls.
 
@@ -66,6 +66,8 @@ Midnight Persona has two client applications, its own dialogue engine, a commerc
 I built the first version in n8n. Visual workflows made it easy to change the logic and see what was happening at each step. As the system grew, I moved routing, access control, and commerce into TypeScript. I kept n8n for the AI engine and Telegram interface, where being able to change workflows quickly is actually useful.
 
 ### Architecture
+
+![[midnight-persona-system-architecture-polished.svg]]
 
 At the core is a modular TypeScript backend shared by Telegram and Web. Both clients use the same accounts, chats, user entitlements, purchases, and media catalog. The backend determines which actions are allowed, while each interface decides how to present them.
 

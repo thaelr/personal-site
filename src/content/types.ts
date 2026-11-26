@@ -108,6 +108,7 @@ export type SiteContent = {
       index: string
       title: string
       description: string
+      caseIntro?: string[]
       metrics: { value: string; label: string }[]
       status?: { label: string; value: string }
     }[]
@@ -119,6 +120,12 @@ export type SiteContent = {
     linkLabels: {
       presentation: string
       github: string
+    }
+    notice: {
+      title: string
+      paragraphs: string[]
+      okay: string
+      close: string
     }
   }
   about: {

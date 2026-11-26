@@ -16,13 +16,49 @@ import type {
 
 type ParagraphTone = "default" | "primary" | "mono"
 
+export function EcommerceNarrative({
+  chapter,
+  intro,
+}: {
+  chapter: AboutChapterContent
+  intro?: string[]
+}) {
+  return (
+    <div className="ecommerce-narrative">
+      <div className="about-prose about-prose--primary about-prose--ecommerce-intro">
+        {intro
+          ? intro.map((paragraph) => <p key={paragraph}>{paragraph}</p>)
+          : <p>{`${chapter.intro?.[0] ?? ""} ${chapter.intro?.[1] ?? ""}`.trim()}</p>}
+        {chapter.intro?.[2] && chapter.asideReveal ? (
+          <ECommerceLeadLine
+            text={chapter.intro[2]}
+            aside={chapter.asideReveal}
+          />
+        ) : null}
+      </div>
+      <div className="about-step-card-list">
+        {chapter.steps?.map((step) => (
+          <ECommerceStepCard key={step.title} step={step} />
+        ))}
+      </div>
+      {chapter.authorComment ? (
+        <AuthorComment
+          paragraphs={chapter.authorComment}
+          collapseFirstGap
+          ecommerceInteractive
+        />
+      ) : null}
+    </div>
+  )
+}
+
 function InlineHighlight({ text }: { text: string }) {
   return <span className="about-inline-highlight">{text}</span>
 }
 
 function renderInlineParts(parts: InlinePart[]) {
   return parts.map((part, idx) =>
-    <span key={`${part.text}-${idx}`}>
+    <span key={`${part.text}-${idx}`} className={part.text === " " ? "about-chapter__fact-space" : undefined}>
       {part.highlight ? <InlineHighlight text={part.text} /> : part.text}
       {part.breakAfter ? <br /> : null}
     </span>,
@@ -35,21 +71,6 @@ function WhiteCallout({ text }: { text: string }) {
 
 function ProductLabel({ text }: { text: string }) {
   return <div className="about-product-label">{text}</div>
-}
-
-function AboutTag({
-  text,
-  statusIndicator = false,
-}: {
-  text: string
-  statusIndicator?: boolean
-}) {
-  return (
-    <span className={`about-tag ${statusIndicator ? "about-tag--status" : ""}`}>
-      {statusIndicator ? <span className="work-tag__lamp" aria-hidden="true" /> : null}
-      <span className="work-tag__text">{text}</span>
-    </span>
-  )
 }
 
 function ProseBlock({
@@ -228,7 +249,7 @@ function ECommerceStepCard({ step }: { step: ECommerceStepContent }) {
       const cardStyles = window.getComputedStyle(cardRef.current)
       const aboutScale = Number.parseFloat(cardStyles.getPropertyValue("--about-scale")) || 1
       const authorCommentText = cardRef.current
-        .closest(".about-chapter__content")
+        .closest(".ecommerce-narrative")
         ?.querySelector<HTMLElement>(".about-author-comment__text")
       const viewportHeight = window.innerHeight
       const startLine = viewportHeight * 0.85
@@ -359,78 +380,69 @@ function CareerChapter({
 }) {
   const { about } = useSiteContent()
   const progress = CHAPTER_PROGRESS[chapter.id]
-  const articleRef = useRef<HTMLElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
-  const lineRef = useRef<HTMLDivElement>(null)
-  const arrowButtonRef = useRef<HTMLSpanElement>(null)
+  const trackRef = useRef<HTMLSpanElement>(null)
+  const axisRef = useRef<HTMLSpanElement>(null)
   const [geometry, setGeometry] = useState({
-    arrowBaseTop: 0,
-    arrowShift: 0,
-    lineOpenWidth: 0,
+    trackX: 0,
+    axisX: 0,
+    titleY: 0,
+    trackY: 0,
+    headHalfWidth: 0,
+    headHalfHeight: 0,
   })
 
   useLayoutEffect(() => {
+    const trigger = triggerRef.current
+    const title = titleRef.current
+    const track = trackRef.current
+    const axis = axisRef.current
+    if (!trigger || !title || !track || !axis) return
+
     const measure = () => {
-      if (
-        !articleRef.current ||
-        !titleRef.current ||
-        !lineRef.current ||
-        !arrowButtonRef.current
-      ) {
-        return
-      }
-
-      const articleRect = articleRef.current.getBoundingClientRect()
-      const titleRect = titleRef.current.getBoundingClientRect()
-      const lineRect = lineRef.current.getBoundingClientRect()
-      const arrowRect = arrowButtonRef.current.getBoundingClientRect()
-
-      const titleCenter = titleRect.top - articleRect.top + titleRect.height / 2
-      const lineCenter = lineRect.top - articleRect.top + lineRect.height / 2
-      const arrowBaseTop = titleCenter - arrowRect.height / 2
-      const lineToArrowCenter =
-        arrowRect.left + arrowRect.width / 2 - lineRect.left
-
+      const origin = trigger.getBoundingClientRect()
+      const heading = title.getBoundingClientRect()
+      const line = track.getBoundingClientRect()
+      const rail = axis.getBoundingClientRect()
+      const headHalfHeight = rail.width / 5
+      const scale = window.matchMedia("(min-width: 1024px)").matches ? rail.width / 72 : 1
       setGeometry({
-        arrowBaseTop,
-        arrowShift: lineCenter - titleCenter,
-        lineOpenWidth: Math.max(lineToArrowCenter * progress, 0),
+        trackX: line.left - origin.left,
+        axisX: rail.left - origin.left + rail.width / 2,
+        titleY: heading.top - origin.top + heading.height / 2,
+        trackY: origin.height - headHalfHeight - 2.5 * scale - 10,
+        headHalfWidth: rail.width / 8,
+        headHalfHeight,
       })
     }
 
     measure()
-
-    const resizeObserver = new ResizeObserver(() => measure())
-    if (articleRef.current) resizeObserver.observe(articleRef.current)
-    if (titleRef.current) resizeObserver.observe(titleRef.current)
-    if (lineRef.current) resizeObserver.observe(lineRef.current)
-    if (arrowButtonRef.current) resizeObserver.observe(arrowButtonRef.current)
-
+    const observer = new ResizeObserver(measure)
+    for (const element of [trigger, title, track, axis]) observer.observe(element)
     window.addEventListener("resize", measure)
-
     return () => {
-      resizeObserver.disconnect()
+      observer.disconnect()
       window.removeEventListener("resize", measure)
     }
-  }, [progress, open])
+  }, [])
 
-  const chapterStyle = {
-    "--chapter-progress": progress,
-    "--chapter-arrow-base-top": `${geometry.arrowBaseTop}px`,
-    "--chapter-arrow-shift": `${geometry.arrowShift}px`,
-    "--chapter-line-open-width": `${geometry.lineOpenWidth}px`,
+  const { axisX, titleY, trackX, trackY, headHalfWidth, headHalfHeight } = geometry
+  const tipX = axisX + headHalfWidth
+  const graphicStyle = {
+    "--chapter-track-offset": 1 - progress,
+    "--chapter-arrow-shift": `${trackY - titleY}px`,
   } as CSSProperties
 
   const panelId = `about-panel-${chapter.id}`
 
   return (
     <article
-      ref={articleRef}
       className={`about-chapter ${open ? "is-open" : ""}`}
       data-chapter-id={chapter.id}
-      style={chapterStyle}
     >
       <button
+        ref={triggerRef}
         type="button"
         className="about-chapter__trigger"
         aria-expanded={open}
@@ -455,11 +467,20 @@ function CareerChapter({
               ))}
             </div>
           ) : null}
-          <div ref={lineRef} className="about-chapter__progress-line" aria-hidden="true" />
+          <span ref={trackRef} className="about-chapter__track-anchor" aria-hidden="true" />
         </div>
-        <span ref={arrowButtonRef} className="about-chapter__arrow-button" aria-hidden="true">
-          <span className="about-chapter__arrow">&gt;</span>
-        </span>
+        <span ref={axisRef} className="about-chapter__arrow-axis" aria-hidden="true" />
+        {axisX > 0 && (
+          <svg className="about-chapter__graphic" aria-hidden="true" style={graphicStyle}>
+            <path className="about-chapter__track" pathLength={1} d={`M ${trackX} ${trackY} H ${tipX}`} />
+            <g className="about-chapter__arrow-motion">
+              <g transform={`translate(${axisX} ${titleY})`}>
+                <path className="about-chapter__arrowhead"
+                  d={`M ${-headHalfWidth} ${-headHalfHeight} L ${headHalfWidth} 0 L ${-headHalfWidth} ${headHalfHeight}`} />
+              </g>
+            </g>
+          </svg>
+        )}
       </button>
 
       <div id={panelId} className="about-chapter__panel">
@@ -505,31 +526,7 @@ function CareerChapter({
               </>
             ) : null}
 
-            {chapter.id === "ecommerce" ? (
-              <>
-                <div className="about-prose about-prose--primary about-prose--ecommerce-intro">
-                  <p>{`${chapter.intro?.[0] ?? ""} ${chapter.intro?.[1] ?? ""}`.trim()}</p>
-                  {chapter.intro?.[2] && chapter.asideReveal ? (
-                    <ECommerceLeadLine
-                      text={chapter.intro[2]}
-                      aside={chapter.asideReveal}
-                    />
-                  ) : null}
-                </div>
-                <div className="about-step-card-list">
-                  {chapter.steps?.map((step) => (
-                    <ECommerceStepCard key={step.title} step={step} />
-                  ))}
-                </div>
-                {chapter.authorComment ? (
-                  <AuthorComment
-                    paragraphs={chapter.authorComment}
-                    collapseFirstGap
-                    ecommerceInteractive
-                  />
-                ) : null}
-              </>
-            ) : null}
+            {chapter.id === "ecommerce" ? <EcommerceNarrative chapter={chapter} /> : null}
 
             {chapter.id === "ai" ? (
               <>
@@ -576,15 +573,7 @@ export default function AboutSection() {
     <section id="about" className="about-section">
       <div className="about-section__inner">
         <div className="about-section__grid">
-          <div className="about-section__eyebrow about-mono">{about.eyebrow}</div>
           <h2 className="about-section__title">{about.title}</h2>
-          <p className="about-section__intro">
-            {about.introLines.map((line) => (
-              <span key={line} className="about-section__intro-line">
-                {line}
-              </span>
-            ))}
-          </p>
 
           <div className="about-section__chapters">
             {about.chapters.map((chapter) => (
@@ -597,10 +586,13 @@ export default function AboutSection() {
             ))}
 
             <section className="about-best">
-              <h2 className="about-best__title">{about.best.title}</h2>
+              <h2 className="about-best__title">
+                <span className="work-tag__lamp" aria-hidden="true" />
+                {about.best.title}
+              </h2>
               <div className="about-best__tags">
                 {about.best.tags.map((tag) => (
-                  <AboutTag key={tag.text} {...tag} />
+                  <p key={tag.text}>{tag.text}</p>
                 ))}
               </div>
               <div className="about-prose">

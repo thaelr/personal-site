@@ -11,7 +11,6 @@ import {
   type MidnightChapter,
 } from "../content/midnight"
 import { getWorkChapters, type WorkView } from "../work"
-import workChart from "../work-chart.png"
 
 type WorkSectionProps = {
   view: WorkView
@@ -31,7 +30,6 @@ type WorkPreviewProps = {
   description?: string
   tags?: WorkTagContent[]
   evidence?: string[]
-  media?: { src: string; alt: string }
   href: string
   onOpen: (event: MouseEvent<HTMLAnchorElement>) => void
 }
@@ -47,7 +45,7 @@ function WorkTag({ text, statusIndicator = false }: WorkTagContent) {
 
 function InlineStatement({ parts }: { parts: InlinePart[] }) {
   return (
-    <p className="work-document__statement work-mono">
+    <p className="work-document__statement">
       {parts.map((part, index) => (
         <span key={`${part.text}-${index}`}>
           {part.breakBefore ? <br /> : null}
@@ -84,16 +82,46 @@ function renderInlineMarkdown(text: string): ReactNode[] {
     })
 }
 
-function MidnightBlocks({ blocks }: { blocks: MidnightBlock[] }) {
+function getArtDirectionAccentClass(
+  chapterId: MidnightChapter["id"],
+  blocks: MidnightBlock[],
+  index: number,
+): string | undefined {
+  if (chapterId !== "art-direction") return undefined
+
+  const subheadingIndex = blocks.findIndex((block) => block.kind === "subheading")
+  if (index === 2) return "work-document__art-accent work-document__art-accent--audience"
+  if (index === subheadingIndex + 3) {
+    return "work-document__art-accent work-document__art-accent--recognition"
+  }
+  if (index === blocks.length - 1) {
+    return "work-document__art-accent work-document__art-accent--final"
+  }
+
+  return undefined
+}
+
+function MidnightBlocks({
+  chapterId,
+  blocks,
+}: {
+  chapterId: MidnightChapter["id"]
+  blocks: MidnightBlock[]
+}) {
   return blocks.map((block, index) => {
     const key = `${block.kind}-${index}`
+    const accentClass = getArtDirectionAccentClass(chapterId, blocks, index)
 
     if (block.kind === "media-reference") return null
     if (block.kind === "subheading") {
       return <h3 key={key} className="work-document__subheading">{block.text}</h3>
     }
     if (block.kind === "emphasis") {
-      return <p key={key} className="work-document__emphasis"><strong>{block.text}</strong></p>
+      return (
+        <p key={key} className={`work-document__emphasis ${accentClass ?? ""}`.trim()}>
+          <strong>{block.text}</strong>
+        </p>
+      )
     }
     if (block.kind === "link") {
       return (
@@ -103,7 +131,7 @@ function MidnightBlocks({ blocks }: { blocks: MidnightBlock[] }) {
       )
     }
 
-    return <p key={key}>{renderInlineMarkdown(block.text)}</p>
+    return <p key={key} className={accentClass}>{renderInlineMarkdown(block.text)}</p>
   })
 }
 
@@ -114,7 +142,6 @@ function WorkPreview({
   description,
   tags,
   evidence,
-  media,
   href,
   onOpen,
 }: WorkPreviewProps) {
@@ -140,11 +167,8 @@ function WorkPreview({
         ) : null}
       </div>
 
-      {media || evidence?.length ? (
+      {evidence?.length ? (
         <div className="work-preview__evidence">
-          {media ? (
-            <img src={media.src} alt={media.alt} className="work-preview__media" />
-          ) : null}
           {evidence?.length ? (
             <ul className="work-preview__evidence-list">
               {evidence.map((item) => (
@@ -162,52 +186,50 @@ function WorkOverview({
   getViewHref,
   onOpenView,
 }: Pick<WorkSectionProps, "getViewHref" | "onOpenView">) {
-  const { work, about } = useSiteContent()
-  const midnight = work.cases[0]
-  const leadflow = work.cases[1]
-  const ecommerce = about.chapters.find((chapter) => chapter.id === "ecommerce")
-  const ecommerceDescription = ecommerce?.intro?.[0] ?? ecommerce?.summary?.map((part) => part.text).join("")
-  const midnightView: WorkView = { kind: "case", id: "midnight-persona" }
-  const ecommerceView: WorkView = { kind: "case", id: "ecommerce" }
-  const clientView: WorkView = { kind: "client-index" }
+  const { work } = useSiteContent()
 
   return (
     <div className="work-section__grid">
-      <div className="work-section__eyebrow work-mono">{work.eyebrow}</div>
       <h2 className="work-section__title">{work.title}</h2>
-      <p className="work-section__intro">{work.intro}</p>
-
       <div className="work-overview__entries">
-        <WorkPreview
-          id="work-preview-midnight-persona"
-          index="01 / PRODUCT"
-          title="Midnight Persona"
-          description={midnight.lead}
-          tags={midnight.tags}
-          media={{ src: workChart, alt: work.chartAlt }}
-          href={getViewHref(midnightView)}
-          onOpen={(event) =>
-            onOpenView(event, midnightView, "work-preview-midnight-persona")
-          }
-        />
-        <WorkPreview
-          id="work-preview-ecommerce"
-          index="02 / CASE"
-          title="E-commerce in a Wartime Economy"
-          description={ecommerceDescription}
-          evidence={ecommerce?.tags}
-          href={getViewHref(ecommerceView)}
-          onOpen={(event) => onOpenView(event, ecommerceView, "work-preview-ecommerce")}
-        />
-        <WorkPreview
-          id="work-preview-client-work"
-          index="03 / COLLECTION"
-          title="Client Work"
-          description={leadflow.lead}
-          evidence={leadflow.capabilities?.map((item) => item.title)}
-          href={getViewHref(clientView)}
-          onOpen={(event) => onOpenView(event, clientView, "work-preview-client-work")}
-        />
+        {work.index.map((project) => {
+          const view: WorkView = project.id === "client-work"
+            ? { kind: "client-index" }
+            : { kind: "case", id: project.id }
+          const id = `work-preview-${project.id}`
+
+          return (
+            <a key={id} id={id} className="work-index-row" href={getViewHref(view)}
+              onClick={(event) => onOpenView(event, view, id)}>
+              <div className="work-index-row__main">
+                <div className="work-index-row__index">{project.index}</div>
+                <h3 className="work-index-row__title">{project.title}</h3>
+                <p className="work-index-row__description">{project.description}</p>
+              </div>
+              {(project.metrics.length > 0 || project.status) && (
+                <div className="work-index-row__aside">
+                  <dl className="work-index-row__metrics">
+                    {project.metrics.map(({ value, label }) => (
+                      <div key={label}>
+                        <dt>{label}</dt>
+                        <dd>{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  {project.status && (
+                    <span className="work-index-row__status">
+                      <span className="work-index-row__status-label">{project.status.label}</span>
+                      <span className="work-index-row__status-value">
+                        <span className="work-tag__lamp" aria-hidden="true" />
+                        <span>{project.status.value}</span>
+                      </span>
+                    </span>
+                  )}
+                </div>
+              )}
+            </a>
+          )
+        })}
       </div>
     </div>
   )
@@ -252,7 +274,7 @@ function MidnightBody({ chapters }: { chapters: MidnightChapter[] }) {
     <div className="work-document__chapters">
       {product ? (
         <section className="work-document__chapter work-document__chapter--product-copy">
-          <MidnightBlocks blocks={product.blocks.slice(1)} />
+          <MidnightBlocks chapterId={product.id} blocks={product.blocks} />
         </section>
       ) : null}
       {chapters.slice(1).map((chapter) => (
@@ -260,7 +282,7 @@ function MidnightBody({ chapters }: { chapters: MidnightChapter[] }) {
           <div className="work-document__chapter-label work-mono">{chapter.label}</div>
           <h2 className="work-document__chapter-title">{chapter.title}</h2>
           <p className="work-document__chapter-subtitle">{chapter.subtitle}</p>
-          <MidnightBlocks blocks={chapter.blocks} />
+          <MidnightBlocks chapterId={chapter.id} blocks={chapter.blocks} />
         </section>
       ))}
     </div>
@@ -325,15 +347,7 @@ function CaseDocument({ view }: { view: Exclude<WorkView, { kind: "overview" } |
         {subtitle ? <p className="work-document__subtitle">{subtitle}</p> : null}
       </header>
 
-      {isMidnight ? (
-        <div className="work-document__first-screen">
-          {productChapter?.blocks[0]?.kind === "paragraph" ? (
-            <p className="work-document__statement work-mono">
-              {renderInlineMarkdown(productChapter.blocks[0].text)}
-            </p>
-          ) : null}
-        </div>
-      ) : isEcommerce ? (
+      {isMidnight ? null : isEcommerce ? (
         ecommerce?.summary?.length ? <InlineStatement parts={ecommerce.summary} /> : null
       ) : (
         <div className="work-document__first-screen">

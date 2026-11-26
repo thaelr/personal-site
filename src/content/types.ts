@@ -103,6 +103,14 @@ export type SiteContent = {
     portraitAlt: string
   }
   work: {
+    index: {
+      id: "midnight-persona" | "ecommerce" | "client-work"
+      index: string
+      title: string
+      description: string
+      metrics: { value: string; label: string }[]
+      status?: { label: string; value: string }
+    }[]
     eyebrow: string
     title: string
     intro: string

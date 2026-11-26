@@ -38,7 +38,38 @@ export const en: SiteContent = {
   },
   work: {
     eyebrow: "SELECTED WORK / TWO SYSTEMS BUILT END TO END",
-    title: "Selected Work",
+    title: "Work",
+    index: [
+      {
+        id: "midnight-persona",
+        index: "01 / PRODUCT",
+        title: "Midnight Persona",
+        description: "Product, Engineering & Art Direction — Built Independently",
+        metrics: [
+          { value: "2.6K+", label: "Users" },
+          { value: "42%", label: "Repeat buyers" },
+        ],
+        status: { label: "CURRENT PHASE", value: "GROWTH VALIDATION" },
+      },
+      {
+        id: "ecommerce",
+        index: "02 / OPERATIONS",
+        title: "E-commerce Operations & Growth",
+        description: "4 Years of End-to-End Responsibility",
+        metrics: [
+          { value: "$1.5M", label: "Annual Revenue" },
+          { value: "16×", label: "Revenue Growth" },
+          { value: "7%+", label: "Profit Margin" },
+        ],
+      },
+      {
+        id: "client-work",
+        index: "03 / CLIENT WORK",
+        title: "Client Projects",
+        description: "Custom software from business requirements to production",
+        metrics: [],
+      },
+    ],
     intro:
       "Two products built to turn natural conversation into reliable product behavior and business operations.",
     chartAlt: "Distribution of dialogue engine beta-test conversation lengths",

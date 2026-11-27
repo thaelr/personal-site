@@ -16,7 +16,6 @@ export const WORK_ROUTE_VIEWS: WorkView[] = [
   { kind: "case", id: "midnight-persona" },
   { kind: "case", id: "ecommerce" },
   { kind: "client-index" },
-  { kind: "client-case", id: "leadflowai" },
 ]
 
 function normalizeBase(base: string): string {
@@ -38,6 +37,11 @@ function getWorkRouteSuffix(view: WorkView): string {
 
 export function getWorkPath(view: WorkView, locale: Locale, base: string): string {
   return `${getLocaleRoot(locale, base)}${getWorkRouteSuffix(view)}`
+}
+
+/** Previous-version URL retained only as a redirect target for inbound links. */
+export function getLegacyLeadflowPath(locale: Locale, base: string): string {
+  return `${getLocaleRoot(locale, base)}work/client-work/leadflowai/`
 }
 
 /** Markdown representation of the same route, written next to its index.html. */

@@ -71,6 +71,23 @@ export const en: SiteContent = {
     intro:
       "Two products built to turn natural conversation into reliable product behavior and business operations.",
     chartAlt: "Distribution of dialogue engine beta-test conversation lengths",
+    caseMeta: {
+      midnightPersona: {
+        eyebrow: "2025–2026 / PRODUCT, ENGINEERING, ART DIRECTION",
+        additionalMetrics: [{ value: "20K+", label: "User messages" }],
+      },
+      ecommerce: {
+        eyebrow: "2021–2025 / HEAD OF E-COMMERCE",
+        status: { label: "CURRENT PHASE", value: "DISCONTINUED" },
+      },
+      clientWork: {
+        title: "Client Work",
+        caseEyebrow: "01 / LEAD MANAGEMENT",
+        service: "Conversational AI / Business Process Automation & Integration for",
+        clientName: "wooftattoo",
+        clientUrl: "https://wooftattoo.com/",
+      },
+    },
     linkLabels: {
       presentation: "PDF PRESENTATION",
       github: "GITHUB",

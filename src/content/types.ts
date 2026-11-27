@@ -114,6 +114,23 @@ export type SiteContent = {
     title: string
     intro: string
     chartAlt: string
+    caseMeta: {
+      midnightPersona: {
+        eyebrow: string
+        additionalMetrics: { value: string; label: string }[]
+      }
+      ecommerce: {
+        eyebrow: string
+        status: { label: string; value: string }
+      }
+      clientWork: {
+        title: string
+        caseEyebrow: string
+        service: string
+        clientName: string
+        clientUrl: string
+      }
+    }
     cases: WorkCaseContent[]
     linkLabels: {
       presentation: string

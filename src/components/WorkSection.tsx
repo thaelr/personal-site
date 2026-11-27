@@ -1,6 +1,5 @@
 import { sibvezCaseRu } from "../content/sibvez.ru"
-import leadflowEn from "../content/leadflow.en.md?raw"
-import leadflowRu from "../content/leadflow.ru.md?raw"
+import { LEADFLOW_SOURCE } from "../content/leadflow"
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react"
 import { createPortal } from "react-dom"
 import { useLocale, useSiteContent } from "../content"
@@ -18,6 +17,7 @@ import type {
 } from "../content/types"
 import {
   MIDNIGHT_CONTENT,
+  MIDNIGHT_INTERACTIONS,
   type MidnightAccent,
   type MidnightBlock,
   type MidnightChapter,
@@ -274,25 +274,6 @@ function MidnightNoticeTrigger({ text }: { text: string }) {
   )
 }
 
-const midnightOrbitPhrases = {
-  en: ["FLUX produced convincing realism", "Pony could generate explicit scenes"],
-  ru: ["FLUX давал убедительный реализм", "Второй позволял генерировать откровенные сцены"],
-} as const
-
-const midnightFilmstripPhrases = {
-  en: "I've already produced more than 16,000 photos and 500 videos for Midnight Persona.",
-  ru: "Для Midnight Persona уже произведено более 16 000 фотографий и 500 видео.",
-}
-
-const midnightSlowScanPhrases = [
-  { clip: "glass", en: "Fogged-up glass with finger marks", ru: "Запотевшее стекло со следами пальцев" },
-  {
-    clip: "liquid",
-    en: "Liquid matter stretches, intertwines, and wraps around itself.",
-    ru: "Жидкая материя тянется, переплетается и обволакивает саму себя.",
-  },
-] as const
-
 function MidnightBlocks({
   chapterId,
   blocks,
@@ -340,23 +321,25 @@ function MidnightBlocks({
       return <MidnightNoticeTrigger key={key} text={block.text} />
     }
 
-    const slowScan = chapterId === "art-direction"
-      ? midnightSlowScanPhrases.find((entry) => block.text.includes(entry[locale]))
+    const slowScan = block.interaction === "slow-scan-glass" || block.interaction === "slow-scan-liquid"
+      ? block.interaction
       : undefined
     if (slowScan) {
-      const phrase = slowScan[locale]
+      const phrase = MIDNIGHT_INTERACTIONS[locale][slowScan].targets[0]
       const start = block.text.indexOf(phrase)
       return (
         <p key={key} className={accentClass || undefined}>
           {renderInlineMarkdown(block.text.slice(0, start))}
-          <MidnightSlowScan enabled={enabled} clip={slowScan.clip}>{phrase}</MidnightSlowScan>
+          <MidnightSlowScan enabled={enabled} clip={slowScan === "slow-scan-glass" ? "glass" : "liquid"}>
+            {phrase}
+          </MidnightSlowScan>
           {renderInlineMarkdown(block.text.slice(start + phrase.length))}
         </p>
       )
     }
 
-    const filmstripPhrase = midnightFilmstripPhrases[locale]
-    if (chapterId === "generative-media" && block.text.endsWith(filmstripPhrase)) {
+    const filmstripPhrase = MIDNIGHT_INTERACTIONS[locale].filmstrip.targets[0]
+    if (block.interaction === "filmstrip") {
       return (
         <MidnightFilmstrip
           key={key}
@@ -368,9 +351,9 @@ function MidnightBlocks({
       )
     }
 
-    const [fluxPhrase, ponyPhrase] = midnightOrbitPhrases[locale]
-    const fluxIndex = chapterId === "generative-media" ? block.text.indexOf(fluxPhrase) : -1
-    const ponyIndex = chapterId === "generative-media" ? block.text.indexOf(ponyPhrase) : -1
+    const [fluxPhrase, ponyPhrase] = MIDNIGHT_INTERACTIONS[locale]["orbit-comparison"].targets
+    const fluxIndex = block.interaction === "orbit-comparison" ? block.text.indexOf(fluxPhrase) : -1
+    const ponyIndex = block.interaction === "orbit-comparison" ? block.text.indexOf(ponyPhrase) : -1
     const galleries = ([
       { id: "flux", phrase: fluxPhrase, index: fluxIndex },
       { id: "pony", phrase: ponyPhrase, index: ponyIndex },
@@ -403,7 +386,8 @@ function WorkPreview({ index, status, evidence, children }: {
   children: ReactNode
 }) {
   const [open, setOpen] = useState(false)
-  const { about } = useSiteContent()
+  const { about, work } = useSiteContent()
+  const clientMeta = work.caseMeta.clientWork
   const panel = useRef<HTMLDivElement>(null)
   const toggleButton = useRef<HTMLButtonElement>(null)
   const panelId = "leadflowai-inline-case"
@@ -423,8 +407,10 @@ function WorkPreview({ index, status, evidence, children }: {
         <div className="work-preview__open">
           <h2 className="work-preview__title">LeadFlowAI</h2>
           <p className="work-preview__description">
-            Conversational AI / Business Process Automation &amp; Integration for{" "}
-            <a href="https://wooftattoo.com/" target="_blank" rel="noreferrer">wooftattoo</a>
+            {clientMeta.service}{" "}
+            <a href={clientMeta.clientUrl} target="_blank" rel="noreferrer">
+              {clientMeta.clientName}
+            </a>
           </p>
         </div>
         <div className="work-preview__tags">
@@ -513,7 +499,7 @@ function ClientIndex() {
   const { work } = useSiteContent()
   const locale = useLocale()
   const leadflow = work.cases[1]
-  const caseCopy = locale === "ru" ? leadflowRu : leadflowEn
+  const caseCopy = LEADFLOW_SOURCE[locale]
 
   return (
     <div className="work-shell work-client-index">
@@ -627,9 +613,9 @@ function CaseDocument({ view }: { view: Exclude<WorkView, { kind: "overview" } |
       ? ecommerceProject!.title
       : "LeadFlowAI"
   const eyebrow = isMidnight
-    ? "2025–2026 / PRODUCT, ENGINEERING, ART DIRECTION"
+    ? work.caseMeta.midnightPersona.eyebrow
     : isEcommerce
-      ? locale === "ru" ? "2021–2025 / РУКОВОДИТЕЛЬ E-COMMERCE" : "2021–2025 / HEAD OF E-COMMERCE"
+      ? work.caseMeta.ecommerce.eyebrow
       : leadflow.index
   const subtitle = isMidnight
     ? ""
@@ -673,7 +659,7 @@ function CaseDocument({ view }: { view: Exclude<WorkView, { kind: "overview" } |
             <dl className="work-ecommerce-metrics">
               {midnightProject && [
                 ...midnightProject.metrics.slice(0, 1),
-                { value: "20K+", label: locale === "ru" ? "Сообщения пользователей" : "User messages" },
+                ...work.caseMeta.midnightPersona.additionalMetrics,
                 ...midnightProject.metrics.slice(1),
               ].map(({ label, value }) => (
                 <div key={label}>
@@ -709,9 +695,9 @@ function CaseDocument({ view }: { view: Exclude<WorkView, { kind: "overview" } |
               <div className="work-midnight-status">
                 <span>
                   <img className="work-ecommerce-status-icon" src={redCore} alt="" />
-                  {locale === "ru" ? "ЗАКРЫТ" : "DISCONTINUED"}
+                  {work.caseMeta.ecommerce.status.value}
                 </span>
-                <span>{locale === "ru" ? "ТЕКУЩИЙ ЭТАП" : "CURRENT PHASE"}</span>
+                <span>{work.caseMeta.ecommerce.status.label}</span>
               </div>
             </div>
             <EcommerceNarrative chapter={ecommerce} intro={ecommerceProject?.caseIntro} />

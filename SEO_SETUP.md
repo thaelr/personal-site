@@ -8,8 +8,9 @@ manual steps needed in Google Search Console, Bing Webmaster Tools, and IndexNow
 `npm run build` (or `pnpm build`) runs the normal Vite build, the SSR build, prerendering,
 discovery generation, and verification. After a successful build `dist/` contains:
 
-- `robots.txt` — allows search engines and the major AI crawlers, and points to the sitemap.
-- `sitemap.xml` — all ten canonical EN/RU routes with `hreflang` alternates.
+- `robots.txt` — applies one open policy to all crawlers and points to the sitemap.
+- `sitemap.xml` — all eight canonical EN/RU routes with `hreflang` alternates. It does
+  not emit a build-time `lastmod` value.
 - `index.md`, `work/*/index.md`, `ru/index.md`, `ru/work/*/index.md` — Markdown
   representations of every route.
 - `llms.txt`, `llms-full.txt`, `ru/llms.txt`, `ru/llms-full.txt` — machine-readable
@@ -19,7 +20,7 @@ discovery generation, and verification. After a successful build `dist/` contain
 Every prerendered HTML document also gets:
 
 - `<link rel="alternate" type="text/markdown" href="…/index.md">`;
-- a visually hidden but crawlable link to the Markdown version and `llms.txt`;
+- `<link rel="describedby" href="…/llms.txt" type="text/plain">`;
 - JSON-LD (`Person`, `WebSite`, plus `ProfilePage`, `CollectionPage`, or `CreativeWork`);
 - `robots` metadata allowing indexing and large image previews.
 
@@ -68,8 +69,10 @@ Then open `http://localhost:4173/`, `/robots.txt`, `/sitemap.xml`, `/llms.txt`, 
    - `https://thaelr.com/work/midnight-persona/`
    - `https://thaelr.com/work/ecommerce/`
    - `https://thaelr.com/work/client-work/`
-   - `https://thaelr.com/work/client-work/leadflowai/`
-   - the same five URLs under `/ru/`.
+   - the same four URLs under `/ru/`.
+
+   The former `/work/client-work/leadflowai/` URL is a `noindex` compatibility redirect
+   to `/work/client-work/`, where the current authored LeadFlowAI case lives.
 6. Check **Pages** after a few days for indexing status and any manual actions.
 
 Google may take days or weeks to crawl and index a new site. The sitemap submission does
@@ -82,7 +85,7 @@ not force immediate indexing.
 3. Verify ownership. You can import the site from Google Search Console, or use the DNS
    TXT / XML file / meta-tag method.
 4. Open **Sitemaps** and submit `https://thaelr.com/sitemap.xml`.
-5. Open **URL Submission** and submit the ten canonical URLs if you want to request
+5. Open **URL Submission** and submit the eight canonical URLs if you want to request
    crawling immediately.
 6. Confirm the IndexNow key is reachable at:
 
@@ -104,17 +107,19 @@ IndexNow keys are public ownership proofs, not secrets. The filename and the fil
 must match. To rotate the key, generate 32 lowercase hex characters, replace the file, and
 update the key name in this document if you keep a copy here.
 
-The GitHub Actions workflow runs `scripts/indexnow.mjs` in a separate `indexnow` job after
-the GitHub Pages deployment succeeds. The script:
+IndexNow submission is deliberately managed rather than attached to every deployment, so
+an unchanged build is not submitted again and an external outage cannot fail a successful
+Pages deployment. The script:
 
 1. finds the single `public/<32-hex>.txt` key file (or uses `INDEXNOW_KEY`);
-2. reads the deployed `https://thaelr.com/sitemap.xml` (with retries for CDN propagation);
-3. submits every `<loc>` URL to `https://api.indexnow.org/indexnow`.
+2. accepts only the explicitly supplied, changed URLs on `thaelr.com`;
+3. submits those URLs to `https://api.indexnow.org/indexnow`, with a network timeout and
+   bounded retries for rate limits and server errors.
 
 To run it manually after a deployment:
 
 ```bash
-SITE_URL=https://thaelr.com/ node scripts/indexnow.mjs
+SITE_URL=https://thaelr.com/ INDEXNOW_URLS='https://thaelr.com/work/client-work/ https://thaelr.com/ru/work/client-work/' node scripts/indexnow.mjs
 ```
 
 IndexNow is supported by Bing, Yandex, Seznam, and other engines. It does not replace
@@ -122,10 +127,7 @@ Google Search Console.
 
 ## ChatGPT and other AI agents
 
-The site is reachable over HTTP and the text representations are public. A ChatGPT web
-tool returning `DisabledError` is not evidence that the site is down: it usually means the
-tool or browsing capability is unavailable for that account, region, or request, or that
-the content triggered a policy restriction. Verify availability independently:
+The production site and text representations can be checked independently over HTTP:
 
 ```bash
 curl -I https://thaelr.com/
@@ -133,11 +135,13 @@ curl -s https://thaelr.com/llms.txt | head
 curl -s https://thaelr.com/work/midnight-persona/index.md | head
 ```
 
-If a specific agent cannot open the HTML, point it at `/llms.txt` or the page-level
-`index.md`. Those files contain the same authorial text without client-side JavaScript.
+Successful HTTP checks confirm public availability, but do not prove that a particular
+external AI product can fetch the site or that a search engine has indexed it. Test those
+systems separately. `/llms.txt` and page-level `index.md` files provide the same authorial
+content without requiring client-side JavaScript.
 
 ## What is intentionally not changed
 
-The build additions do not change the visual design, typography, animations, routes,
-product copy, metrics, images, DNS, or hosting. The hidden text links use a
-`.visually-hidden` utility and are not visible in normal browsing.
+The build additions do not change the visual design, typography, animations, product copy,
+metrics, images, DNS, or hosting. The standalone LeadFlowAI product repository remains an
+independent description and is not synchronized into the portfolio case.

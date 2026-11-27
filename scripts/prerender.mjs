@@ -11,6 +11,8 @@ const {
   render,
   getRouteMeta,
   buildJsonLd,
+  getLegacyLeadflowPath,
+  getLlmsPath,
   getMarkdownPath,
   WORK_ROUTE_VIEWS,
   getWorkPath,
@@ -51,6 +53,7 @@ function buildDocument(locale, view) {
     getMarkdownPath(view, locale, '/').replace(/^\//, ''),
     siteUrl,
   ).href
+  const llmsUrl = new URL(getLlmsPath(locale, '/').replace(/^\//, ''), siteUrl).href
   const ogType =
     view.kind === 'overview' || view.kind === 'client-index' ? 'website' : 'article'
   const jsonLd = JSON.stringify(buildJsonLd(locale, view, siteUrl, meta)).replace(
@@ -92,6 +95,7 @@ function buildDocument(locale, view) {
     `<link rel="alternate" hreflang="ru" href="${ruUrl}">`,
     `<link rel="alternate" hreflang="x-default" href="${enUrl}">`,
     `<link rel="alternate" type="text/markdown" href="${markdownUrl}" title="${locale === 'ru' ? 'Markdown-версия' : 'Markdown version'}">`,
+    `<link rel="describedby" href="${llmsUrl}" type="text/plain">`,
     `<meta property="og:type" content="${ogType}">`,
     `<meta property="og:url" content="${canonical}">`,
     `<meta property="og:locale" content="${locale === 'ru' ? 'ru_RU' : 'en_US'}">`,
@@ -117,4 +121,36 @@ for (const locale of locales) {
   }
 }
 
-console.log(`prerender: wrote ${written.length} locale/WORK documents`)
+for (const locale of locales) {
+  const legacyPath = getLegacyLeadflowPath(locale, '/').replace(/^\//, '')
+  const canonical = canonicalUrl(locale, { kind: 'client-index' })
+  const redirectTarget = getWorkPath({ kind: 'client-index' }, locale, '/')
+  const enUrl = canonicalUrl('en', { kind: 'client-index' })
+  const ruUrl = canonicalUrl('ru', { kind: 'client-index' })
+  const llmsUrl = new URL(getLlmsPath(locale, '/').replace(/^\//, ''), siteUrl).href
+  const filePath = path.join(distDir, legacyPath, 'index.html')
+  const redirectScript = `location.replace(${JSON.stringify(redirectTarget)} + location.search + location.hash)`
+  const html = `<!doctype html>
+<html lang="${locale}">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${locale === 'ru' ? 'LeadFlowAI — перенаправление' : 'LeadFlowAI — redirect'}</title>
+    <meta name="robots" content="noindex, follow">
+    <link rel="canonical" href="${canonical}">
+    <link rel="alternate" hreflang="en" href="${enUrl}">
+    <link rel="alternate" hreflang="ru" href="${ruUrl}">
+    <link rel="alternate" hreflang="x-default" href="${enUrl}">
+    <link rel="describedby" href="${llmsUrl}" type="text/plain">
+    <meta http-equiv="refresh" content="0; url=${redirectTarget}">
+    <script>${redirectScript}</script>
+  </head>
+  <body><p><a href="${canonical}">${locale === 'ru' ? 'Открыть актуальный кейс LeadFlowAI' : 'Open the current LeadFlowAI case'}</a></p></body>
+</html>
+`
+  await mkdir(path.dirname(filePath), { recursive: true })
+  await writeFile(filePath, html)
+  written.push(filePath)
+}
+
+console.log(`prerender: wrote ${written.length} canonical and legacy locale/WORK documents`)

@@ -2,9 +2,10 @@ import { en } from "./en"
 import { ru } from "./ru"
 import { sibvezCaseRu } from "./sibvez.ru"
 import { MIDNIGHT_CONTENT } from "./midnight"
+import { getLeadflowDescription } from "./leadflow"
 import { buildJsonLd } from "./jsonld"
 import type { Locale } from "./types"
-import { getMarkdownPath, getWorkPath, type WorkView } from "../work"
+import { getLlmsPath, getMarkdownPath, getWorkPath, type WorkView } from "../work"
 
 const CONTENT = { en, ru }
 
@@ -14,13 +15,12 @@ export function getRouteMeta(locale: Locale, view: WorkView) {
   if (view.kind === "overview") return { ...content.meta, name: content.home.name }
 
   const midnight = content.work.cases[0]
-  const leadflow = content.work.cases[1]
   const ecommerce = locale === "ru"
     ? sibvezCaseRu
     : content.about.chapters.find((chapter) => chapter.id === "ecommerce")
   const name =
     view.kind === "client-index"
-      ? "Client Work"
+      ? content.work.caseMeta.clientWork.title
       : view.kind === "client-case"
         ? "LeadFlowAI"
         : view.id === "ecommerce"
@@ -28,7 +28,7 @@ export function getRouteMeta(locale: Locale, view: WorkView) {
           : MIDNIGHT_CONTENT[locale][0]?.title ?? "Midnight Persona"
   const description =
     view.kind === "client-index" || view.kind === "client-case"
-      ? leadflow.lead
+      ? getLeadflowDescription(locale)
       : view.id === "ecommerce"
         ? ecommerce?.intro?.[0] ?? content.meta.description
         : MIDNIGHT_CONTENT[locale][0]?.blocks.find((block) => block.kind === "paragraph")?.text ??
@@ -87,6 +87,10 @@ export function applyDocumentMeta(locale: Locale, view: WorkView, base: string) 
   setLinkHref(
     'link[rel="alternate"][type="text/markdown"]',
     toAbsolute(getMarkdownPath(view, locale, base), origin),
+  )
+  setLinkHref(
+    'link[rel="describedby"]',
+    toAbsolute(getLlmsPath(locale, base), origin),
   )
   setMetaContent(
     'meta[property="og:type"]',

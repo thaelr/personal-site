@@ -95,10 +95,7 @@ export function buildJsonLd(
             item: {
               "@type": "CreativeWork",
               name: "LeadFlowAI",
-              url: absolute(
-                getWorkPath({ kind: "client-case", id: "leadflowai" }, locale, "/"),
-                root,
-              ),
+              url: pageUrl,
             },
           },
         ],

@@ -115,6 +115,7 @@ With this approach, development speed is no longer the main constraint. The hard
 
 Good dialogue sets expectations the visuals have to meet. For Midnight Persona, I needed thousands of images with recognizable characters, realistic anatomy, and an accurate depiction of what was happening in the scene. All at a cost that made sense for microtransactions.
 
+<!-- interaction:orbit-comparison -->
 I built the first pipelines using FLUX and SDXL Pony. FLUX produced convincing realism but wasn't well suited to NSFW and was also painfully slow. Pony could generate explicit scenes, but struggled to keep characters recognizable: at low LoRA weights, they lost their likeness; at high weights, the images turned into unusable slop.
 
 <!-- preview-end -->
@@ -137,6 +138,7 @@ I also automated dataset preparation for LoRA training. Later, I added an image-
 
 Eventually, I found a technical setup that delivers the realism, consistency, and NSFW support I needed without a complicated chain of fixes. I'll keep the exact checkpoint and pipeline design a trade secret.
 
+<!-- interaction:filmstrip -->
 Generating one image on an RTX 5090 takes around 4 seconds. I've already produced more than 16,000 photos and 500 videos for Midnight Persona.
 
 The estimated production cost is approximately $0.005 per photo and $0.10 per video.
@@ -169,12 +171,14 @@ I don't think I need to explain to people why they'd want AI intimacy. I should 
 
 I didn't want the entire visual language to revolve around imitating humans. I wanted to know whether something nonhuman could arouse sexual desire on its own, without trying to pass for something alive.
 
+<!-- interaction:slow-scan-glass -->
 I started with sensations we associate with the body: wetness, warmth, touch, breath. Then applied them to materials that have no body at all. Fogged-up glass with finger marks. Synthetic matter that swells, spreads apart, and comes together in anatomical forms unlike any body known to science.
 
 <!-- accent:recognition -->
 
 You recognize a sensation even when you no longer recognize its source.
 
+<!-- interaction:slow-scan-liquid -->
 There's something alien and unexpectedly sexual about these forms. Liquid matter stretches, intertwines, and wraps around itself. It's too fluid to resemble flesh, but there's something intimate in the way it moves.
 
 There's nothing explicit in the frame. That doesn't stop it from being obscene. The world doesn't try to please the viewer, but it certainly knows how to seduce them.

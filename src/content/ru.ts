@@ -71,6 +71,23 @@ export const ru: SiteContent = {
     intro:
       "Два продукта, которые превращают естественную беседу в надёжное поведение продукта и реальные бизнес-процессы.",
     chartAlt: "Распределение длины диалогов в бета-тесте диалогового движка",
+    caseMeta: {
+      midnightPersona: {
+        eyebrow: "2025–2026 / PRODUCT, ENGINEERING, ART DIRECTION",
+        additionalMetrics: [{ value: "20K+", label: "Сообщения пользователей" }],
+      },
+      ecommerce: {
+        eyebrow: "2021–2025 / РУКОВОДИТЕЛЬ E-COMMERCE",
+        status: { label: "ТЕКУЩИЙ ЭТАП", value: "ЗАКРЫТ" },
+      },
+      clientWork: {
+        title: "Client Work",
+        caseEyebrow: "01 / ОБРАБОТКА ЛИДОВ",
+        service: "Conversational AI / Business Process Automation & Integration for",
+        clientName: "wooftattoo",
+        clientUrl: "https://wooftattoo.com/",
+      },
+    },
     linkLabels: {
       presentation: "PDF-ПРЕЗЕНТАЦИЯ",
       github: "GITHUB",

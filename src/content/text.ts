@@ -1,9 +1,13 @@
 import { en } from "./en"
 import { ru } from "./ru"
-import { MIDNIGHT_CONTENT, type MidnightBlock, type MidnightChapter } from "./midnight"
+import {
+  MIDNIGHT_CONTENT,
+  MIDNIGHT_INTERACTIONS,
+  type MidnightBlock,
+  type MidnightChapter,
+} from "./midnight"
 import { sibvezCaseRu } from "./sibvez.ru"
-import leadflowEn from "./leadflow.en.md?raw"
-import leadflowRu from "./leadflow.ru.md?raw"
+import { LEADFLOW_SOURCE } from "./leadflow"
 import careerEn from "./about-career.en.md?raw"
 import careerRu from "./about-career.ru.md?raw"
 import type { AboutChapterContent, InlinePart, Locale, SiteContent } from "./types"
@@ -15,7 +19,6 @@ import portrait from "../hero-portrait.png"
 
 const CONTENT: Record<Locale, SiteContent> = { en, ru }
 const CAREER: Record<Locale, string> = { en: careerEn, ru: careerRu }
-const LEADFLOW: Record<Locale, string> = { en: leadflowEn, ru: leadflowRu }
 
 const LABELS = {
   en: {
@@ -215,11 +218,19 @@ function renderOverview(locale: Locale, siteUrl: string): string {
     "",
     `## ${content.work.title}`,
     "",
+    `*${content.work.eyebrow}*`,
+    "",
+    content.work.intro,
+    "",
     renderWorkIndex(locale, siteUrl),
     "",
     `## ${labels.about}`,
     "",
+    `*${content.about.eyebrow}*`,
+    "",
     `### ${content.about.title}`,
+    "",
+    renderParagraphs(content.about.introLines),
     "",
     locale === "ru"
       ? "> Интерактив: каждый раздел карьеры сворачивается и разворачивается кнопкой «Развернуть» / «Свернуть»."
@@ -239,6 +250,8 @@ function renderOverview(locale: Locale, siteUrl: string): string {
     renderParagraphs(content.about.best.paragraphs),
     "",
     `## ${labels.contact}`,
+    "",
+    `*${content.contact.eyebrow}*`,
     "",
     `**${content.contact.cta}**`,
     "",
@@ -262,7 +275,7 @@ function renderNoticeDialog(locale: Locale): string {
 
 function renderMidnightBlock(
   locale: Locale,
-  chapter: MidnightChapter,
+  _chapter: MidnightChapter,
   block: MidnightBlock,
   siteUrl: string,
 ): string | null {
@@ -286,61 +299,8 @@ function renderMidnightBlock(
       return `${block.text}\n\n${renderNoticeDialog(locale)}`
     }
 
-    const notes: string[] = []
-    const text = block.text
-
-    if (chapter.id === "generative-media") {
-      const flux = locale === "ru"
-        ? "FLUX давал убедительный реализм"
-        : "FLUX produced convincing realism"
-      const pony = locale === "ru"
-        ? "Второй позволял генерировать откровенные сцены"
-        : "Pony could generate explicit scenes"
-      const filmstrip = locale === "ru"
-        ? "Для Midnight Persona уже произведено более 16 000 фотографий и 500 видео."
-        : "I've already produced more than 16,000 photos and 500 videos for Midnight Persona."
-
-      if (text.includes(flux) && text.includes(pony)) {
-        notes.push(
-          locale === "ru"
-            ? "> Визуал: наведение на фразу про FLUX открывает вращающуюся карусель из шести FLUX-изображений; наведение на фразу про Pony открывает такую же карусель из шести Pony-изображений."
-            : "> Visual: hovering the FLUX phrase opens a rotating carousel of six FLUX images; hovering the Pony phrase opens a similar carousel of six Pony images.",
-        )
-      }
-      if (text.endsWith(filmstrip)) {
-        notes.push(
-          locale === "ru"
-            ? "> Визуал: финальная фраза открывает WebGL-киноленту из сгенерированных фотографий медиапайплайна Midnight Persona."
-            : "> Visual: the final phrase opens a WebGL filmstrip of generated photographs from the Midnight Persona media pipeline.",
-        )
-      }
-    }
-
-    if (chapter.id === "art-direction") {
-      const glass = locale === "ru"
-        ? "Запотевшее стекло со следами пальцев"
-        : "Fogged-up glass with finger marks"
-      const liquid = locale === "ru"
-        ? "Жидкая материя тянется, переплетается и обволакивает саму себя."
-        : "Liquid matter stretches, intertwines, and wraps around itself."
-
-      if (text.includes(glass)) {
-        notes.push(
-          locale === "ru"
-            ? "> Визуал: фраза запускает медленное сканирование, которое раскрывает короткий видеофрагмент запотевшего стекла со следами пальцев."
-            : "> Visual: the phrase triggers a slow scan that reveals a short video clip of fogged glass with finger marks.",
-        )
-      }
-      if (text.includes(liquid)) {
-        notes.push(
-          locale === "ru"
-            ? "> Визуал: фраза запускает медленное сканирование, которое раскрывает короткий видеофрагмент жидкой материи, тянущейся и обволакивающей саму себя."
-            : "> Visual: the phrase triggers a slow scan that reveals a short video clip of liquid matter stretching and wrapping around itself.",
-        )
-      }
-    }
-
-    return notes.length > 0 ? `${text}\n\n${notes.join("\n\n")}` : text
+    if (!block.interaction) return block.text
+    return `${block.text}\n\n> ${MIDNIGHT_INTERACTIONS[locale][block.interaction].description}`
   }
 
   return null
@@ -357,16 +317,13 @@ function renderMidnightCase(locale: Locale, siteUrl: string): string {
   )
   const midnightMetrics = [
     ...project.metrics.slice(0, 1),
-    {
-      value: "20K+",
-      label: locale === "ru" ? "Сообщения пользователей" : "User messages",
-    },
+    ...content.work.caseMeta.midnightPersona.additionalMetrics,
     ...project.metrics.slice(1),
   ]
   const lines = [
     "# Midnight Persona",
     "",
-    `*2025–2026 / PRODUCT, ENGINEERING, ART DIRECTION*`,
+    `*${content.work.caseMeta.midnightPersona.eyebrow}*`,
     "",
     `## ${labels.metrics}`,
     "",
@@ -431,13 +388,13 @@ function renderEcommerceCase(locale: Locale, _siteUrl: string): string {
   const lines = [
     `# ${project.title}`,
     "",
-    `*${locale === "ru" ? "2021–2025 / РУКОВОДИТЕЛЬ E-COMMERCE" : "2021–2025 / HEAD OF E-COMMERCE"}*`,
+    `*${content.work.caseMeta.ecommerce.eyebrow}*`,
     "",
     `## ${labels.metrics}`,
     "",
     renderMetrics(project.metrics),
     "",
-    `- **${locale === "ru" ? "ТЕКУЩИЙ ЭТАП" : "CURRENT PHASE"}**: ${locale === "ru" ? "ЗАКРЫТ" : "DISCONTINUED"}`,
+    `- **${content.work.caseMeta.ecommerce.status.label}**: ${content.work.caseMeta.ecommerce.status.value}`,
     "",
     `## ${labels.overview}`,
     "",
@@ -488,12 +445,13 @@ function renderEcommerceCase(locale: Locale, _siteUrl: string): string {
 function renderClientIndex(locale: Locale): string {
   const content = CONTENT[locale]
   const leadflow = content.work.cases[1]
+  const clientMeta = content.work.caseMeta.clientWork
   const lines = [
-    "# Client Work",
+    `# ${clientMeta.title}`,
     "",
-    `## ${locale === "ru" ? "01 / ОБРАБОТКА ЛИДОВ" : "01 / LEAD MANAGEMENT"} — LeadFlowAI`,
+    `## ${clientMeta.caseEyebrow} — LeadFlowAI`,
     "",
-    "Conversational AI / Business Process Automation & Integration for [wooftattoo](https://wooftattoo.com/)",
+    `${clientMeta.service} [${clientMeta.clientName}](${clientMeta.clientUrl})`,
     "",
     `- **${oneLine(leadflow.tags[0].text)}**`,
     "",
@@ -503,33 +461,7 @@ function renderClientIndex(locale: Locale): string {
       ? "> Интерактив: кейс LeadFlowAI — сворачиваемая панель с кнопкой «Развернуть LeadFlowAI» / «Свернуть LeadFlowAI»."
       : "> Interactive: the LeadFlowAI case is a collapsible panel with an Expand LeadFlowAI / Collapse LeadFlowAI toggle.",
     "",
-    LEADFLOW[locale].trim(),
-  ]
-
-  return `${lines.join("\n").replace(/\n{3,}/g, "\n\n").trim()}\n`
-}
-
-function renderLeadflowCase(locale: Locale, _siteUrl: string): string {
-  const content = CONTENT[locale]
-  const leadflow = content.work.cases[1]
-  const lines = [
-    "# LeadFlowAI",
-    "",
-    `*${leadflow.index}*`,
-    "",
-    `> ${leadflow.lead}`,
-    "",
-    renderInlineParts(leadflow.statement),
-    "",
-    `## ${LABELS[locale].overview}`,
-    "",
-    renderParagraphs(leadflow.body),
-    "",
-    `## ${LABELS[locale].capabilities}`,
-    "",
-    (leadflow.capabilities ?? [])
-      .map((item) => `### ${item.title}\n\n${item.description}`)
-      .join("\n\n"),
+    LEADFLOW_SOURCE[locale].trim(),
   ]
 
   return `${lines.join("\n").replace(/\n{3,}/g, "\n\n").trim()}\n`
@@ -541,15 +473,24 @@ export function getPageMarkdown(
   view: WorkView,
   siteUrl: string,
 ): string {
-  if (view.kind === "overview") return renderOverview(locale, siteUrl)
-  if (view.kind === "case" && view.id === "midnight-persona") {
-    return renderMidnightCase(locale, siteUrl)
+  let markdown: string
+  if (view.kind === "overview") {
+    markdown = renderOverview(locale, siteUrl)
+  } else if (view.kind === "case" && view.id === "midnight-persona") {
+    markdown = renderMidnightCase(locale, siteUrl)
+  } else if (view.kind === "case" && view.id === "ecommerce") {
+    markdown = renderEcommerceCase(locale, siteUrl)
+  } else if (view.kind === "client-index") {
+    markdown = renderClientIndex(locale)
+  } else if (view.kind === "client-case") {
+    throw new Error("Legacy LeadFlowAI route has no standalone text representation")
+  } else {
+    throw new Error("Unknown work view")
   }
-  if (view.kind === "case" && view.id === "ecommerce") {
-    return renderEcommerceCase(locale, siteUrl)
-  }
-  if (view.kind === "client-index") return renderClientIndex(locale)
-  return renderLeadflowCase(locale, siteUrl)
+
+  const sourceUrl = absolute(getWorkPath(view, locale, "/"), siteUrl)
+  const sourceLabel = locale === "ru" ? "Канонический источник" : "Canonical source"
+  return `${markdown}\n${sourceLabel}: [${sourceUrl}](${sourceUrl})\n`
 }
 
 function pageDescription(locale: Locale, view: WorkView): string {
@@ -611,11 +552,9 @@ export function getLlmsIndex(locale: Locale, siteUrl: string): string {
 export function getLlmsFull(locale: Locale, siteUrl: string): string {
   const content = CONTENT[locale]
   const lines = [
-    `# ${content.home.name} — ${content.home.badge}`,
+    `# ${locale === "ru" ? "Полное портфолио" : "Full portfolio"} — ${content.home.name}`,
     "",
-    `> ${content.home.careerLines.join(" ")}`,
-    "",
-    `Generated from ${ensureTrailingSlash(siteUrl)} on ${new Date().toISOString().slice(0, 10)}.`,
+    `${locale === "ru" ? "Источник" : "Source"}: ${ensureTrailingSlash(siteUrl)}`,
     "",
     "---",
     "",

@@ -3,9 +3,9 @@ import type { SiteContent } from "./types"
 /** English is the original copy. Strings are moved verbatim from the components. */
 export const en: SiteContent = {
   meta: {
-    title: "Niko — AI Engineer",
+    title: "Nikolai Sekushenko — AI Product Engineer",
     description:
-      "Showcase your professional journey with a sleek, responsive one-page portfolio designed for AI Product Engineers, emphasizing technical expertise and impactful projects.",
+      "AI Product Engineer building conversational AI systems, end-to-end products and business automation. Previously grew an e-commerce business to $1.5M in annual revenue.",
   },
   nav: {
     ariaLabel: "Global site navigation",

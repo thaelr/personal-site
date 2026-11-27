@@ -5,8 +5,11 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type ReactNode,
 } from "react"
-import { useSiteContent } from "../content"
+import enCareer from "../content/about-career.en.md?raw"
+import ruCareer from "../content/about-career.ru.md?raw"
+import { useLocale, useSiteContent } from "../content"
 import { CHAPTER_PROGRESS } from "../content/structure"
 import type {
   AboutChapterContent,
@@ -20,7 +23,7 @@ export function EcommerceNarrative({
   chapter,
   intro,
 }: {
-  chapter: AboutChapterContent
+  chapter: Pick<AboutChapterContent, "intro" | "asideReveal" | "steps" | "authorComment">
   intro?: string[]
 }) {
   return (
@@ -65,12 +68,8 @@ function renderInlineParts(parts: InlinePart[]) {
   )
 }
 
-function WhiteCallout({ text }: { text: string }) {
+function WhiteCallout({ text }: { text: ReactNode }) {
   return <div className="about-white-callout">{text}</div>
-}
-
-function ProductLabel({ text }: { text: string }) {
-  return <div className="about-product-label">{text}</div>
 }
 
 function ProseBlock({
@@ -337,6 +336,7 @@ function AuthorComment({
   withGuideLine?: boolean
   ecommerceInteractive?: boolean
 }) {
+  const locale = useLocale()
   return (
     <div
       className={`about-author-comment ${
@@ -355,8 +355,16 @@ function AuthorComment({
 
             return (
               <p key={paragraph}>
-                {beforeTrigger}
-                <TypeRevealInline buttonText="*lol*" revealedText="=)" />
+                {locale === "ru" ? (
+                  <>
+                    {beforeTrigger.trimEnd()}{"\u2060"}
+                    <span className="ecommerce-inline-reveal">
+                      <TypeRevealInline buttonText="*lol*" revealedText="=)" />
+                    </span>
+                  </>
+                ) : (
+                  <>{beforeTrigger}<TypeRevealInline buttonText="*lol*" revealedText="=)" /></>
+                )}
                 {afterTrigger}
               </p>
             )
@@ -366,6 +374,64 @@ function AuthorComment({
         })}
       </div>
     </div>
+  )
+}
+
+const careerProse = { en: enCareer, ru: ruCareer }
+
+function AboutEcommerceCopy({ copy }: { copy: string }) {
+  const [before, callout, after, comment] = copy.split(/<!-- (?:callout|prose|comment) -->/)
+  const [statement, punchline] = callout.trim().split("\n")
+  const period = useRef<HTMLSpanElement>(null)
+  const line = useRef<HTMLSpanElement>(null)
+  const text = useRef<HTMLSpanElement>(null)
+
+  useLayoutEffect(() => {
+    const anchor = period.current
+    const row = line.current
+    const word = text.current
+    if (!anchor || !row || !word) return
+
+    const align = () => {
+      const offset = anchor.getBoundingClientRect().left - row.getBoundingClientRect().left
+      const available = row.clientWidth - word.getBoundingClientRect().width
+      row.style.paddingLeft = `${Math.max(0, Math.min(offset, available))}px`
+    }
+    const observer = new ResizeObserver(align)
+    observer.observe(row, { box: "border-box" })
+    observer.observe(word)
+    align()
+    return () => observer.disconnect()
+  }, [statement, punchline])
+
+  return (
+    <>
+      <ProseBlock paragraphs={before.trim().split(/\n\s*\n/)} tone="primary" />
+      <WhiteCallout text={<>
+        {statement.slice(0, -1)}<span ref={period}>{statement.slice(-1)}</span>
+        <span ref={line} className="about-ecommerce-punchline">
+          <span ref={text}><span aria-hidden="true">{"    "}</span>{punchline}</span>
+        </span>
+      </>} />
+      <ProseBlock paragraphs={after.trim().split(/\n\s*\n/)} tone="primary" className="about-prose--after-callout" />
+      <div className="about-career-ending">
+        <AuthorComment paragraphs={comment.trim().split(/\n\s*\n/)} withGuideLine />
+      </div>
+    </>
+  )
+}
+
+function AboutAiCopy({ copy }: { copy: string }) {
+  const [before, callout, after, comment] = copy.split(/<!-- (?:callout|prose|comment) -->/)
+  return (
+    <>
+      <ProseBlock paragraphs={before.trim().split(/\n\s*\n/)} tone="primary" />
+      <WhiteCallout text={callout.trim()} />
+      <ProseBlock paragraphs={after.trim().split(/\n\s*\n/)} tone="primary" className="about-prose--after-callout" />
+      <div className="about-career-ending">
+        <AuthorComment paragraphs={[comment.trim()]} withGuideLine />
+      </div>
+    </>
   )
 }
 
@@ -379,6 +445,10 @@ function CareerChapter({
   onToggle: () => void
 }) {
   const { about } = useSiteContent()
+  const locale = useLocale()
+  const chapterCopy = chapter.id === "ecommerce" || chapter.id === "ai"
+    ? careerProse[locale].split("\n\n---\n\n")[chapter.id === "ecommerce" ? 0 : 1]
+    : undefined
   const progress = CHAPTER_PROGRESS[chapter.id]
   const triggerRef = useRef<HTMLButtonElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
@@ -526,22 +596,10 @@ function CareerChapter({
               </>
             ) : null}
 
-            {chapter.id === "ecommerce" ? <EcommerceNarrative chapter={chapter} /> : null}
-
-            {chapter.id === "ai" ? (
-              <>
-                <ProseBlock paragraphs={chapter.intro ?? []} tone="primary" />
-                {chapter.products?.map((product) => (
-                  <div key={product.label} className="about-product-block">
-                    <ProductLabel text={product.label} />
-                    <div className="about-prose about-prose--primary about-product-block__prose">
-                      {product.paragraphs.map((paragraph) => (
-                        <p key={paragraph}>{paragraph}</p>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </>
+            {chapterCopy ? (
+              chapter.id === "ecommerce"
+                ? <AboutEcommerceCopy copy={chapterCopy} />
+                : <AboutAiCopy copy={chapterCopy} />
             ) : null}
           </div>
         </div>

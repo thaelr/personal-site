@@ -50,12 +50,11 @@ export const CONTACT_CHANNELS: {
   href?: string
 }[] = [
   { id: "email", value: "shenko.nik@gmail.com", href: "mailto:shenko.nik@gmail.com" },
-  { id: "whatsapp", value: "+84375216093", href: "https://wa.me/84375216093" },
   { id: "telegram", value: "@Taabler", href: "https://t.me/Taabler" },
   {
     id: "linkedin",
     value: "linkedin.com/in/nikolai-sekushenko",
-    href: "https://www.linkedin.com/in/nikolai-sekushenko/",
+    href: "https://www.linkedin.com/in/nikolai-sekushenko-a42671422/",
   },
   { id: "github", value: "github.com/thaelr", href: "https://github.com/thaelr" },
 ]

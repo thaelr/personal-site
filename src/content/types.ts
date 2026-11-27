@@ -8,7 +8,6 @@ export type WorkCaseSlug = "case-01" | "case-02"
 
 export type ContactChannelId =
   | "email"
-  | "whatsapp"
   | "telegram"
   | "linkedin"
   | "github"
@@ -95,8 +94,6 @@ export type SiteContent = {
     name: string
     badge: string
     careerLines: string[]
-    offerWideLines: string[]
-    offerCompactLine: string
     actions: {
       work: string
       about: string

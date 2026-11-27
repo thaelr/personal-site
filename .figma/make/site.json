@@ -6,7 +6,7 @@
     "icon": "favicon.svg"
   },
   "openGraph": {
-    "image": "https://thaelr.github.io/personal-site/og-cover.jpg"
+    "image": "https://thaelr.com/og-cover.jpg"
   },
   "robots": {
     "index": true

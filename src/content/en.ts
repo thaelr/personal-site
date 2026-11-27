@@ -24,13 +24,6 @@ export const en: SiteContent = {
       "From a Siberian semiconductor lab to a $1.5M",
       "e-commerce business and conversational AI products.",
     ],
-    offerWideLines: [
-      "Give me a messy problem at the intersection of AI,",
-      "product, and business. I’ll figure out what actually matters,",
-      "build the system, and ship it.",
-    ],
-    offerCompactLine:
-      "product, and business. I’ll figure out what actually matters, build the system, and ship it.",
     actions: {
       work: "VIEW WORK",
       about: "ABOUT ME",
@@ -360,8 +353,8 @@ export const en: SiteContent = {
         },
       ],
       paragraphs: [
-        "A product that’s still part idea, part business problem, part technical mess — that’s where I start.",
-        "I can join the team, take it from idea to launch, and stay involved as it starts meeting real users. Or we can adapt my conversational systems to your product and business processes.",
+        "A product that’s still part idea, part technical mess — that’s where I start.",
+        "I can join the team, take it from idea to launch, and stay involved once real users start using it.",
         "Anyway, tell me what the product needs to achieve. We’ll work backwards from there.",
       ],
     },
@@ -371,7 +364,6 @@ export const en: SiteContent = {
     cta: "LET'S BUILD SOMETHING DIFFICULT",
     channelLabels: {
       email: "E-mail",
-      whatsapp: "Whatsapp",
       telegram: "Telegram",
       linkedin: "LinkedIn",
       github: "Github",

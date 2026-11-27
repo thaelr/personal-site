@@ -1,5 +1,6 @@
 import { en } from "./en"
 import { ru } from "./ru"
+import { sibvezCaseRu } from "./sibvez.ru"
 import { MIDNIGHT_CONTENT } from "./midnight"
 import type { Locale } from "./types"
 import { getWorkPath, type WorkView } from "../work"
@@ -13,7 +14,9 @@ export function getRouteMeta(locale: Locale, view: WorkView) {
 
   const midnight = content.work.cases[0]
   const leadflow = content.work.cases[1]
-  const ecommerce = content.about.chapters.find((chapter) => chapter.id === "ecommerce")
+  const ecommerce = locale === "ru"
+    ? sibvezCaseRu
+    : content.about.chapters.find((chapter) => chapter.id === "ecommerce")
   const name =
     view.kind === "client-index"
       ? "Client Work"

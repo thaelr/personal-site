@@ -74,17 +74,6 @@ export default function HomeSection() {
                   </span>
                 ))}
               </p>
-
-              <p className="hero-home__offer">
-                {home.offerWideLines.map((line) => (
-                  <span key={line} className="hero-home__line hero-home__line--desktop hero-home__line--offer-wide">
-                    {line}
-                  </span>
-                ))}
-                <span className="hero-home__line hero-home__line--desktop hero-home__line--offer-compact">
-                  {home.offerCompactLine}
-                </span>
-              </p>
             </div>
 
             <div className="hero-home__actions">

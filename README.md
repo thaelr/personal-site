@@ -4,7 +4,7 @@ A custom responsive portfolio for an AI Product Engineer.
 
 The site was designed in Figma and implemented as a React application. The interface is built around a custom editorial layout, adaptive typography, section-aware navigation, and subtle interactions.
 
-[View live site](https://thaelr.github.io/personal-site/)
+[View live site](https://thaelr.com/)
 
 ## Preview
 
@@ -95,4 +95,4 @@ The site was first designed in Figma and then refined directly in code to accoun
 
 ---
 
-[View live site](https://thaelr.github.io/personal-site/) · [Email](mailto:shenko.nik@gmail.com) · [Telegram](https://t.me/Taabler)
+[View live site](https://thaelr.com/) · [Email](mailto:shenko.nik@gmail.com) · [Telegram](https://t.me/Taabler)

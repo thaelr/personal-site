@@ -22,7 +22,7 @@ At the same time, the engine tracks the physical state of the scene: location, c
 
 ### Money
 
-Monetization is built into the experience itself. Users can pay for something specific they want: a photo, a video, or access to a chat. Or they can subscribe and get access to the entire product. > Microtransactions let people pay for what they want, when they want it. Subscriptions let them forget about limits altogether.
+Monetization is built into the experience itself. Users can pay for something specific they want: a photo, a video, or access to a chat. Or they can subscribe and get access to the entire product. Microtransactions let people pay for what they want, when they want it. Subscriptions let them forget about limits altogether.
 
 Both models run through the same commerce system. I can offer discounts on individual purchases, run subscription promotions around specific events, and offer upgrades. The system keeps track of free limits and purchased access, while offers appear in a contextual media panel right inside the conversation.
 
@@ -30,7 +30,7 @@ Both models run through the same commerce system. I can offer discounts on indiv
 
 AI relationships are often seen as a cheap substitute for human intimacy. I wanted to move past that stigma without hiding the artificial nature of the product or toning down its sexuality.
 
-The art direction is built around contradictions: alive yet synthetic, cold yet human. > A sensual digital environment contrasts with the characters' casual, everyday selfies. A strict, straightforward interface connects the two without getting in the way of the interaction.
+The art direction is built around contradictions: alive yet synthetic, cold yet human. A sensual digital environment contrasts with the characters' casual, everyday selfies. A strict, straightforward interface connects the two without getting in the way of the interaction.
 
 I wasn't trying to convince people that AI intimacy is normal. I wanted to create an experience where the question simply never comes up.
 
@@ -157,7 +157,7 @@ What about a colder audience?
 
 <!-- preview-end -->
 
-There's plenty of stigma around AI intimacy. You can feel sexual desire and still despise the way you satisfy it. > I'm sure there's a whole debate somewhere about whether AI relationships are acceptable. I couldn't tell you what exactly they're arguing about. I'm not particularly interested in whether it's acceptable. I'm interested in something else: how can something artificial arouse genuine desire?
+There's plenty of stigma around AI intimacy. You can feel sexual desire and still despise the way you satisfy it. I'm sure there's a whole debate somewhere about whether AI relationships are acceptable. I couldn't tell you what exactly they're arguing about. I'm not particularly interested in whether it's acceptable. I'm interested in something else: how can something artificial arouse genuine desire?
 
 Someone watching regular porn already knows what they want. But why on earth would they want to talk to a neural network? Being able to influence what happens means nothing if what's happening doesn't make you feel anything.
 

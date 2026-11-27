@@ -1,3 +1,6 @@
+import { sibvezCaseRu } from "../content/sibvez.ru"
+import leadflowEn from "../content/leadflow.en.md?raw"
+import leadflowRu from "../content/leadflow.ru.md?raw"
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react"
 import { createPortal } from "react-dom"
 import { useLocale, useSiteContent } from "../content"
@@ -12,7 +15,6 @@ import midnightWordmark from "../midnight-persona.svg"
 import midnightArchitecture from "../midnight-persona-system-architecture-polished.svg"
 import type {
   InlinePart,
-  WorkTagContent,
 } from "../content/types"
 import {
   MIDNIGHT_CONTENT,
@@ -31,26 +33,6 @@ type WorkSectionProps = {
     originId: string,
   ) => void
   onActiveChapterChange: (chapterId: string | null) => void
-}
-
-type WorkPreviewProps = {
-  id: string
-  index: string
-  title: string
-  description?: string
-  tags?: WorkTagContent[]
-  evidence?: string[]
-  href: string
-  onOpen: (event: MouseEvent<HTMLAnchorElement>) => void
-}
-
-function WorkTag({ text, statusIndicator = false }: WorkTagContent) {
-  return (
-    <span className={`work-tag ${statusIndicator ? "work-tag--status" : ""}`}>
-      {statusIndicator ? <span className="work-tag__lamp" aria-hidden="true" /> : null}
-      <span className="work-tag__text">{text}</span>
-    </span>
-  )
 }
 
 function InlineStatement({ parts }: { parts: InlinePart[] }) {
@@ -414,49 +396,61 @@ function MidnightBlocks({
   })
 }
 
-function WorkPreview({
-  id,
-  index,
-  title,
-  description,
-  tags,
-  evidence,
-  href,
-  onOpen,
-}: WorkPreviewProps) {
-  return (
-    <article className="work-preview">
-      <div className="work-preview__main">
-        <div className="work-preview__index work-mono">{index}</div>
-        <a
-          id={id}
-          href={href}
-          className="work-preview__open"
-          onClick={onOpen}
-        >
-          <span className="work-preview__title">{title}</span>
-          {description ? <span className="work-preview__description">{description}</span> : null}
-        </a>
-        {tags?.length ? (
-          <div className="work-preview__tags">
-            {tags.map((tag) => (
-              <WorkTag key={tag.text} {...tag} />
-            ))}
-          </div>
-        ) : null}
-      </div>
+function WorkPreview({ index, status, evidence, children }: {
+  index: string
+  status: string
+  evidence: string[]
+  children: ReactNode
+}) {
+  const [open, setOpen] = useState(false)
+  const { about } = useSiteContent()
+  const panel = useRef<HTMLDivElement>(null)
+  const toggleButton = useRef<HTMLButtonElement>(null)
+  const panelId = "leadflowai-inline-case"
 
-      {evidence?.length ? (
-        <div className="work-preview__evidence">
-          {evidence?.length ? (
-            <ul className="work-preview__evidence-list">
-              {evidence.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          ) : null}
+  const toggle = () => {
+    if (open && panel.current?.contains(document.activeElement)) {
+      toggleButton.current?.focus()
+    }
+    setOpen(!open)
+  }
+
+  return (
+    <article id="work-preview-leadflowai"
+      className="work-preview work-leadflow-preview work-midnight-disclosure">
+      <div className="work-preview__index work-mono">{index}</div>
+      <div className="work-preview__main">
+        <div className="work-preview__open">
+          <h2 className="work-preview__title">LeadFlowAI</h2>
+          <p className="work-preview__description">
+            Conversational AI / Business Process Automation &amp; Integration for{" "}
+            <a href="https://wooftattoo.com/" target="_blank" rel="noreferrer">wooftattoo</a>
+          </p>
         </div>
-      ) : null}
+        <div className="work-preview__tags">
+          <span className="work-leadflow-preview__status">
+            <span className="work-tag__lamp" aria-hidden="true" />
+            {status}
+          </span>
+        </div>
+      </div>
+      <div className="work-preview__evidence">
+        <ul className="work-preview__evidence-list">
+          {evidence.map((item) => <li key={item}>{item}</li>)}
+        </ul>
+      </div>
+      <div ref={panel} id={panelId} className="work-midnight-disclosure__panel"
+        data-open={open} inert={!open}>
+        <div className="work-midnight-disclosure__copy">{children}</div>
+      </div>
+      <button ref={toggleButton} type="button" className="work-midnight-disclosure__toggle"
+        aria-expanded={open} aria-controls={panelId}
+        aria-label={`${open ? about.chapterToggle.collapse : about.chapterToggle.expand} LeadFlowAI`}
+        onClick={toggle}>
+        <svg className="work-midnight-disclosure__arrow" viewBox="-36 -36 72 72" aria-hidden="true">
+          <path d="M -9 -14.4 L 9 0 L -9 14.4" vectorEffect="non-scaling-stroke" />
+        </svg>
+      </button>
     </article>
   )
 }
@@ -515,33 +509,33 @@ function WorkOverview({
   )
 }
 
-function ClientIndex({
-  getViewHref,
-  onOpenView,
-}: Pick<WorkSectionProps, "getViewHref" | "onOpenView">) {
+function ClientIndex() {
   const { work } = useSiteContent()
+  const locale = useLocale()
   const leadflow = work.cases[1]
-  const leadflowView: WorkView = { kind: "client-case", id: "leadflowai" }
+  const caseCopy = locale === "ru" ? leadflowRu : leadflowEn
 
   return (
     <div className="work-shell work-client-index">
       <header className="work-shell__header">
-        <div className="work-shell__eyebrow work-mono">03 / COLLECTION</div>
         <h1 id="work-document-title" className="work-shell__title" tabIndex={-1}>
           Client Work
         </h1>
       </header>
       <div className="work-overview__entries">
         <WorkPreview
-          id="work-preview-leadflowai"
-          index={leadflow.index}
-          title="LeadFlowAI"
-          description={leadflow.lead}
-          tags={leadflow.tags}
-          evidence={leadflow.capabilities?.map((item) => item.title)}
-          href={getViewHref(leadflowView)}
-          onOpen={(event) => onOpenView(event, leadflowView, "work-preview-leadflowai")}
-        />
+          index={locale === "ru" ? "01 / ОБРАБОТКА ЛИДОВ" : "01 / LEAD MANAGEMENT"}
+          status={leadflow.tags[0].text}
+          evidence={leadflow.capabilities?.map((item) => item.title) ?? []}
+        >
+          {caseCopy.trim().split(/\r?\n\r?\n/).map((block) => (
+            block.startsWith("### ")
+              ? <h3 key={block} className="work-document__subheading">{block.slice(4)}</h3>
+              : <p key={block} className={block.startsWith("[GitHub /") ? "work-document__source" : undefined}>
+                  {renderInlineMarkdown(block)}
+                </p>
+          ))}
+        </WorkPreview>
       </div>
     </div>
   )
@@ -619,7 +613,9 @@ function CaseDocument({ view }: { view: Exclude<WorkView, { kind: "overview" } |
   const leadflow = work.cases[1]
   const midnightContent = MIDNIGHT_CONTENT[locale]
   const productChapter = midnightContent[0]
-  const ecommerce = about.chapters.find((chapter) => chapter.id === "ecommerce")
+  const ecommerce = locale === "ru"
+    ? sibvezCaseRu
+    : about.chapters.find((chapter) => chapter.id === "ecommerce")
   const ecommerceProject = work.index.find((project) => project.id === "ecommerce")
   const midnightProject = work.index.find((project) => project.id === "midnight-persona")
   const isMidnight = view.kind === "case" && view.id === "midnight-persona"
@@ -633,7 +629,7 @@ function CaseDocument({ view }: { view: Exclude<WorkView, { kind: "overview" } |
   const eyebrow = isMidnight
     ? "2025–2026 / PRODUCT, ENGINEERING, ART DIRECTION"
     : isEcommerce
-      ? "2021–2025 / HEAD OF E-COMMERCE"
+      ? locale === "ru" ? "2021–2025 / РУКОВОДИТЕЛЬ E-COMMERCE" : "2021–2025 / HEAD OF E-COMMERCE"
       : leadflow.index
   const subtitle = isMidnight
     ? ""
@@ -800,7 +796,7 @@ export default function WorkSection({
         {view.kind === "overview" ? (
           <WorkOverview getViewHref={getViewHref} onOpenView={onOpenView} />
         ) : view.kind === "client-index" ? (
-          <ClientIndex getViewHref={getViewHref} onOpenView={onOpenView} />
+          <ClientIndex />
         ) : (
           <CaseDocument view={view} />
         )}

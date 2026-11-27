@@ -74,6 +74,18 @@ function renderInlineMarkdown(text: string): ReactNode[] {
     })
 }
 
+function renderMidnightParagraphTail(text: string) {
+  const engineStatement = text.match(/^(The model writes) (The engine controls)$/)
+  if (!engineStatement) return renderInlineMarkdown(text)
+
+  return (
+    <span className="work-midnight-engine-statement">
+      {engineStatement[1]}
+      <span className="work-midnight-engine-statement__second-line">{engineStatement[2]}</span>
+    </span>
+  )
+}
+
 function getAccentClassName(accent?: MidnightAccent): string | undefined {
   if (!accent) return undefined
   if (accent === "full") return "work-midnight-prose--full-contrast"
@@ -243,6 +255,7 @@ function MidnightNoticeTrigger({ text }: { text: string }) {
     <>
       {renderInlineMarkdown(firstLine)}
       {secondLine && <><br />{renderInlineMarkdown(secondLine)}</>}
+      <span className="work-midnight-notice-trigger__star">*</span>
     </>
   )
 
@@ -373,7 +386,7 @@ function MidnightBlocks({
     return (
       <p key={key} className={accentClass || undefined}>
         {orbitCopy}
-        {renderInlineMarkdown(block.text.slice(textStart))}
+        {renderMidnightParagraphTail(block.text.slice(textStart))}
       </p>
     )
   })

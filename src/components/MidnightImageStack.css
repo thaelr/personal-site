@@ -10,7 +10,7 @@
   vertical-align: 0.4em;
   overflow: visible;
   fill: var(--site-bg);
-  stroke: currentColor;
+  stroke: var(--site-text-primary);
   stroke-width: 1px;
 }
 

@@ -43,7 +43,7 @@ I wasn't trying to convince people that AI intimacy is normal. I wanted to creat
 
 <!-- accent:full -->
 
-The model writes. The engine controls.
+The model writes The engine controls
 
 An LLM can come up with almost any continuation of a story. In my case, that's a problem. Characters forget their own decisions, lose their personalities, jump between events, and go along with the user even when they should push back. The more freedom the interaction allows, the harder it becomes to keep everything coherent.
 

@@ -100,7 +100,6 @@ export default function Nav({
   const { nav } = useSiteContent()
   const [mobileOpen, setMobileOpen] = useState(false)
   const workReadingMode = workView.kind !== "overview"
-  const workOverviewMobile = workView.kind === "overview" && activeSection === "work"
   const currentChapterIndex = Math.max(
     0,
     chapters.findIndex((chapter) => chapter.id === activeChapterId),
@@ -109,7 +108,6 @@ export default function Nav({
     ? `${String(currentChapterIndex + 1).padStart(2, "0")}/${String(chapters.length).padStart(2, "0")}`
     : null
   const mobilePanelId = workReadingMode ? "work-chapter-navigation" : "work-global-navigation"
-  const mobileOffsets = [0, -3, -6, -9]
   const desktopNavClassName =
     activeSection === "home"
       ? "site-nav site-nav--desktop site-nav--home"
@@ -177,105 +175,79 @@ export default function Nav({
         </ul>
       </nav>
 
-      <LanguageSwitch
-        locale={locale}
-        hrefs={languageHrefs}
-        className="language-switch--mobile"
-        onSwitch={onLocaleSwitch}
-      />
 
-      {workReadingMode || workOverviewMobile ? (
-        <nav className="work-mobile-nav lg:hidden" aria-label={nav.ariaLabel}>
-          <div className="work-mobile-nav__bar">
-            {workReadingMode ? (
-              <a href={workBackHref} className="work-mobile-nav__back" onClick={onWorkBack}>
-                {getBackLabel(workView)}
-              </a>
-            ) : (
-              <span className="work-mobile-nav__label">02 / {nav.items.work}</span>
-            )}
+      <nav className="work-mobile-nav lg:hidden" aria-label={nav.ariaLabel}>
+        <div className="work-mobile-nav__bar">
+          {workReadingMode ? (
+            <a href={workBackHref} className="work-mobile-nav__back" onClick={onWorkBack}>
+              {getBackLabel(workView)}
+            </a>
+          ) : (
+            <span className="work-mobile-nav__label">{SECTION_NUMBERS[activeSection]} / {nav.items[activeSection]}</span>
+          )}
 
-            {workReadingMode && chapters.length ? (
-              <button
-                type="button"
-                className="work-mobile-nav__toggle"
-                aria-expanded={mobileOpen}
-                aria-controls={mobilePanelId}
-                onClick={() => setMobileOpen((current) => !current)}
-              >
-                {currentChapterLabel} {mobileOpen ? "▴" : "▾"}
-              </button>
-            ) : workReadingMode ? null : (
-              <button
-                type="button"
-                className="work-mobile-nav__toggle"
-                aria-expanded={mobileOpen}
-                aria-controls={mobilePanelId}
-                onClick={() => setMobileOpen((current) => !current)}
-              >
-                SECTIONS {mobileOpen ? "▴" : "▾"}
-              </button>
-            )}
-          </div>
+          {workReadingMode && chapters.length ? (
+            <button
+              type="button"
+              className="work-mobile-nav__toggle"
+              aria-expanded={mobileOpen}
+              aria-controls={mobilePanelId}
+              onClick={() => setMobileOpen((current) => !current)}
+            >
+              {currentChapterLabel} {mobileOpen ? "▴" : "▾"}
+            </button>
+          ) : workReadingMode ? null : (
+            <button
+              type="button"
+              className="work-mobile-nav__toggle"
+              aria-expanded={mobileOpen}
+              aria-controls={mobilePanelId}
+              onClick={() => setMobileOpen((current) => !current)}
+            >
+              SECTIONS {mobileOpen ? "▴" : "▾"}
+            </button>
+          )}
+          <LanguageSwitch
+            locale={locale}
+            hrefs={languageHrefs}
+            className="language-switch--in-bar"
+            onSwitch={onLocaleSwitch}
+          />
+        </div>
 
-          {mobileOpen ? (
-            <ul id={mobilePanelId} className="work-mobile-nav__panel">
-              {workReadingMode
-                ? chapters.map((chapter) => (
-                    <li key={chapter.id}>
-                      <button
-                        type="button"
-                        className="work-mobile-nav__item"
-                        onClick={() => selectChapter(chapter.id)}
-                        aria-current={chapter.id === activeChapterId ? "location" : undefined}
-                      >
-                        {chapter.label}
-                      </button>
-                    </li>
-                  ))
-                : SECTIONS.map((id) => (
-                    <li key={id}>
-                      <button
-                        type="button"
-                        className="work-mobile-nav__item"
-                        onClick={() => {
-                          setMobileOpen(false)
-                          scrollToSection(id, onSectionSelect)
-                        }}
-                        aria-current={id === activeSection ? "location" : undefined}
-                      >
-                        {SECTION_NUMBERS[id]} / {nav.items[id]}
-                      </button>
-                    </li>
-                  ))}
-            </ul>
-          ) : null}
-        </nav>
-      ) : (
-        <nav className="site-nav-mobile pointer-events-none fixed bottom-4 right-3 z-50 lg:hidden" aria-label={nav.ariaLabel}>
-          <ul className="site-nav-mobile__list">
-            {SECTIONS.map((id, idx) => {
-              const isActive = id === activeSection
-
-              return (
-                <li key={id}>
-                  <button
-                    type="button"
-                    onClick={() => scrollToSection(id, onSectionSelect)}
-                    style={{ transform: `translateX(${mobileOffsets[idx]}px)` }}
-                    className="site-nav-mobile__button pointer-events-auto block text-right font-mono text-[0.68rem] uppercase tracking-[0.14em] transition-all duration-200 ease-out cursor-pointer"
-                  >
-                    <span className={`site-nav__item-label ${isActive ? "text-chalk" : "text-fog"}`}>
-                      {SECTION_NUMBERS[id]} {nav.items[id]}
-                      {isActive && <ActiveNavArrow />}
-                    </span>
-                  </button>
-                </li>
-              )
-            })}
+        {mobileOpen ? (
+          <ul id={mobilePanelId} className="work-mobile-nav__panel">
+            {workReadingMode
+              ? chapters.map((chapter) => (
+                  <li key={chapter.id}>
+                    <button
+                      type="button"
+                      className="work-mobile-nav__item"
+                      onClick={() => selectChapter(chapter.id)}
+                      aria-current={chapter.id === activeChapterId ? "location" : undefined}
+                    >
+                      {chapter.label}
+                    </button>
+                  </li>
+                ))
+              : SECTIONS.map((id) => (
+                  <li key={id}>
+                    <button
+                      type="button"
+                      className="work-mobile-nav__item"
+                      onClick={() => {
+                        setMobileOpen(false)
+                        scrollToSection(id, onSectionSelect)
+                      }}
+                      aria-current={id === activeSection ? "location" : undefined}
+                    >
+                      {SECTION_NUMBERS[id]} / {nav.items[id]}
+                    </button>
+                  </li>
+                ))}
           </ul>
-        </nav>
-      )}
+        ) : null}
+      </nav>
     </>
   )
 }

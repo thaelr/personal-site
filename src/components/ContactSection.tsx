@@ -103,6 +103,10 @@ export default function ContactSection() {
                   )}
                 </li>
               ))}
+              <li className="contact-section__links-item">
+                <span className="contact-section__links-label">markdown:</span>
+                <span className="contact-section__link-text">https://thaelr.com/llms-full.txt</span>
+              </li>
             </ul>
           </div>
         </div>

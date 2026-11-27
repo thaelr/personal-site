@@ -80,7 +80,7 @@ function renderMidnightParagraphTail(text: string) {
 
   return (
     <span className="work-midnight-engine-statement">
-      {engineStatement[1]}
+      {engineStatement[1]}{" "}
       <span className="work-midnight-engine-statement__second-line">{engineStatement[2]}</span>
     </span>
   )

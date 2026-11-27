@@ -317,7 +317,7 @@ const requiredMarkdown = {
   'midnight-persona': {
     en: [
       'Under the Hood',
-      'The model writes. The engine controls.',
+      'The model writes The engine controls',
       'GitHub / EngageFlowAI',
       '16,000 photos and 500 videos',
       'Fogged-up glass with finger marks',

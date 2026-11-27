@@ -13,6 +13,7 @@ export const ru: SiteContent = {
   },
   nav: {
     ariaLabel: "Основная навигация по сайту",
+    languageLabel: "Язык",
     items: {
       home: "ГЛАВНАЯ",
       work: "РАБОТЫ",

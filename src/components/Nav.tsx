@@ -42,6 +42,8 @@ function LanguageSwitch({
   className: string
   onSwitch: (event: MouseEvent<HTMLAnchorElement>, locale: Locale) => void
 }) {
+  const { nav } = useSiteContent()
+
   const languageLink = (targetLocale: Locale, label: string) => {
     const isActive = locale === targetLocale
     const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
@@ -66,7 +68,7 @@ function LanguageSwitch({
   }
 
   return (
-    <div className={`language-switch ${className}`} aria-label="Language">
+    <div className={`language-switch ${className}`} aria-label={nav.languageLabel}>
       {languageLink("ru", "RU")}
       <span aria-hidden="true">/</span>
       {languageLink("en", "EN")}

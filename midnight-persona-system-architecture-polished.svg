@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="60 76 1640 1048" width="1640" height="1048" version="1.1" role="img" aria-label="Midnight Persona / System architecture">
+  <defs>
+    <marker id="tip" markerUnits="userSpaceOnUse" markerWidth="9.6" markerHeight="9.6" viewBox="0 0 12 12" refX="11" refY="6" orient="auto" overflow="visible">
+      <path d="M 2 1.5 L 11 6 L 2 10.5" fill="none" stroke="#FAFAFA" stroke-opacity="0.52" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1760" height="1160" fill="#0C0C0B"/>
+  <text x="76" y="123" fill="#FAFAFA" fill-opacity="1" font-family="Inter,Inter Display,Arial,sans-serif" font-size="34" font-weight="500" text-anchor="start">Midnight Persona  /  System architecture</text>
+  <line x1="76" x2="1684" y1="154" y2="154" stroke="#FAFAFA" stroke-opacity=".10" stroke-width="1.1"/>
+  <text x="76" y="202" fill="#FAFAFA" fill-opacity="0.58" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="400" text-anchor="start" letter-spacing="1.5">01   CHANNELS</text>
+  <text x="76" y="380" fill="#FAFAFA" fill-opacity="0.58" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="400" text-anchor="start" letter-spacing="1.5">02   RUNTIME</text>
+  <text x="76" y="900" fill="#FAFAFA" fill-opacity="0.58" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="400" text-anchor="start" letter-spacing="1.5">03   DATA &amp; EXTERNAL SERVICES</text>
+  <path d="M 268 312 V 416" fill="none" stroke="#FAFAFA" stroke-opacity="0.52" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#tip)"/>
+  <path d="M 772 312 V 416" fill="none" stroke="#FAFAFA" stroke-opacity="0.52" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#tip)"/>
+  <path d="M 964 268 H 1300" fill="none" stroke="#FAFAFA" stroke-opacity="0.52" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#tip)"/>
+  <path d="M 1492 416 V 312" fill="none" stroke="#FAFAFA" stroke-opacity="0.52" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#tip)"/>
+  <path d="M 460 492 H 579" fill="none" stroke="#FAFAFA" stroke-opacity="0.52" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#tip)"/>
+  <path d="M 268 568 V 704" fill="none" stroke="#FAFAFA" stroke-opacity="0.52" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#tip)"/>
+  <path d="M 580 648 H 520 V 756 H 460" fill="none" stroke="#FAFAFA" stroke-opacity="0.52" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#tip)" stroke-dasharray="7 7"/>
+  <path d="M 756 752 V 920" fill="none" stroke="#FAFAFA" stroke-opacity="0.52" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#tip)"/>
+  <path d="M 460 824 H 520 V 988 H 580" fill="none" stroke="#FAFAFA" stroke-opacity="0.52" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#tip)"/>
+  <path d="M 1100 752 V 920" fill="none" stroke="#FAFAFA" stroke-opacity="0.52" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#tip)"/>
+  <path d="M 1164 920 V 752" fill="none" stroke="#FAFAFA" stroke-opacity="0.52" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#tip)"/>
+  <path d="M 1508 752 V 920" fill="none" stroke="#FAFAFA" stroke-opacity="0.52" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#tip)"/>
+  <rect x="76" y="224" width="384" height="88" rx="12" fill="#FAFAFA" fill-opacity="0.04" stroke="#FAFAFA" stroke-opacity="0.18" stroke-width="1"/>
+  <text x="100" y="254" fill="#FAFAFA" fill-opacity="0.74" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="400" text-anchor="start" letter-spacing="0.5">TELEGRAM</text>
+  <text x="100" y="284" fill="#FAFAFA" fill-opacity="1" font-family="Inter,Inter Display,Arial,sans-serif" font-size="24" font-weight="400" text-anchor="start">Bot client</text>
+  <rect x="580" y="224" width="384" height="88" rx="12" fill="#FAFAFA" fill-opacity="0.04" stroke="#FAFAFA" stroke-opacity="0.18" stroke-width="1"/>
+  <text x="604" y="254" fill="#FAFAFA" fill-opacity="0.74" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="400" text-anchor="start" letter-spacing="0.5">WEB</text>
+  <text x="604" y="284" fill="#FAFAFA" fill-opacity="1" font-family="Inter,Inter Display,Arial,sans-serif" font-size="24" font-weight="400" text-anchor="start">React application</text>
+  <rect x="1300" y="224" width="384" height="88" rx="12" fill="#FAFAFA" fill-opacity="0.04" stroke="#FAFAFA" stroke-opacity="0.18" stroke-width="1"/>
+  <text x="1324" y="254" fill="#FAFAFA" fill-opacity="0.74" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="400" text-anchor="start" letter-spacing="0.5">SUPABASE AUTH</text>
+  <text x="1324" y="284" fill="#FAFAFA" fill-opacity="1" font-family="Inter,Inter Display,Arial,sans-serif" font-size="24" font-weight="400" text-anchor="start">Identity / sessions</text>
+  <rect x="76" y="416" width="384" height="152" rx="12" fill="#FAFAFA" fill-opacity="0.04" stroke="#FAFAFA" stroke-opacity="0.18" stroke-width="1"/>
+  <text x="100" y="446" fill="#FAFAFA" fill-opacity="0.74" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="400" text-anchor="start" letter-spacing="0.5">n8n  /  TELEGRAM UI</text>
+  <text x="100" y="476" fill="#FAFAFA" fill-opacity="1" font-family="Inter,Inter Display,Arial,sans-serif" font-size="24" font-weight="400" text-anchor="start">Router &amp; presentation</text>
+  <text x="100" y="506" fill="#FAFAFA" fill-opacity="0.8" font-family="Inter,Inter Display,Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start">Commands, screens, callbacks,</text>
+  <text x="100" y="530" fill="#FAFAFA" fill-opacity="0.8" font-family="Inter,Inter Display,Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start">message delivery</text>
+  <rect x="76" y="704" width="384" height="152" rx="12" fill="#FAFAFA" fill-opacity="0.04" stroke="#FAFAFA" stroke-opacity="0.18" stroke-width="1"/>
+  <text x="100" y="734" fill="#FAFAFA" fill-opacity="0.74" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="400" text-anchor="start" letter-spacing="0.5">n8n  /  DIALOGUE ENGINE</text>
+  <text x="100" y="764" fill="#FAFAFA" fill-opacity="1" font-family="Inter,Inter Display,Arial,sans-serif" font-size="24" font-weight="400" text-anchor="start">Stateful AI orchestration</text>
+  <text x="100" y="794" fill="#FAFAFA" fill-opacity="0.8" font-family="Inter,Inter Display,Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start">Debounce · LLM · scene state</text>
+  <rect x="580" y="416" width="1104" height="336" rx="12" fill="#FAFAFA" fill-opacity="0.04"/>
+  <!-- One continuous rounded contour. The left accent follows its exact geometry. -->
+  <path d="M 592 416 H 1672 A 12 12 0 0 1 1684 428 V 740 A 12 12 0 0 1 1672 752 H 592" fill="none" stroke="#FAFAFA" stroke-opacity="0.45" stroke-width="1.35"/>
+  <path d="M 592 416 A 12 12 0 0 0 580 428 V 740 A 12 12 0 0 0 592 752" fill="none" stroke="#FAFAFA" stroke-opacity="0.8" stroke-width="1.35"/>
+  <!-- Inset accent: tapered ends meet the contour tangentially, never protrude. -->
+  <path d="M 592 416 A 12 12 0 0 0 580 428 V 740 A 12 12 0 0 0 592 752 Q 583.3 748 583.3 740 V 428 Q 583.3 420 592 416 Z" fill="#FAFAFA" fill-opacity="0.75"/>
+  <text x="608" y="450" fill="#FAFAFA" fill-opacity="0.74" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="400" text-anchor="start" letter-spacing="0.5">TYPESCRIPT BACKEND</text>
+  <text x="608" y="488" fill="#FAFAFA" fill-opacity="1" font-family="Inter,Inter Display,Arial,sans-serif" font-size="29" font-weight="400" text-anchor="start">One modular application</text>
+  <text x="608" y="521" fill="#FAFAFA" fill-opacity="0.8" font-family="Inter,Inter Display,Arial,sans-serif" font-size="18" font-weight="400" text-anchor="start">Fastify  ·  Web API  ·  Telegram application contracts  ·  shared transactional context</text>
+  <text x="608" y="570" fill="#FAFAFA" fill-opacity="0.58" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="400" text-anchor="start" letter-spacing="1.5">DOMAIN MODULES  /  IN PROCESS</text>
+  <rect x="608" y="588" width="244" height="64" rx="6" fill="#FAFAFA" fill-opacity="0.035" stroke="#FAFAFA" stroke-opacity="0.12" stroke-width="1"/>
+  <text x="624" y="614" fill="#FAFAFA" fill-opacity="1" font-family="Inter,Inter Display,Arial,sans-serif" font-size="20" font-weight="400" text-anchor="start">Accounts</text>
+  <text x="624" y="637" fill="#FAFAFA" fill-opacity="0.8" font-family="Inter,Inter Display,Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start">Identity</text>
+  <rect x="876" y="588" width="244" height="64" rx="6" fill="#FAFAFA" fill-opacity="0.035" stroke="#FAFAFA" stroke-opacity="0.12" stroke-width="1"/>
+  <text x="892" y="614" fill="#FAFAFA" fill-opacity="1" font-family="Inter,Inter Display,Arial,sans-serif" font-size="20" font-weight="400" text-anchor="start">Chats</text>
+  <text x="892" y="637" fill="#FAFAFA" fill-opacity="0.8" font-family="Inter,Inter Display,Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start">Scenes &amp; turns</text>
+  <rect x="1144" y="588" width="244" height="64" rx="6" fill="#FAFAFA" fill-opacity="0.035" stroke="#FAFAFA" stroke-opacity="0.12" stroke-width="1"/>
+  <text x="1160" y="614" fill="#FAFAFA" fill-opacity="1" font-family="Inter,Inter Display,Arial,sans-serif" font-size="20" font-weight="400" text-anchor="start">Access</text>
+  <text x="1160" y="637" fill="#FAFAFA" fill-opacity="0.8" font-family="Inter,Inter Display,Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start">Entitlements</text>
+  <rect x="1412" y="588" width="244" height="64" rx="6" fill="#FAFAFA" fill-opacity="0.035" stroke="#FAFAFA" stroke-opacity="0.12" stroke-width="1"/>
+  <text x="1428" y="614" fill="#FAFAFA" fill-opacity="1" font-family="Inter,Inter Display,Arial,sans-serif" font-size="20" font-weight="400" text-anchor="start">Products</text>
+  <text x="1428" y="637" fill="#FAFAFA" fill-opacity="0.8" font-family="Inter,Inter Display,Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start">Pricing</text>
+  <rect x="608" y="664" width="244" height="64" rx="6" fill="#FAFAFA" fill-opacity="0.035" stroke="#FAFAFA" stroke-opacity="0.12" stroke-width="1"/>
+  <text x="624" y="690" fill="#FAFAFA" fill-opacity="1" font-family="Inter,Inter Display,Arial,sans-serif" font-size="20" font-weight="400" text-anchor="start">Commerce</text>
+  <text x="624" y="713" fill="#FAFAFA" fill-opacity="0.8" font-family="Inter,Inter Display,Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start">Purchases</text>
+  <rect x="876" y="664" width="244" height="64" rx="6" fill="#FAFAFA" fill-opacity="0.035" stroke="#FAFAFA" stroke-opacity="0.12" stroke-width="1"/>
+  <text x="892" y="690" fill="#FAFAFA" fill-opacity="1" font-family="Inter,Inter Display,Arial,sans-serif" font-size="20" font-weight="400" text-anchor="start">Media</text>
+  <text x="892" y="713" fill="#FAFAFA" fill-opacity="0.8" font-family="Inter,Inter Display,Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start">Photo &amp; video</text>
+  <rect x="1144" y="664" width="244" height="64" rx="6" fill="#FAFAFA" fill-opacity="0.035" stroke="#FAFAFA" stroke-opacity="0.12" stroke-width="1"/>
+  <text x="1160" y="690" fill="#FAFAFA" fill-opacity="1" font-family="Inter,Inter Display,Arial,sans-serif" font-size="20" font-weight="400" text-anchor="start">Experiments</text>
+  <text x="1160" y="713" fill="#FAFAFA" fill-opacity="0.8" font-family="Inter,Inter Display,Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start">A/B &amp; events</text>
+  <rect x="580" y="920" width="352" height="136" rx="12" fill="#FAFAFA" fill-opacity="0.04" stroke="#FAFAFA" stroke-opacity="0.18" stroke-width="1"/>
+  <text x="604" y="950" fill="#FAFAFA" fill-opacity="0.74" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="400" text-anchor="start" letter-spacing="0.5">POSTGRESQL</text>
+  <text x="604" y="980" fill="#FAFAFA" fill-opacity="1" font-family="Inter,Inter Display,Arial,sans-serif" font-size="24" font-weight="400" text-anchor="start">Supabase · shared state</text>
+  <text x="604" y="1010" fill="#FAFAFA" fill-opacity="0.8" font-family="Inter,Inter Display,Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start">SQL functions / transactional integrity</text>
+  <rect x="956" y="920" width="352" height="136" rx="12" fill="#FAFAFA" fill-opacity="0.04" stroke="#FAFAFA" stroke-opacity="0.18" stroke-width="1"/>
+  <text x="980" y="950" fill="#FAFAFA" fill-opacity="0.74" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="400" text-anchor="start" letter-spacing="0.5">PAYMENT PROVIDERS</text>
+  <text x="980" y="980" fill="#FAFAFA" fill-opacity="1" font-family="Inter,Inter Display,Arial,sans-serif" font-size="24" font-weight="400" text-anchor="start">Checkout / webhooks</text>
+  <text x="980" y="1010" fill="#FAFAFA" fill-opacity="0.8" font-family="Inter,Inter Display,Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start">Stars · SBP · adapters</text>
+  <rect x="1332" y="920" width="352" height="136" rx="12" fill="#FAFAFA" fill-opacity="0.04" stroke="#FAFAFA" stroke-opacity="0.18" stroke-width="1"/>
+  <text x="1356" y="950" fill="#FAFAFA" fill-opacity="0.74" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="400" text-anchor="start" letter-spacing="0.5">MEDIA</text>
+  <text x="1356" y="980" fill="#FAFAFA" fill-opacity="1" font-family="Inter,Inter Display,Arial,sans-serif" font-size="24" font-weight="400" text-anchor="start">Storage</text>
+  <text x="1356" y="1010" fill="#FAFAFA" fill-opacity="0.8" font-family="Inter,Inter Display,Arial,sans-serif" font-size="16" font-weight="400" text-anchor="start">Photos / videos</text>
+  <text x="788" y="369" fill="#FAFAFA" fill-opacity="0.62" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="500" text-anchor="start">HTTPS / API</text>
+  <text x="520" y="480" fill="#FAFAFA" fill-opacity="0.62" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="500" text-anchor="middle">decisions</text>
+  <text x="284" y="641" fill="#FAFAFA" fill-opacity="0.62" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="500" text-anchor="start">chat turns</text>
+  <text x="504" y="686" fill="#FAFAFA" fill-opacity="0.62" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="500" text-anchor="end">Web event delivery</text>
+  <text x="772" y="841" fill="#FAFAFA" fill-opacity="0.62" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="500" text-anchor="start">SQL / transactions</text>
+  <text x="1084" y="841" fill="#FAFAFA" fill-opacity="0.62" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="500" text-anchor="end">checkout</text>
+  <text x="1180" y="841" fill="#FAFAFA" fill-opacity="0.62" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="500" text-anchor="start">webhooks</text>
+  <text x="1524" y="841" fill="#FAFAFA" fill-opacity="0.62" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="500" text-anchor="start">delivery</text>
+  <text x="1132" y="256" fill="#FAFAFA" fill-opacity="0.62" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="500" text-anchor="middle">OAuth / guest</text>
+  <text x="1508" y="369" fill="#FAFAFA" fill-opacity="0.62" font-family="DejaVu Sans Mono,monospace" font-size="15" font-weight="500" text-anchor="start">verify</text>
+  <line x1="76" x2="1684" y1="1080" y2="1080" stroke="#FAFAFA" stroke-opacity=".10" stroke-width="1.1"/>
+  <line x1="76" x2="116" y1="1104" y2="1104" stroke="#FAFAFA" stroke-opacity="0.52" stroke-width="1.4"/>
+  <text x="128" y="1109" fill="#FAFAFA" fill-opacity="0.62" font-family="Inter,Inter Display,Arial,sans-serif" font-size="15" font-weight="400" text-anchor="start">Direct integration</text>
+  <line x1="340" x2="380" y1="1104" y2="1104" stroke="#FAFAFA" stroke-opacity="0.52" stroke-width="1.4" stroke-dasharray="7 7"/>
+  <text x="392" y="1109" fill="#FAFAFA" fill-opacity="0.62" font-family="Inter,Inter Display,Arial,sans-serif" font-size="15" font-weight="400" text-anchor="start">Asynchronous / retried</text>
+  </svg>

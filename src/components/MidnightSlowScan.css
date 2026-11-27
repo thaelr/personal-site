@@ -1,0 +1,62 @@
+.midnight-slow-scan-trigger {
+  color: rgb(250 250 250 / 0.6);
+  cursor: pointer;
+}
+
+.midnight-slow-scan-trigger:hover {
+  color: rgb(250 250 250 / 0.8);
+}
+
+.midnight-slow-scan {
+  position: fixed;
+  z-index: 60;
+  width: min(clamp(240px, 31.25vw, 540px), calc(100vw - 30px), calc((100dvh - 30px) * 53 / 30));
+  aspect-ratio: 53 / 30;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.midnight-slow-scan__rows,
+.midnight-slow-scan video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.midnight-slow-scan video {
+  object-fit: contain;
+}
+
+.midnight-slow-scan video[hidden] {
+  display: block;
+  opacity: 0;
+}
+
+.midnight-slow-scan__row,
+.midnight-slow-scan__grey,
+.midnight-slow-scan__colour {
+  position: absolute;
+  left: 0;
+  width: 100%;
+}
+
+.midnight-slow-scan__row {
+  overflow: hidden;
+}
+
+.midnight-slow-scan__grey,
+.midnight-slow-scan__colour {
+  background-image: var(--slow-scan-poster);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.midnight-slow-scan__grey {
+  filter: grayscale(1) brightness(1.2) contrast(1.05);
+}
+
+.midnight-slow-scan__colour {
+  background-image: var(--slow-scan-frame, var(--slow-scan-poster));
+}

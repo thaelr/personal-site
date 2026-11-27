@@ -57,7 +57,7 @@ export function getParentWorkView(view: WorkView): WorkView | null {
 
 export function getWorkOriginId(view: WorkView): string {
   if (view.kind === "case") return `work-preview-${view.id}`
-  if (view.kind === "client-index") return "work-preview-leadflowai"
+  if (view.kind === "client-index") return "work-preview-client-work"
   if (view.kind === "client-case") return "work-preview-leadflowai"
   return "work"
 }

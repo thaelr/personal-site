@@ -4,11 +4,15 @@
 
 **Interactive Adult Entertainment / Product Design & Strategy**
 
+<!-- notice -->
+
 Porn is usually something you watch. In Midnight Persona, you're part of it
 
 It's an interactive erotic world where you can flirt, play out stories, and have virtual sex. Users influence what happens, but they don't control everything. The characters have their own personalities, desires, and ideas about how relationships should develop.
 
 You can teach an AI to flirt with a single prompt. Keeping a character's personality consistent as things unfold, making them respond differently to different actions, and building memory that keeps the experience alive and continuous is another matter entirely.
+
+<!-- preview-end -->
 
 ### Under the Hood
 
@@ -37,11 +41,15 @@ I wasn't trying to convince people that AI intimacy is normal. I wanted to creat
 
 **AI Systems Engineering / LLM Orchestration**
 
+<!-- accent:full -->
+
 The model writes. The engine controls.
 
 An LLM can come up with almost any continuation of a story. In my case, that's a problem. Characters forget their own decisions, lose their personalities, jump between events, and go along with the user even when they should push back. The more freedom the interaction allows, the harder it becomes to keep everything coherent.
 
 I stopped treating conversation as a sequence of requests to a model. In EngageFlowAI, every turn changes the state of the system. A character's personality, their relationship with the user, the current dynamics of the interaction, memory, and the physical state of the scene all exist as separate but connected layers of control.
+
+<!-- preview-end -->
 
 The engine decides when a character should follow the user's lead, when to assert their own personality, and when to pick up a lost thread of conversation. Instead of relying on a single static prompt, the model receives instructions assembled for the specific situation. The output is checked, and inconsistent responses are regenerated.
 
@@ -51,7 +59,7 @@ A character has more than a personality. They have a body in space. The engine t
 
 I built this logic directly into generation. A character can't suddenly end up on a bed if they were standing in the doorway a second ago. Photos and videos follow the same physical model as the dialogue, so what you see never contradicts what's happening.
 
-**I gave the model freedom to improvise, but took away its right to forget the rules of the world it creates.**
+I gave the model freedom to improvise, but took away its right to forget the rules of the world it creates.
 
 [GitHub / EngageFlowAI](https://github.com/thaelr/EngageFlowAI)
 
@@ -66,6 +74,8 @@ Midnight Persona has two client applications, its own dialogue engine, a commerc
 I built the first version in n8n. Visual workflows made it easy to change the logic and see what was happening at each step. As the system grew, I moved routing, access control, and commerce into TypeScript. I kept n8n for the AI engine and Telegram interface, where being able to change workflows quickly is actually useful.
 
 ### Architecture
+
+<!-- preview-end -->
 
 ![[midnight-persona-system-architecture-polished.svg]]
 
@@ -105,7 +115,9 @@ With this approach, development speed is no longer the main constraint. The hard
 
 Good dialogue sets expectations the visuals have to meet. For Midnight Persona, I needed thousands of images with recognizable characters, realistic anatomy, and an accurate depiction of what was happening in the scene. All at a cost that made sense for microtransactions.
 
-I built the first pipelines using FLUX and SDXL Pony. FLUX produced convincing realism but wasn't well suited to NSFW. Pony could generate explicit scenes, but struggled to keep characters recognizable: at low LoRA weights, they lost their likeness; at high weights, the images turned into unusable slop.
+I built the first pipelines using FLUX and SDXL Pony. FLUX produced convincing realism but wasn't well suited to NSFW and was also painfully slow. Pony could generate explicit scenes, but struggled to keep characters recognizable: at low LoRA weights, they lost their likeness; at high weights, the images turned into unusable slop.
+
+<!-- preview-end -->
 
 I tried compensating for the models' shortcomings with PuLID, IP-Adapter, ControlNet, and automated inpainting, but additional tools often introduced new problems. Around the time of the first commercial tests, there was a boom in open models and NSFW fine-tunes. I had a chance to rethink the entire approach.
 
@@ -125,9 +137,9 @@ I also automated dataset preparation for LoRA training. Later, I added an image-
 
 Eventually, I found a technical setup that delivers the realism, consistency, and NSFW support I needed without a complicated chain of fixes. I'll keep the exact checkpoint and pipeline design a trade secret.
 
-Generating one image on an RTX 5090 takes around **4 seconds**. I've already produced more than **16,000 photos and 500 videos** for Midnight Persona.
+Generating one image on an RTX 5090 takes around 4 seconds. I've already produced more than 16,000 photos and 500 videos for Midnight Persona.
 
-The estimated production cost is approximately **$0.005 per photo and $0.10 per video**.
+The estimated production cost is approximately $0.005 per photo and $0.10 per video.
 
 # 05 / ART DIRECTION
 
@@ -139,7 +151,11 @@ Midnight Persona has a very specific commercial goal: to stand out among erotic 
 
 While humanity is still trying to figure out how to make good use of AI, my target user has already worked their way through a bunch of half-baked products. The last thing I want is for them to think, "Oh, this shit again." Even if there was a time when that shit was exciting.
 
+<!-- accent:audience -->
+
 What about a colder audience?
+
+<!-- preview-end -->
 
 There's plenty of stigma around AI intimacy. You can feel sexual desire and still despise the way you satisfy it. > I'm sure there's a whole debate somewhere about whether AI relationships are acceptable. I couldn't tell you what exactly they're arguing about. I'm not particularly interested in whether it's acceptable. I'm interested in something else: how can something artificial arouse genuine desire?
 
@@ -154,6 +170,8 @@ I don't think I need to explain to people why they'd want AI intimacy. I should 
 I didn't want the entire visual language to revolve around imitating humans. I wanted to know whether something nonhuman could arouse sexual desire on its own, without trying to pass for something alive.
 
 I started with sensations we associate with the body: wetness, warmth, touch, breath. Then applied them to materials that have no body at all. Fogged-up glass with finger marks. Synthetic matter that swells, spreads apart, and comes together in anatomical forms unlike any body known to science.
+
+<!-- accent:recognition -->
 
 You recognize a sensation even when you no longer recognize its source.
 
@@ -174,5 +192,7 @@ Complicated mechanics and a confusing interface shouldn't get in the way of that
 I can probably get away with whatever madness I want in the visual world, as long as it doesn't get in the user's way. The interface just has to work. And work exceptionally well.  At worst, the user just doesn't give a fuck about any of it.
 
 I'm not trying to prove that the artificial is just as good as the real, and I don't want to pass one off as the other. With this project, I was just curious about one thing:
+
+<!-- accent:final -->
 
 **If something artificial can make you feel something real, why should it have to apologize for what it is?**

@@ -1,0 +1,25 @@
+.midnight-image-stack-ending {
+  white-space: nowrap;
+}
+
+.midnight-image-stack {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.6em;
+  margin-left: 4px;
+  vertical-align: 0.4em;
+  overflow: visible;
+  fill: var(--site-bg);
+  stroke: currentColor;
+  stroke-width: 1px;
+}
+
+:is(.midnight-orbit-trigger, .midnight-filmstrip-trigger, .midnight-slow-scan-trigger):hover .midnight-image-stack-back {
+  transform: translate(2px, -2px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .midnight-image-stack-back {
+    transition: transform 220ms ease;
+  }
+}

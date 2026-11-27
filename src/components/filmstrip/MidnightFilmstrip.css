@@ -1,0 +1,49 @@
+#generative-media {
+  position: relative;
+  isolation: isolate;
+}
+
+.midnight-filmstrip-trigger {
+  --midnight-prose-color: rgb(250 250 250 / 0.6);
+  cursor: pointer;
+}
+
+.midnight-filmstrip-trigger:hover {
+  --midnight-prose-color: rgb(250 250 250 / 0.8);
+}
+
+.midnight-filmstrip-band {
+  --filmstrip-frame-height: clamp(96px, 11vw, 200px);
+  position: absolute;
+  height: var(--filmstrip-frame-height);
+  z-index: -1;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.midnight-filmstrip-track {
+  display: flex;
+  gap: 15px;
+  height: 100%;
+}
+
+.midnight-filmstrip-track[hidden],
+.midnight-filmstrip-band canvas[hidden] {
+  display: none;
+}
+
+.midnight-filmstrip-track img {
+  flex: none;
+  width: var(--filmstrip-frame-height);
+  max-width: none;
+  height: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  filter: brightness(0.5);
+}
+
+.midnight-filmstrip-band canvas {
+  position: absolute;
+  inset: 0;
+}

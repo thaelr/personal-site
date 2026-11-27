@@ -1314,6 +1314,10 @@ body {
   color: var(--site-text-primary);
 }
 
+:is(.work-document__chapter, .work-midnight-disclosure__copy) > p.work-document__art-accent.work-document__art-accent--final {
+  margin-top: var(--midnight-prose-gap, 1rem);
+}
+
 .work-document__art-accent--final strong {
   font-weight: 400;
 }
@@ -1820,10 +1824,6 @@ body {
 
   :is(.work-document__chapter, .work-midnight-disclosure__copy) > p.work-document__art-accent.work-document__art-accent--recognition {
     margin-block: calc(2 * var(--midnight-prose-base-gap, 1rem));
-  }
-
-  :is(.work-document__chapter, .work-midnight-disclosure__copy) > p.work-document__art-accent.work-document__art-accent--final {
-    margin-top: 64px;
   }
 
   .work-document__content-section {
@@ -3801,10 +3801,6 @@ body {
     margin-block: calc(2 * var(--midnight-prose-base-gap, 1rem));
   }
 
-  :is(.work-document__chapter, .work-midnight-disclosure__copy) > p.work-document__art-accent.work-document__art-accent--final {
-    margin-top: 32px;
-  }
-
   .work-document__content-section {
     margin-top: 3rem;
     padding-top: 2rem;
@@ -4104,48 +4100,56 @@ body {
   padding: 0;
   border: 0;
   background: none;
-  color: inherit;
+  color: rgb(250 250 250 / 0.8);
   font: inherit;
   line-height: inherit;
   text-align: left;
+}
+
+button.work-midnight-notice-trigger {
   cursor: pointer;
 }
 
-.work-midnight-notice-trigger:focus-visible {
-  outline: none;
-}
-
-.work-midnight-notice-trigger__star {
+span.work-midnight-notice-trigger {
   display: inline-block;
-  margin-left: 3px;
-  color: var(--site-text-primary);
-  font-size: 75%;
-  line-height: 0;
-  transform: rotate(0deg);
-  transform-origin: 50% 55%;
-  transition: transform 200ms ease-out;
 }
 
-.work-midnight-notice-trigger:is(:hover, :focus-visible) .work-midnight-notice-trigger__star {
-  transform: rotate(45deg);
+.work-midnight-notice-trigger__text {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  text-decoration-color: transparent;
+}
+
+button.work-midnight-notice-trigger:is(:hover, :focus-visible) {
+  color: var(--site-text-primary);
+}
+
+button.work-midnight-notice-trigger:hover .work-midnight-notice-trigger__text {
+  text-decoration-color: rgb(250 250 250 / 1);
+}
+
+button.work-midnight-notice-trigger:focus-visible {
+  outline: 1px solid var(--site-text-primary);
+  outline-offset: 3px;
 }
 
 .midnight-notice {
-  position: fixed;
-  right: var(--layout-mobile-inline);
-  bottom: var(--layout-mobile-inline);
-  left: var(--layout-mobile-inline);
+  position: static;
   z-index: 70;
   box-sizing: border-box;
+  width: auto;
+  margin: 1rem 0;
   padding: 20px;
   border: 1px solid rgb(250 250 250 / 0.22);
-  background: var(--color-surface);
-  color: var(--site-text-primary);
-  animation: midnight-notice-in 190ms ease-out both;
+  background: transparent;
+  color: rgb(250 250 250 / 0.8);
+  text-align: left;
+  animation: midnight-notice-in 180ms ease-out both;
 }
 
 .midnight-notice[data-closing="true"] {
-  animation: midnight-notice-out 150ms ease-out forwards;
+  animation: midnight-notice-out 180ms ease-out forwards;
 }
 
 .midnight-notice__header {
@@ -4163,7 +4167,7 @@ body {
   line-height: 1.4;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--site-text-primary);
+  color: rgb(250 250 250 / 0.55);
 }
 
 .midnight-notice__close {
@@ -4190,7 +4194,7 @@ body {
   display: grid;
   gap: 22px;
   margin-top: 18px;
-  color: var(--site-text-primary);
+  color: rgb(250 250 250 / 0.8);
   font-family: var(--font-sans);
   font-size: 15px;
   line-height: 1.45;
@@ -4202,7 +4206,7 @@ body {
 
 .midnight-notice__footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   margin-top: 20px;
 }
 
@@ -4210,9 +4214,10 @@ body {
   width: auto;
   height: 2.25rem;
   gap: 0.5em;
-  padding-inline: 1rem;
-  border-color: rgb(250 250 250 / 0.4);
+  padding-inline: 0;
+  border: 0;
   background: transparent;
+  color: rgb(250 250 250 / 0.55);
   opacity: 1;
   font-family: var(--font-mono);
   font-size: 12px;
@@ -4222,37 +4227,36 @@ body {
 
 .midnight-notice__okay.hero-cta:hover,
 .midnight-notice__okay.hero-cta:focus-visible {
-  border-color: rgb(250 250 250 / 0.9);
+  border: 0;
   background: transparent;
+  color: var(--site-text-primary);
 }
 
 @keyframes midnight-notice-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
   }
   to {
-    opacity: 1;
-    transform: translateY(0);
+    opacity: var(--midnight-notice-scroll-opacity, 1);
   }
 }
 
 @keyframes midnight-notice-out {
   from {
-    opacity: 1;
-    transform: translateY(0);
+    opacity: var(--midnight-notice-scroll-opacity, 1);
   }
   to {
     opacity: 0;
-    transform: translateY(8px);
   }
 }
 
 @media (min-width: 1024px) {
   .midnight-notice {
-    left: auto;
+    position: absolute;
+    top: var(--midnight-notice-top, 0px);
     right: calc(100vw - var(--layout-nav-left) - var(--layout-nav-width));
-    bottom: 32px;
+    left: auto;
     width: 350px;
+    margin: 0;
   }
 }

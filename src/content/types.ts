@@ -88,6 +88,7 @@ export type SiteContent = {
   }
   nav: {
     ariaLabel: string
+    languageLabel: string
     items: Record<SectionId, string>
   }
   home: {

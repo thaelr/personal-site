@@ -1,5 +1,9 @@
-import { Fragment, useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react"
+import { Fragment, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react"
+import { createPortal } from "react-dom"
 import { useLocale, useSiteContent } from "../content"
+import { MidnightSlowScan } from "./MidnightSlowScan"
+import { MidnightOrbit } from "./MidnightOrbit"
+import { MidnightFilmstrip } from "./filmstrip/MidnightFilmstrip"
 import { EcommerceNarrative } from "./AboutSection"
 import sibvezLogo from "../sibvez.svg"
 import redCore from "../favicon-red-core.svg"
@@ -12,6 +16,7 @@ import type {
 } from "../content/types"
 import {
   MIDNIGHT_CONTENT,
+  type MidnightAccent,
   type MidnightBlock,
   type MidnightChapter,
 } from "../content/midnight"
@@ -87,44 +92,27 @@ function renderInlineMarkdown(text: string): ReactNode[] {
     })
 }
 
-function getArtDirectionAccentClass(
-  chapterId: MidnightChapter["id"],
-  blocks: MidnightBlock[],
-  index: number,
-): string | undefined {
-  if (chapterId !== "art-direction") return undefined
+function getAccentClassName(accent?: MidnightAccent): string | undefined {
+  if (!accent) return undefined
+  if (accent === "full") return "work-midnight-prose--full-contrast"
 
-  const subheadingIndex = blocks.findIndex((block) => block.kind === "subheading")
-  if (index === 2) return "work-document__art-accent work-document__art-accent--audience"
-  if (index === subheadingIndex + 3) {
-    return "work-document__art-accent work-document__art-accent--recognition"
-  }
-  if (index === blocks.length - 1) {
-    return "work-document__art-accent work-document__art-accent--final"
-  }
-
-  return undefined
+  return `work-document__art-accent work-document__art-accent--${accent} work-midnight-prose--full-contrast`
 }
 
 function MidnightNoticeTrigger({ text }: { text: string }) {
   const { work } = useSiteContent()
   const notice = work.notice
   const [isOpen, setIsOpen] = useState(false)
+  const [hasOpened, setHasOpened] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
-  const hoverTimerRef = useRef<number | null>(null)
   const closeTimerRef = useRef<number | null>(null)
-  const pointerInsideRef = useRef(false)
-  const suppressHoverRef = useRef(false)
+  const noticeRef = useRef<HTMLElement>(null)
+  const [isMobileLayout, setIsMobileLayout] = useState(false)
+  const [noticeTop, setNoticeTop] = useState(0)
 
   const sentenceEnd = text.indexOf(". ")
   const firstLine = sentenceEnd >= 0 ? text.slice(0, sentenceEnd + 1) : text
   const secondLine = sentenceEnd >= 0 ? text.slice(sentenceEnd + 2) : ""
-
-  const clearHoverTimer = () => {
-    if (hoverTimerRef.current === null) return
-    window.clearTimeout(hoverTimerRef.current)
-    hoverTimerRef.current = null
-  }
 
   const clearCloseTimer = () => {
     if (closeTimerRef.current === null) return
@@ -132,24 +120,26 @@ function MidnightNoticeTrigger({ text }: { text: string }) {
     closeTimerRef.current = null
   }
 
-  const openNotice = () => {
-    clearHoverTimer()
+  const openNotice = (event: MouseEvent<HTMLButtonElement>) => {
+    if (hasOpened) return
     clearCloseTimer()
+    const scrollY = window.scrollY
+    const phraseDocumentTop = event.currentTarget.getBoundingClientRect().top + scrollY
+    setNoticeTop(phraseDocumentTop + scrollY)
+    setIsMobileLayout(window.matchMedia("(max-width: 1023px)").matches)
     setIsClosing(false)
+    setHasOpened(true)
     setIsOpen(true)
-    suppressHoverRef.current = false
   }
 
   const closeNotice = () => {
     if (!isOpen || isClosing) return
-    clearHoverTimer()
-    suppressHoverRef.current = pointerInsideRef.current
     setIsClosing(true)
     closeTimerRef.current = window.setTimeout(() => {
       closeTimerRef.current = null
       setIsOpen(false)
       setIsClosing(false)
-    }, 150)
+    }, 180)
   }
 
   useEffect(() => {
@@ -162,119 +152,189 @@ function MidnightNoticeTrigger({ text }: { text: string }) {
   })
 
   useEffect(() => {
+    if (!isOpen) return
+    const handleResize = () => {
+      setIsMobileLayout(window.matchMedia("(max-width: 1023px)").matches)
+    }
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [isOpen])
+
+  useEffect(() => {
+    if (!isOpen || isClosing || isMobileLayout) return
+
+    const element = noticeRef.current
+    const navigation = document.querySelector<HTMLElement>(".site-nav--desktop")
+    if (!element || !navigation) return
+
+    let frameId = 0
+    let lastFrameTime = 0
+    let opacity = 1
+    let targetOpacity = 1
+    const update = (time: number) => {
+      frameId = 0
+      if (navigation.getClientRects().length === 0) return
+
+      if (targetOpacity > 0) {
+        const distance = element.getBoundingClientRect().top
+          - navigation.getBoundingClientRect().bottom
+        targetOpacity = Math.min(1, Math.max(0, (distance + 90) / 120))
+      }
+
+      const elapsed = Math.min(Math.max(time - lastFrameTime, 0), 32)
+      lastFrameTime = time
+      opacity += (targetOpacity - opacity) * (1 - Math.exp(-elapsed / 45))
+      if (Math.abs(targetOpacity - opacity) < 0.01) opacity = targetOpacity
+      element.style.setProperty("--midnight-notice-scroll-opacity", String(opacity))
+
+      if (opacity === 0) {
+        clearCloseTimer()
+        setIsOpen(false)
+        setIsClosing(false)
+      } else if (opacity !== targetOpacity) {
+        frameId = window.requestAnimationFrame(update)
+      }
+    }
+    const scheduleUpdate = () => {
+      if (frameId) return
+      lastFrameTime = performance.now()
+      frameId = window.requestAnimationFrame(update)
+    }
+
+    window.addEventListener("scroll", scheduleUpdate, { passive: true })
+    window.addEventListener("resize", scheduleUpdate)
     return () => {
-      clearHoverTimer()
+      window.cancelAnimationFrame(frameId)
+      window.removeEventListener("scroll", scheduleUpdate)
+      window.removeEventListener("resize", scheduleUpdate)
+    }
+  }, [isOpen, isClosing, isMobileLayout])
+
+  useEffect(() => {
+    return () => {
       clearCloseTimer()
     }
   }, [])
 
-  const handleMouseEnter = () => {
-    pointerInsideRef.current = true
-    if (isOpen || suppressHoverRef.current) return
-    clearHoverTimer()
-    hoverTimerRef.current = window.setTimeout(() => {
-      hoverTimerRef.current = null
-      setIsOpen(true)
-    }, 400)
-  }
+  const noticeElement = (
+    <aside
+      ref={noticeRef}
+      className="midnight-notice"
+      data-closing={isClosing ? "true" : "false"}
+      style={{ "--midnight-notice-top": `${noticeTop}px` } as CSSProperties}
+      role="dialog"
+      aria-labelledby="midnight-notice-title"
+    >
+      <div className="midnight-notice__header">
+        <div id="midnight-notice-title" className="midnight-notice__title">
+          {notice.title}
+        </div>
+        <button
+          type="button"
+          className="midnight-notice__close"
+          onClick={closeNotice}
+          aria-label={notice.close}
+        >
+          ×
+        </button>
+      </div>
+      <div className="midnight-notice__body">
+        {notice.paragraphs.map((paragraph) => (
+          <p key={paragraph}>{paragraph}</p>
+        ))}
+      </div>
+      <div className="midnight-notice__footer">
+        <button type="button" className="hero-cta midnight-notice__okay" onClick={closeNotice}>
+          <span className="hero-cta__bracket hero-cta__bracket--left" aria-hidden="true">
+            [
+          </span>
+          <span className="hero-cta__label">{notice.okay}</span>
+          <span className="hero-cta__bracket hero-cta__bracket--right" aria-hidden="true">
+            ]
+          </span>
+        </button>
+      </div>
+    </aside>
+  )
 
-  const handleMouseLeave = () => {
-    pointerInsideRef.current = false
-    suppressHoverRef.current = false
-    clearHoverTimer()
-  }
+  const phrase = (
+    <>
+      {renderInlineMarkdown(firstLine)}
+      {secondLine && <><br />{renderInlineMarkdown(secondLine)}</>}
+    </>
+  )
 
   return (
     <Fragment>
       <p>
-        <button
-          type="button"
-          className="work-midnight-notice-trigger"
-          aria-haspopup="dialog"
-          aria-expanded={isOpen}
-          onClick={openNotice}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
-          {renderInlineMarkdown(firstLine)}
-          {secondLine ? (
-            <>
-              <br />
-              {renderInlineMarkdown(secondLine)}
-            </>
-          ) : null}
-          <sup className="work-midnight-notice-trigger__star" aria-hidden="true">
-            *
-          </sup>
-        </button>
+        {hasOpened ? (
+          <span className="work-midnight-notice-trigger">{phrase}</span>
+        ) : (
+          <button
+            type="button"
+            className="work-midnight-notice-trigger"
+            aria-haspopup="dialog"
+            aria-expanded={isOpen}
+            onClick={openNotice}
+          >
+            <span className="work-midnight-notice-trigger__text">{phrase}</span>
+          </button>
+        )}
       </p>
-      {isOpen ? (
-        <aside
-          className="midnight-notice"
-          data-closing={isClosing ? "true" : "false"}
-          role="dialog"
-          aria-labelledby="midnight-notice-title"
-        >
-          <div className="midnight-notice__header">
-            <div id="midnight-notice-title" className="midnight-notice__title">
-              {notice.title}
-            </div>
-            <button
-              type="button"
-              className="midnight-notice__close"
-              onClick={closeNotice}
-              aria-label={notice.close}
-            >
-              ×
-            </button>
-          </div>
-          <div className="midnight-notice__body">
-            {notice.paragraphs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </div>
-          <div className="midnight-notice__footer">
-            <button type="button" className="hero-cta midnight-notice__okay" onClick={closeNotice}>
-              <span className="hero-cta__bracket hero-cta__bracket--left" aria-hidden="true">
-                [
-              </span>
-              <span className="hero-cta__label">{notice.okay}</span>
-              <span className="hero-cta__bracket hero-cta__bracket--right" aria-hidden="true">
-                ]
-              </span>
-            </button>
-          </div>
-        </aside>
-      ) : null}
+      {isOpen
+        ? isMobileLayout
+          ? noticeElement
+          : typeof document !== "undefined"
+            ? createPortal(noticeElement, document.body)
+            : null
+        : null}
     </Fragment>
   )
 }
+
+const midnightOrbitPhrases = {
+  en: ["FLUX produced convincing realism", "Pony could generate explicit scenes"],
+  ru: ["FLUX давал убедительный реализм", "Второй позволял генерировать откровенные сцены"],
+} as const
+
+const midnightFilmstripPhrases = {
+  en: "I've already produced more than 16,000 photos and 500 videos for Midnight Persona.",
+  ru: "Для Midnight Persona уже произведено более 16 000 фотографий и 500 видео.",
+}
+
+const midnightSlowScanPhrases = [
+  { clip: "glass", en: "Fogged-up glass with finger marks", ru: "Запотевшее стекло со следами пальцев" },
+  {
+    clip: "liquid",
+    en: "Liquid matter stretches, intertwines, and wraps around itself.",
+    ru: "Жидкая материя тянется, переплетается и обволакивает саму себя.",
+  },
+] as const
 
 function MidnightBlocks({
   chapterId,
   blocks,
   startIndex = 0,
   endIndex = blocks.length,
+  enabled = true,
 }: {
   chapterId: MidnightChapter["id"]
   blocks: MidnightBlock[]
   startIndex?: number
   endIndex?: number
+  enabled?: boolean
 }) {
+  const locale = useLocale()
+
   return blocks.slice(startIndex, endIndex).map((block, offset) => {
     const index = startIndex + offset
     const key = `${block.kind}-${index}`
-    const accentClass = getArtDirectionAccentClass(chapterId, blocks, index)
-    const fullContrast = accentClass || (index === 0 && chapterId === "dialogue")
-    const paragraphClass = [
-      accentClass,
-      fullContrast && "work-midnight-prose--full-contrast",
-    ].filter(Boolean).join(" ")
+    const accentClass = "accent" in block ? getAccentClassName(block.accent) : undefined
 
     if (block.kind === "media-reference") {
       return chapterId === "engineering" && block.asset === "midnight-persona-system-architecture-polished.svg"
         ? <img key={key} className="work-midnight-architecture" src={midnightArchitecture}
-            alt="Midnight Persona — System Architecture" loading="lazy" />
+            alt={locale === "ru" ? "Midnight Persona — схема архитектуры системы" : "Midnight Persona — System Architecture"} loading="lazy" />
         : null
     }
     if (block.kind === "subheading") {
@@ -282,7 +342,7 @@ function MidnightBlocks({
     }
     if (block.kind === "emphasis") {
       return (
-        <p key={key} className={`work-document__emphasis ${paragraphClass}`.trim()}>
+        <p key={key} className={`work-document__emphasis ${accentClass ?? ""}`.trim()}>
           <strong>{block.text}</strong>
         </p>
       )
@@ -294,14 +354,61 @@ function MidnightBlocks({
         </p>
       )
     }
-
-    if (chapterId === "product" && index === 0) {
+    if (block.notice) {
       return <MidnightNoticeTrigger key={key} text={block.text} />
     }
 
+    const slowScan = chapterId === "art-direction"
+      ? midnightSlowScanPhrases.find((entry) => block.text.includes(entry[locale]))
+      : undefined
+    if (slowScan) {
+      const phrase = slowScan[locale]
+      const start = block.text.indexOf(phrase)
+      return (
+        <p key={key} className={accentClass || undefined}>
+          {renderInlineMarkdown(block.text.slice(0, start))}
+          <MidnightSlowScan enabled={enabled} clip={slowScan.clip}>{phrase}</MidnightSlowScan>
+          {renderInlineMarkdown(block.text.slice(start + phrase.length))}
+        </p>
+      )
+    }
+
+    const filmstripPhrase = midnightFilmstripPhrases[locale]
+    if (chapterId === "generative-media" && block.text.endsWith(filmstripPhrase)) {
+      return (
+        <MidnightFilmstrip
+          key={key}
+          enabled={enabled}
+          before={renderInlineMarkdown(block.text.slice(0, -filmstripPhrase.length))}
+        >
+          {filmstripPhrase}
+        </MidnightFilmstrip>
+      )
+    }
+
+    const [fluxPhrase, ponyPhrase] = midnightOrbitPhrases[locale]
+    const fluxIndex = chapterId === "generative-media" ? block.text.indexOf(fluxPhrase) : -1
+    const ponyIndex = chapterId === "generative-media" ? block.text.indexOf(ponyPhrase) : -1
+    const galleries = ([
+      { id: "flux", phrase: fluxPhrase, index: fluxIndex },
+      { id: "pony", phrase: ponyPhrase, index: ponyIndex },
+    ] as const).filter(({ index }) => index >= 0).sort((first, second) => first.index - second.index)
+
+    let textStart = 0
+    const orbitCopy = galleries.map(({ id, phrase, index }) => {
+      const before = block.text.slice(textStart, index)
+      textStart = index + phrase.length
+      return (
+        <Fragment key={id}>
+          {renderInlineMarkdown(before)}
+          <MidnightOrbit gallery={id}>{phrase}</MidnightOrbit>
+        </Fragment>
+      )
+    })
     return (
-      <p key={key} className={paragraphClass || undefined}>
-        {renderInlineMarkdown(block.text)}
+      <p key={key} className={accentClass || undefined}>
+        {orbitCopy}
+        {renderInlineMarkdown(block.text.slice(textStart))}
       </p>
     )
   })
@@ -440,21 +547,13 @@ function ClientIndex({
   )
 }
 
-const MIDNIGHT_PREVIEW_LENGTH: Record<MidnightChapter["id"], number> = {
-  product: 3,
-  dialogue: 3,
-  engineering: 3,
-  "generative-media": 2,
-  "art-direction": 3,
-}
-
 function MidnightDisclosure({ chapter }: { chapter: MidnightChapter }) {
   const [open, setOpen] = useState(false)
   const section = useRef<HTMLElement>(null)
   const panel = useRef<HTMLDivElement>(null)
   const { about } = useSiteContent()
   const isProduct = chapter.id === "product"
-  const previewLength = MIDNIGHT_PREVIEW_LENGTH[chapter.id]
+  const previewLength = chapter.previewEnd
   const panelId = `midnight-panel-${chapter.id}`
 
   const toggle = () => {
@@ -490,7 +589,7 @@ function MidnightDisclosure({ chapter }: { chapter: MidnightChapter }) {
         data-open={open} inert={!open}>
         <div className="work-midnight-disclosure__copy">
           <MidnightBlocks chapterId={chapter.id} blocks={chapter.blocks}
-            startIndex={previewLength} />
+            startIndex={previewLength} enabled={open} />
         </div>
       </div>
       <button type="button" className="work-midnight-disclosure__toggle"

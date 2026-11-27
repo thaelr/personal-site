@@ -9,6 +9,7 @@ export const en: SiteContent = {
   },
   nav: {
     ariaLabel: "Global site navigation",
+    languageLabel: "Language",
     items: {
       home: "HOME",
       work: "WORK",

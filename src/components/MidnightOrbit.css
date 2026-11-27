@@ -1,0 +1,52 @@
+.midnight-orbit-trigger {
+  color: rgb(250 250 250 / 0.6);
+  cursor: pointer;
+}
+
+.midnight-orbit-trigger:hover {
+  color: rgb(250 250 250 / 0.8);
+}
+
+.midnight-orbit {
+  --midnight-orbit-width: clamp(70px, 7vw, 140px);
+  position: fixed;
+  z-index: 60;
+  pointer-events: none;
+  perspective: 900px;
+}
+
+.midnight-orbit__tilt,
+.midnight-orbit__ring,
+.midnight-orbit__slot,
+.midnight-orbit__card {
+  position: absolute;
+  transform-style: preserve-3d;
+}
+
+.midnight-orbit__tilt {
+  top: 50%;
+  left: 50%;
+  transform: rotateX(-28deg);
+}
+
+.midnight-orbit__card {
+  top: calc(var(--midnight-orbit-width) * -0.625);
+  left: calc(var(--midnight-orbit-width) * -0.5);
+  width: var(--midnight-orbit-width);
+  aspect-ratio: 4 / 5;
+}
+
+.midnight-orbit__face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
+  backface-visibility: hidden;
+  filter: brightness(calc(1 - var(--midnight-orbit-shade, 0)));
+}
+
+.midnight-orbit__face--back {
+  transform: rotateY(180deg);
+}

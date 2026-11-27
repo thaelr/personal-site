@@ -2,15 +2,16 @@ import { en } from "./en"
 import { ru } from "./ru"
 import { sibvezCaseRu } from "./sibvez.ru"
 import { MIDNIGHT_CONTENT } from "./midnight"
+import { buildJsonLd } from "./jsonld"
 import type { Locale } from "./types"
-import { getWorkPath, type WorkView } from "../work"
+import { getMarkdownPath, getWorkPath, type WorkView } from "../work"
 
 const CONTENT = { en, ru }
 
-/** Title and description for a route; shared by prerender and client switching. */
+/** Title, description and page name for a route; shared by prerender and client switching. */
 export function getRouteMeta(locale: Locale, view: WorkView) {
   const content = CONTENT[locale]
-  if (view.kind === "overview") return content.meta
+  if (view.kind === "overview") return { ...content.meta, name: content.home.name }
 
   const midnight = content.work.cases[0]
   const leadflow = content.work.cases[1]
@@ -33,7 +34,7 @@ export function getRouteMeta(locale: Locale, view: WorkView) {
         : MIDNIGHT_CONTENT[locale][0]?.blocks.find((block) => block.kind === "paragraph")?.text ??
           midnight.lead
 
-  return { title: `${name} — ${content.meta.title}`, description }
+  return { title: `${name} — ${content.meta.title}`, description, name }
 }
 
 function setMetaContent(selector: string, content: string) {
@@ -83,6 +84,24 @@ export function applyDocumentMeta(locale: Locale, view: WorkView, base: string) 
   setLinkHref('link[rel="alternate"][hreflang="en"]', enUrl)
   setLinkHref('link[rel="alternate"][hreflang="ru"]', ruUrl)
   setLinkHref('link[rel="alternate"][hreflang="x-default"]', enUrl)
+  setLinkHref(
+    'link[rel="alternate"][type="text/markdown"]',
+    toAbsolute(getMarkdownPath(view, locale, base), origin),
+  )
+  setMetaContent(
+    'meta[property="og:type"]',
+    view.kind === "overview" || view.kind === "client-index" ? "website" : "article",
+  )
   setMetaContent('meta[property="og:url"]', canonical)
   setMetaContent('meta[property="og:locale"]', locale === "ru" ? "ru_RU" : "en_US")
+
+  const jsonLd = buildJsonLd(locale, view, origin, meta)
+  let script = document.querySelector<HTMLScriptElement>("script[data-jsonld]")
+  if (!script) {
+    script = document.createElement("script")
+    script.type = "application/ld+json"
+    script.dataset.jsonld = ""
+    document.head.appendChild(script)
+  }
+  script.textContent = JSON.stringify(jsonLd)
 }

@@ -40,6 +40,21 @@ export function getWorkPath(view: WorkView, locale: Locale, base: string): strin
   return `${getLocaleRoot(locale, base)}${getWorkRouteSuffix(view)}`
 }
 
+/** Markdown representation of the same route, written next to its index.html. */
+export function getMarkdownPath(view: WorkView, locale: Locale, base: string): string {
+  return `${getWorkPath(view, locale, base)}index.md`
+}
+
+/** Locale-scoped llms.txt index. */
+export function getLlmsPath(locale: Locale, base: string): string {
+  return `${getWorkPath({ kind: "overview" }, locale, base)}llms.txt`
+}
+
+/** Locale-scoped full-text llms.txt companion. */
+export function getLlmsFullPath(locale: Locale, base: string): string {
+  return `${getWorkPath({ kind: "overview" }, locale, base)}llms-full.txt`
+}
+
 export function getWorkViewFromPathname(
   pathname: string,
   locale: Locale,

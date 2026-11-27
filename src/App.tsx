@@ -10,6 +10,8 @@ import { SECTIONS } from "./content/structure"
 import type { Locale, SectionId } from "./content/types"
 import {
   WORK_ROUTE_VIEWS,
+  getLlmsPath,
+  getMarkdownPath,
   getParentWorkView,
   getWorkChapters,
   getWorkOriginId,
@@ -74,6 +76,35 @@ function restoreWindowScroll(scrollY: number) {
   root.style.scrollBehavior = "auto"
   window.scrollTo(0, scrollY)
   root.style.scrollBehavior = previousScrollBehavior
+}
+
+/** Crawlable links to the text representations; visually hidden, not a design change. */
+function TextRepresentationLinks({
+  locale,
+  view,
+  base,
+}: {
+  locale: Locale
+  view: WorkView
+  base: string
+}) {
+  const markdown = getMarkdownPath(view, locale, base)
+  const llms = getLlmsPath(locale, base)
+
+  return (
+    <nav
+      id="text-representations"
+      className="visually-hidden"
+      aria-label={locale === "ru" ? "Текстовые версии страницы" : "Text versions of this page"}
+    >
+      <a href={markdown}>
+        {locale === "ru" ? "Markdown-версия страницы" : "Markdown version of this page"}
+      </a>
+      <a href={llms}>
+        {locale === "ru" ? "Индекс для языковых моделей (llms.txt)" : "Language-model index (llms.txt)"}
+      </a>
+    </nav>
+  )
 }
 
 function Site({
@@ -385,6 +416,7 @@ function Site({
 
   return (
     <div className="page-shell bg-void text-chalk font-sans min-h-screen overflow-x-hidden">
+      <TextRepresentationLinks locale={locale} view={workView} base={base} />
       <Nav
         activeSection={workReadingMode ? "work" : activeSection}
         workView={workView}

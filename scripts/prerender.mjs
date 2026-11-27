@@ -2,35 +2,24 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { resolveSiteUrl } from './site-url.mjs'
 
 const root = process.cwd()
 const distDir = path.join(root, 'dist')
 const template = await readFile(path.join(distDir, 'index.html'), 'utf8')
-const siteConfig = JSON.parse(await readFile(path.join(root, '.figma/make/site.json'), 'utf8'))
-const { render, getRouteMeta, WORK_ROUTE_VIEWS, getWorkPath } = await import(
-  pathToFileURL(path.join(root, 'dist-ssr/entry-server.js')).href
-)
+const {
+  render,
+  getRouteMeta,
+  buildJsonLd,
+  getMarkdownPath,
+  WORK_ROUTE_VIEWS,
+  getWorkPath,
+} = await import(pathToFileURL(path.join(root, 'dist-ssr/entry-server.js')).href)
 const publicBase = process.env.FIGMA_PUBLIC_URL ? `${process.env.FIGMA_PUBLIC_URL}/` : '/'
 const views = [{ kind: 'overview' }, ...WORK_ROUTE_VIEWS]
 const locales = ['en', 'ru']
 
-function ensureTrailingSlash(value) {
-  return value.endsWith('/') ? value : `${value}/`
-}
-
-/** Public base used in canonical/hreflang URLs; never invents a new domain. */
-function resolveSiteUrl() {
-  if (process.env.SITE_URL) return ensureTrailingSlash(process.env.SITE_URL)
-  if (process.env.GITHUB_ACTIONS === 'true' && process.env.GITHUB_REPOSITORY) {
-    const [owner, repository] = process.env.GITHUB_REPOSITORY.split('/')
-    return `https://${owner}.github.io/${repository}/`
-  }
-  const socialImage = siteConfig.openGraph?.image
-  if (socialImage) return ensureTrailingSlash(socialImage.replace(/[^/]+$/, ''))
-  return 'http://localhost:8443/'
-}
-
-const siteUrl = resolveSiteUrl()
+const siteUrl = await resolveSiteUrl(root)
 
 function escapeHtml(value) {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -58,6 +47,16 @@ function buildDocument(locale, view) {
   const canonical = canonicalUrl(locale, view)
   const enUrl = canonicalUrl('en', view)
   const ruUrl = canonicalUrl('ru', view)
+  const markdownUrl = new URL(
+    getMarkdownPath(view, locale, '/').replace(/^\//, ''),
+    siteUrl,
+  ).href
+  const ogType =
+    view.kind === 'overview' || view.kind === 'client-index' ? 'website' : 'article'
+  const jsonLd = JSON.stringify(buildJsonLd(locale, view, siteUrl, meta)).replace(
+    /</g,
+    '\\u003c',
+  )
 
   let html = template
   html = replaceOnce(html, /<html lang="[^"]*">/, `<html lang="${locale}">`, 'html lang')
@@ -92,8 +91,12 @@ function buildDocument(locale, view) {
     `<link rel="alternate" hreflang="en" href="${enUrl}">`,
     `<link rel="alternate" hreflang="ru" href="${ruUrl}">`,
     `<link rel="alternate" hreflang="x-default" href="${enUrl}">`,
+    `<link rel="alternate" type="text/markdown" href="${markdownUrl}" title="${locale === 'ru' ? 'Markdown-версия' : 'Markdown version'}">`,
+    `<meta property="og:type" content="${ogType}">`,
     `<meta property="og:url" content="${canonical}">`,
     `<meta property="og:locale" content="${locale === 'ru' ? 'ru_RU' : 'en_US'}">`,
+    `<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">`,
+    `<script type="application/ld+json" data-jsonld>${jsonLd}</script>`,
   ].join('\n    ')
 
   return html.replace('</head>', `    ${headTags}\n  </head>`)
